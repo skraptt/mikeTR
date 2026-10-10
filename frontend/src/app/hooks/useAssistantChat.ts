@@ -7,6 +7,7 @@ import { useChatHistoryContext } from "@/app/contexts/ChatHistoryContext";
 import { useGenerateChatTitle } from "./useGenerateChatTitle";
 import type {
     AssistantEvent,
+    KanunSearchHit,
     MikeCitationAnnotation,
     MikeMessage,
 } from "@/app/components/shared/types";
@@ -564,6 +565,38 @@ export function useAssistantChat({
                                     e.filename === data.filename &&
                                     !!e.isStreaming,
                                 (e) => ({ ...e, isStreaming: false }),
+                            );
+                            pushThinkingPlaceholder();
+                            continue;
+                        }
+
+                        if (data.type === "kanun_search_start") {
+                            pushEvent({
+                                type: "kanun_search",
+                                query: (data.query as string) ?? "",
+                                results: [],
+                                isStreaming: true,
+                            });
+                            continue;
+                        }
+
+                        if (data.type === "kanun_search") {
+                            updateMatchingEvent(
+                                (e) =>
+                                    e.type === "kanun_search" &&
+                                    e.query === (data.query as string) &&
+                                    !!e.isStreaming,
+                                (e) => ({
+                                    ...e,
+                                    isStreaming: false,
+                                    results: Array.isArray(data.results)
+                                        ? (data.results as KanunSearchHit[])
+                                        : [],
+                                    error:
+                                        typeof data.error === "string"
+                                            ? data.error
+                                            : undefined,
+                                }),
                             );
                             pushThinkingPlaceholder();
                             continue;

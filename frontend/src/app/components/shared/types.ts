@@ -80,8 +80,23 @@ export interface MikeEditAnnotation {
   status: "pending" | "accepted" | "rejected";
 }
 
+export interface KanunSearchHit {
+  kanun_no: string;
+  kanun_adi: string;
+  madde_no: string;
+  baslik: string | null;
+  similarity: number;
+}
+
 export type AssistantEvent =
   | { type: "reasoning"; text: string; isStreaming?: boolean }
+  | {
+        type: "kanun_search";
+        query: string;
+        results: KanunSearchHit[];
+        error?: string;
+        isStreaming?: boolean;
+    }
   | {
         type: "tool_call_start";
         name: string;

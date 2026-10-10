@@ -11,6 +11,7 @@ import { MikeIcon } from "@/components/chat/mike-icon";
 import { displayCitationQuote, formatCitationPage } from "../shared/types";
 import type {
     AssistantEvent,
+    KanunSearchHit,
     MikeCitationAnnotation,
     MikeEditAnnotation,
 } from "../shared/types";
@@ -499,6 +500,83 @@ function DocFindBlock({
                     <span className="ml-1 text-gray-400">içinde {filename}</span>
                     {isStreaming && "..."}
                 </span>
+            </div>
+        </div>
+    );
+}
+
+// "Geçici 1" -> "Geçici md. 1", "315" -> "md. 315"
+function kanunMaddeEtiketi(hit: KanunSearchHit): string {
+    const madde = /^(Geçici|Ek) /.test(hit.madde_no)
+        ? hit.madde_no.replace(/^(Geçici|Ek) /, "$1 md. ")
+        : `md. ${hit.madde_no}`;
+    return `${hit.kanun_adi} ${madde}`;
+}
+
+function KanunSearchBlock({
+    query,
+    results,
+    error,
+    isStreaming,
+    showConnector,
+}: {
+    query: string;
+    results: KanunSearchHit[];
+    error?: string;
+    isStreaming?: boolean;
+    showConnector?: boolean;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const label = isStreaming ? "Kanunlarda aranıyor" : "Kanunlarda arandı";
+    const suffix = isStreaming
+        ? "..."
+        : error
+          ? " (arama yapılamadı)"
+          : ` (${results.length} madde)`;
+    const dotClass = error
+        ? "bg-red-400"
+        : results.length > 0
+          ? "bg-green-400"
+          : "bg-gray-300";
+    return (
+        <div className="flex items-start text-sm font-serif text-gray-500 relative">
+            {showConnector && (
+                <div className="absolute bottom-0 w-[1px] bg-gray-300 top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
+            )}
+            {isStreaming ? (
+                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+            ) : (
+                <div className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} />
+            )}
+            <div className="ml-2 min-w-0 flex-1 whitespace-normal break-words">
+                <button
+                    type="button"
+                    onClick={() => !isStreaming && results.length > 0 && setIsOpen((v) => !v)}
+                    className="text-left hover:text-gray-700 transition-colors"
+                >
+                    <span className="font-medium">{label}</span>{" "}
+                    <span>
+                        &ldquo;{query}&rdquo;{suffix}
+                    </span>
+                    {!isStreaming && results.length > 0 && (
+                        <ChevronDown
+                            className={`ml-1 inline h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        />
+                    )}
+                </button>
+                {isOpen && (
+                    <ul className="mt-1 space-y-0.5 text-xs text-gray-500">
+                        {results.map((hit) => (
+                            <li key={`${hit.kanun_no}-${hit.madde_no}`}>
+                                <span className="text-gray-700">{kanunMaddeEtiketi(hit)}</span>
+                                {hit.baslik && <span> – {hit.baslik}</span>}
+                                <span className="ml-1 text-gray-400">
+                                    {Math.round(hit.similarity * 100)}%
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
         </div>
     );
@@ -1270,6 +1348,18 @@ export function AssistantMessage({
                             ? () => onCitationClick(ann)
                             : undefined
                     }
+                    showConnector={showConnector}
+                />
+            );
+        }
+        if (event.type === "kanun_search") {
+            return (
+                <KanunSearchBlock
+                    key={globalIdx}
+                    query={event.query}
+                    results={event.results}
+                    error={event.error}
+                    isStreaming={!!event.isStreaming}
                     showConnector={showConnector}
                 />
             );
