@@ -13,6 +13,15 @@ import {
 
 const BATCH_SIZE = 16;
 
+type Row = { id: string; kanun_adi: string; madde_no: string; baslik: string | null; icerik: string };
+
+// Kanun adı ve madde başlığı da vektöre girer; "KVKK açık rıza" gibi sorgular bunlarla eşleşir.
+function embeddingText(row: Row): string {
+  const etiket = row.madde_no.replace(/^(Geçici|Ek) /, "$1 Madde ");
+  const ad = /^(Geçici|Ek) /.test(row.madde_no) ? etiket : `Madde ${etiket}`;
+  return `${row.kanun_adi} ${ad}${row.baslik ? ` – ${row.baslik}` : ""}\n${row.icerik}`;
+}
+
 async function main() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SECRET_KEY;
@@ -38,14 +47,14 @@ async function main() {
     // Güncellenen satırlar filtreden düştüğü için her turda baştan okumak yeterli.
     const { data: rows, error } = await db
       .from("kanun_maddeleri")
-      .select("id, icerik")
+      .select("id, kanun_adi, madde_no, baslik, icerik")
       .is(column, null)
       .order("id")
       .limit(BATCH_SIZE);
     if (error) throw new Error(error.message);
     if (!rows || rows.length === 0) break;
 
-    const embeddings = await createTextEmbeddings(rows.map((r) => r.icerik), provider);
+    const embeddings = await createTextEmbeddings((rows as Row[]).map(embeddingText), provider);
 
     for (let i = 0; i < rows.length; i++) {
       const { error: updateError } = await db

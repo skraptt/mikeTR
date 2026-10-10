@@ -21,14 +21,27 @@ function excerpt(text: string, maxLength = 220): string {
     return `${cleaned.slice(0, maxLength).trimEnd()}...`;
 }
 
+// "Geçici 1" -> "Geçici Madde 1", "2" -> "Madde 2"
+function maddeEtiketi(maddeNo: string): string {
+    return /^(Geçici|Ek) /.test(maddeNo)
+        ? maddeNo.replace(/^(Geçici|Ek) /, "$1 Madde ")
+        : `Madde ${maddeNo}`;
+}
+
 function ResultCard({ result }: { result: KanunMaddesiSearchResult }) {
     return (
         <article className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <div className="flex items-center gap-2">
+                    <p className="text-xs font-medium text-blue-700">
+                        {result.kanun_adi} ({result.kanun_no})
+                    </p>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-2">
                         <h3 className="text-base font-semibold text-gray-900">
-                            Madde {result.madde_no}
+                            {maddeEtiketi(result.madde_no)}
+                            {result.baslik && (
+                                <span className="font-normal text-gray-600"> – {result.baslik}</span>
+                            )}
                         </h3>
                         <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100">
                             {formatSimilarity(result.similarity)} uyum

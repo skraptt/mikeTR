@@ -302,7 +302,10 @@ export interface TabularReviewDetailOut {
 
 export interface KanunMaddesiSearchResult {
   id: string;
+  kanun_no: string;
+  kanun_adi: string;
   madde_no: string;
+  baslik: string | null;
   icerik: string;
   created_at: string;
   similarity: number;
