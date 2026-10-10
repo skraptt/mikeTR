@@ -304,7 +304,6 @@ export interface KanunMaddesiSearchResult {
   id: string;
   madde_no: string;
   icerik: string;
-  embedding: number[] | null;
   created_at: string;
   similarity: number;
 }

@@ -5,12 +5,11 @@ import { Loader2, Search, Scale, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-    searchKanunMaddeleri,
-    type KanunMaddesiSearchResult,
-} from "@/app/lib/mikeApi";
+import { searchKanunMaddeleri } from "@/app/lib/mikeApi";
+import type { KanunMaddesiSearchResult } from "../shared/types";
 
 const DEFAULT_LIMIT = 5;
+const DEFAULT_THRESHOLD = 0.5;
 
 function formatSimilarity(score: number): string {
     return `${Math.round(Math.max(0, Math.min(score, 1)) * 100)}%`;
@@ -70,7 +69,7 @@ export function KanunSearchPanel() {
             const nextResults = await searchKanunMaddeleri({
                 query: trimmed,
                 limit: DEFAULT_LIMIT,
-                matchThreshold: 0.6,
+                matchThreshold: DEFAULT_THRESHOLD,
             });
             setResults(nextResults);
         } catch (err) {
@@ -99,7 +98,7 @@ export function KanunSearchPanel() {
                                 Sorunu yaz, en alakalı maddeleri kartlar halinde gör.
                             </h2>
                             <p className="mt-1 text-sm leading-6 text-gray-600">
-                                Sorununuz OpenAI embedding ile vektöre çevrilir ve Supabase’deki maddelerle benzerlik araması yapılır.
+                                Sorununuz açık kaynak BGE-M3 modeliyle vektöre çevrilir ve Supabase’deki maddelerle benzerlik araması yapılır.
                             </p>
                         </div>
                     </div>
@@ -147,7 +146,7 @@ export function KanunSearchPanel() {
                             Limit: {DEFAULT_LIMIT}
                         </Badge>
                         <Badge variant="outline" className="border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-50">
-                            Eşik: 0.6
+                            Eşik: {DEFAULT_THRESHOLD}
                         </Badge>
                         <span>Enter ile arama yapabilirsiniz.</span>
                     </div>

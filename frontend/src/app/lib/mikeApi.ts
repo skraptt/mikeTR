@@ -145,7 +145,7 @@ export async function searchKanunMaddeleri(params: {
     const payload = {
         query: params.query,
         limit: params.limit ?? 5,
-        match_threshold: params.matchThreshold ?? 0.6,
+        match_threshold: params.matchThreshold ?? 0.5,
     };
     const response = await apiRequest<KanunMaddeleriSearchOut>(
         "/search/kanun-maddeleri",
