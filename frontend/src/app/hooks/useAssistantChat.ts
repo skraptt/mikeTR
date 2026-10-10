@@ -10,6 +10,7 @@ import type {
     KanunSearchHit,
     MikeCitationAnnotation,
     MikeMessage,
+    StatuteCitation,
 } from "@/app/components/shared/types";
 
 interface UseAssistantChatOptions {
@@ -81,6 +82,12 @@ export function useAssistantChat({
 
     const flushDrip = () => {
         stopDrip();
+        // If the last content block was already finalized (a non-content event
+        // such as kanun_citations arrived after it), the drip target has been
+        // reset to "" — flushing it would blank out the finished answer.
+        const events = eventsRef.current;
+        const lastEvent = events[events.length - 1];
+        if (lastEvent?.type !== "content" || !lastEvent.isStreaming) return;
         const target = dripTargetRef.current;
         dripDisplayLenRef.current = target.length;
         setMessages((prev) => updateLastContentEvent(prev, target));
@@ -567,6 +574,16 @@ export function useAssistantChat({
                                 (e) => ({ ...e, isStreaming: false }),
                             );
                             pushThinkingPlaceholder();
+                            continue;
+                        }
+
+                        if (data.type === "kanun_citations") {
+                            if (Array.isArray(data.citations)) {
+                                pushEvent({
+                                    type: "kanun_citations",
+                                    citations: data.citations as StatuteCitation[],
+                                });
+                            }
                             continue;
                         }
 

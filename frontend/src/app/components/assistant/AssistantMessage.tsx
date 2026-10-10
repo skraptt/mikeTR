@@ -14,6 +14,7 @@ import type {
     KanunSearchHit,
     MikeCitationAnnotation,
     MikeEditAnnotation,
+    StatuteCitation,
 } from "../shared/types";
 import { EditCard, applyOptimisticResolution } from "./EditCard";
 import { PreResponseWrapper } from "../shared/PreResponseWrapper";
@@ -578,6 +579,81 @@ function KanunSearchBlock({
                     </ul>
                 )}
             </div>
+        </div>
+    );
+}
+
+const CITATION_STATUS: Record<
+    StatuteCitation["status"],
+    { icon: string; className: string; note: string }
+> = {
+    dogrulandi: {
+        icon: "✓",
+        className: "text-green-700",
+        note: "Asistan bu maddenin metnini aramada görüp atıf yaptı.",
+    },
+    okunmadi: {
+        icon: "!",
+        className: "text-amber-700",
+        note: "Madde veritabanında var ama asistan metnini okumadan atıf yaptı; içerik doğru aktarılmamış olabilir.",
+    },
+    bulunamadi: {
+        icon: "✕",
+        className: "text-red-700",
+        note: "Bu kanunda böyle bir madde numarası bulunamadı.",
+    },
+    kapsam_disi: {
+        icon: "!",
+        className: "text-amber-700",
+        note: "Bu kanun veritabanında yok; atıf doğrulanamadı.",
+    },
+};
+
+function StatuteCitationCheck({ citations }: { citations: StatuteCitation[] }) {
+    const verified = citations.filter((c) => c.status === "dogrulandi").length;
+    const problems = citations.length - verified;
+    const [isOpen, setIsOpen] = useState(problems > 0);
+    return (
+        <div
+            className={`mt-3 rounded-lg border px-3 py-2 text-xs font-sans ${problems > 0 ? "border-amber-200 bg-amber-50/60" : "border-green-200 bg-green-50/60"}`}
+        >
+            <button
+                type="button"
+                onClick={() => setIsOpen((v) => !v)}
+                className="flex w-full items-center gap-1.5 text-left text-gray-700"
+            >
+                <span className="font-medium">Atıf kontrolü:</span>
+                <span>
+                    {verified}/{citations.length} kanun atfı doğrulandı
+                    {problems > 0 && `, ${problems} atıf dikkat gerektiriyor`}
+                </span>
+                <ChevronDown
+                    className={`ml-auto h-3.5 w-3.5 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                />
+            </button>
+            {isOpen && (
+                <ul className="mt-1.5 space-y-1">
+                    {citations.map((c) => {
+                        const meta = CITATION_STATUS[c.status];
+                        return (
+                            <li
+                                key={`${c.kanun_no ?? c.label}-${c.madde_no}`}
+                                className="flex gap-1.5"
+                            >
+                                <span className={`w-3 shrink-0 font-semibold ${meta.className}`}>
+                                    {meta.icon}
+                                </span>
+                                <span>
+                                    <span className="font-medium text-gray-800">{c.label}</span>
+                                    {c.status !== "dogrulandi" && (
+                                        <span className="text-gray-500"> — {meta.note}</span>
+                                    )}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
         </div>
     );
 }
@@ -1247,6 +1323,8 @@ export function AssistantMessage({
     if (events) {
         let current: Extract<EventGroup, { kind: "pre" }> | null = null;
         events.forEach((e, i) => {
+            // Atıf kontrolü adım listesine değil, cevabın altına çizilir.
+            if (e.type === "kanun_citations") return;
             if (e.type === "content") {
                 if (current) {
                     groups.push(current);
@@ -1689,6 +1767,14 @@ export function AssistantMessage({
                                 );
                             })}
                         </div>
+                    )}
+
+                {!isStreaming &&
+                    events?.map((e, i) =>
+                        e.type === "kanun_citations" &&
+                        e.citations.length > 0 ? (
+                            <StatuteCitationCheck key={`kc-${i}`} citations={e.citations} />
+                        ) : null,
                     )}
 
                 {/* Copy button */}

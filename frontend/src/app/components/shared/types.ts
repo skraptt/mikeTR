@@ -88,8 +88,22 @@ export interface KanunSearchHit {
   similarity: number;
 }
 
+export type StatuteCitationStatus =
+  | "dogrulandi"
+  | "okunmadi"
+  | "bulunamadi"
+  | "kapsam_disi";
+
+export interface StatuteCitation {
+  label: string;
+  kanun_no: string | null;
+  madde_no: string;
+  status: StatuteCitationStatus;
+}
+
 export type AssistantEvent =
   | { type: "reasoning"; text: string; isStreaming?: boolean }
+  | { type: "kanun_citations"; citations: StatuteCitation[] }
   | {
         type: "kanun_search";
         query: string;

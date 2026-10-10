@@ -14,6 +14,7 @@ import {
 } from "./docxTrackedChanges";
 import { buildDownloadUrl } from "./downloadTokens";
 import { searchKanunMaddeleri } from "./kanunSearch";
+import { checkStatuteCitations, type StatuteCitation } from "./citationCheck";
 import { attachActiveVersionPaths, loadActiveVersion } from "./documentVersions";
 import {
     streamChatWithTools,
@@ -2353,6 +2354,7 @@ type KanunSearchEvent = {
 type AssistantEvent =
     | { type: "reasoning"; text: string }
     | KanunSearchEvent
+    | { type: "kanun_citations"; citations: StatuteCitation[] }
     | { type: "doc_read"; filename: string; document_id?: string }
     | {
           type: "doc_find";
@@ -2412,8 +2414,10 @@ export async function runLLMStream(params: {
      * generated docs still get persisted, but as standalone documents.
      */
     projectId?: string | null;
+    /** Sohbetin önceki mesajlarında kanun aramasıyla bulunmuş maddeler ("kanun_no|madde_no"). */
+    priorKanunKeys?: Set<string>;
 }): Promise<{ fullText: string; events: AssistantEvent[] }> {
-    const { apiMessages, docStore, docIndex, userId, db, write, extraTools, workflowStore, tabularStore, buildCitations, model, apiKeys, projectId } = params;
+    const { apiMessages, docStore, docIndex, userId, db, write, extraTools, workflowStore, tabularStore, buildCitations, model, apiKeys, projectId, priorKanunKeys } = params;
     const activeTools = extraTools?.length
         ? [...TOOLS, ...WORKFLOW_TOOLS, ...extraTools]
         : [...TOOLS, ...WORKFLOW_TOOLS];
@@ -2679,9 +2683,52 @@ export async function runLLMStream(params: {
               };
           });
     write(`data: ${JSON.stringify({ type: "citations", citations })}\n\n`);
+
+    // Cevaptaki kanun atıflarını, modelin bu sohbette gerçekten okuduğu maddelerle karşılaştır.
+    const retrievedKeys = new Set(priorKanunKeys ?? []);
+    for (const e of events) {
+        if (e.type !== "kanun_search") continue;
+        for (const r of e.results) retrievedKeys.add(`${r.kanun_no}|${r.madde_no}`);
+    }
+    try {
+        const kanunCitations = await checkStatuteCitations(fullText, retrievedKeys, db);
+        if (kanunCitations.length > 0) {
+            const event = { type: "kanun_citations" as const, citations: kanunCitations };
+            write(`data: ${JSON.stringify(event)}\n\n`);
+            events.push(event);
+        }
+    } catch (err) {
+        console.error("[citationCheck] failed:", err);
+    }
+
     write("data: [DONE]\n\n");
 
     return { fullText, events };
+}
+
+/** Sohbetin önceki asistan mesajlarındaki kanun aramalarında dönen maddeler. */
+export async function loadPriorKanunKeys(
+    chatId: string,
+    db: ReturnType<typeof createServerSupabase>,
+): Promise<Set<string>> {
+    const keys = new Set<string>();
+    const { data, error } = await db
+        .from("chat_messages")
+        .select("content")
+        .eq("chat_id", chatId)
+        .eq("role", "assistant");
+    if (error) {
+        console.error("[loadPriorKanunKeys] failed:", error.message);
+        return keys;
+    }
+    for (const row of (data ?? []) as { content: unknown }[]) {
+        if (!Array.isArray(row.content)) continue;
+        for (const e of row.content as AssistantEvent[]) {
+            if (e?.type !== "kanun_search" || !Array.isArray(e.results)) continue;
+            for (const r of e.results) keys.add(`${r.kanun_no}|${r.madde_no}`);
+        }
+    }
+    return keys;
 }
 
 // ---------------------------------------------------------------------------

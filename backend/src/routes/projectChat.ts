@@ -8,6 +8,7 @@ import {
     enrichWithPriorEvents,
     extractAnnotations,
     runLLMStream,
+    loadPriorKanunKeys,
     PROJECT_EXTRA_TOOLS,
     type ChatMessage,
 } from "../lib/chatTools";
@@ -169,6 +170,7 @@ projectChatRouter.post("/", requireAuth, async (req, res) => {
             model,
             apiKeys,
             projectId,
+            priorKanunKeys: await loadPriorKanunKeys(chatId, db),
         });
 
         const annotations = extractAnnotations(fullText, docIndex, events);
