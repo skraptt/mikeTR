@@ -6,6 +6,8 @@
 import { supabase } from "@/lib/supabase";
 import type {
     AssistantEvent,
+    KanunMaddeleriSearchOut,
+    KanunMaddesiSearchResult,
     MikeChat,
     MikeChatDetailOut,
     MikeCitationAnnotation,
@@ -133,6 +135,27 @@ export async function getProjectPeople(
     projectId: string,
 ): Promise<ProjectPeople> {
     return apiRequest<ProjectPeople>(`/projects/${projectId}/people`);
+}
+
+export async function searchKanunMaddeleri(params: {
+    query: string;
+    limit?: number;
+    matchThreshold?: number;
+}): Promise<KanunMaddesiSearchResult[]> {
+    const payload = {
+        query: params.query,
+        limit: params.limit ?? 5,
+        match_threshold: params.matchThreshold ?? 0.5,
+    };
+    const response = await apiRequest<KanunMaddeleriSearchOut>(
+        "/search/kanun-maddeleri",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        },
+    );
+    return response.results ?? [];
 }
 
 // ---------------------------------------------------------------------------

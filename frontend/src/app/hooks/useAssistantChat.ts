@@ -7,8 +7,10 @@ import { useChatHistoryContext } from "@/app/contexts/ChatHistoryContext";
 import { useGenerateChatTitle } from "./useGenerateChatTitle";
 import type {
     AssistantEvent,
+    KanunSearchHit,
     MikeCitationAnnotation,
     MikeMessage,
+    StatuteCitation,
 } from "@/app/components/shared/types";
 
 interface UseAssistantChatOptions {
@@ -80,6 +82,12 @@ export function useAssistantChat({
 
     const flushDrip = () => {
         stopDrip();
+        // If the last content block was already finalized (a non-content event
+        // such as kanun_citations arrived after it), the drip target has been
+        // reset to "" — flushing it would blank out the finished answer.
+        const events = eventsRef.current;
+        const lastEvent = events[events.length - 1];
+        if (lastEvent?.type !== "content" || !lastEvent.isStreaming) return;
         const target = dripTargetRef.current;
         dripDisplayLenRef.current = target.length;
         setMessages((prev) => updateLastContentEvent(prev, target));
@@ -564,6 +572,48 @@ export function useAssistantChat({
                                     e.filename === data.filename &&
                                     !!e.isStreaming,
                                 (e) => ({ ...e, isStreaming: false }),
+                            );
+                            pushThinkingPlaceholder();
+                            continue;
+                        }
+
+                        if (data.type === "kanun_citations") {
+                            if (Array.isArray(data.citations)) {
+                                pushEvent({
+                                    type: "kanun_citations",
+                                    citations: data.citations as StatuteCitation[],
+                                });
+                            }
+                            continue;
+                        }
+
+                        if (data.type === "kanun_search_start") {
+                            pushEvent({
+                                type: "kanun_search",
+                                query: (data.query as string) ?? "",
+                                results: [],
+                                isStreaming: true,
+                            });
+                            continue;
+                        }
+
+                        if (data.type === "kanun_search") {
+                            updateMatchingEvent(
+                                (e) =>
+                                    e.type === "kanun_search" &&
+                                    e.query === (data.query as string) &&
+                                    !!e.isStreaming,
+                                (e) => ({
+                                    ...e,
+                                    isStreaming: false,
+                                    results: Array.isArray(data.results)
+                                        ? (data.results as KanunSearchHit[])
+                                        : [],
+                                    error:
+                                        typeof data.error === "string"
+                                            ? data.error
+                                            : undefined,
+                                }),
                             );
                             pushThinkingPlaceholder();
                             continue;

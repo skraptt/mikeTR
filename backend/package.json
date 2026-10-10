@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
   "seed": "tsx seed.ts",
+  "embed": "tsx scripts/embed-kanun-maddeleri.ts",
+  "import-kanunlar": "tsx scripts/import-kanunlar.ts",
   "dev": "npm run seed && tsx watch src/index.ts",
   "build": "tsc",
   "start": "node dist/index.js"

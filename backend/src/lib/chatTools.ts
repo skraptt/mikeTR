@@ -13,6 +13,8 @@ import {
     type EditInput,
 } from "./docxTrackedChanges";
 import { buildDownloadUrl } from "./downloadTokens";
+import { searchKanunMaddeleri } from "./kanunSearch";
+import { checkStatuteCitations, type StatuteCitation } from "./citationCheck";
 import { attachActiveVersionPaths, loadActiveVersion } from "./documentVersions";
 import {
     streamChatWithTools,
@@ -77,7 +79,7 @@ export type ChatMessage = {
 
 export const SYSTEM_PROMPT = `You are an expert, professional legal assistant specializing strictly in the laws, legislation, and Supreme Court (Yargıtay) jurisprudence of the Republic of Turkey. 
 
-Your primary duty is to analyze the provided documents within the framework of the Turkish Code of Obligations (Law No. 6098), the Turkish Civil Code (Law No. 4721), and current Turkish private law. 
+Your primary duty is to analyze the provided documents and answer legal questions within the framework of current Turkish private law, grounded in the statutory text available through the search_kanun_maddeleri tool.
 
 CRITICAL RULES:
 1. You MUST ALWAYS generate your prose responses in Turkish.
@@ -105,6 +107,14 @@ Rules:
 - "page" refers to the sequential [Page N] marker in the text you were given (1-indexed from the first page). IGNORE any page numbers printed inside the document itself (footers, roman numerals, etc.).
 - For a single-page quote, set "page" to an integer. If a quote is one continuous sentence that spans two pages, set "page" to "N-M" and insert [[PAGE_BREAK]] in the quote at the page break. Otherwise, use separate citations for text on different pages.
 - Put the <CITATIONS> block at the very end of the response. Omit it entirely if there are no citations.
+
+STATUTE SEARCH (search_kanun_maddeleri):
+The search_kanun_maddeleri tool performs semantic search over the full text of these Turkish laws (short name used in citations, law number): Türk Medeni Kanunu (TMK, 4721) and its Yürürlük Kanunu (4722), Fikir ve Sanat Eserleri Kanunu (FSEK, 5846), Çek Kanunu (Çek K., 5941), Türk Borçlar Kanunu (TBK, 6098) and its Yürürlük Kanunu (6101), Hukuk Muhakemeleri Kanunu (HMK, 6100), Türk Ticaret Kanunu (TTK, 6102) and its Yürürlük Kanunu (6103), Sermaye Piyasası Kanunu (SPK, 6362), Tüketicinin Korunması Hakkında Kanun (TKHK, 6502), Kişisel Verilerin Korunması Kanunu (KVKK, 6698), Sınai Mülkiyet Kanunu (SMK, 6769). For the Yürürlük laws cite the law number, e.g. "(6101 s. K. md. 1)".
+- Before stating any legal rule, right, obligation, deadline, sanction or article number, call search_kanun_maddeleri. Phrase the query as a short Turkish legal description of the issue (e.g. "kiracının kira bedelini ödememesi temerrüt fesih"), not as the user's full question. For questions touching several issues, call it once per issue.
+- Cite statutes inline in prose using the law's short name and article number exactly as returned, e.g. "(TBK md. 315)", "(KVKK md. 5)", "(TMK Geçici md. 1)". Only cite article numbers that appear in the tool results of this conversation. NEVER cite an article number from memory.
+- When you quote statutory text, quote it verbatim from the tool result.
+- If the results do not cover the question (unrelated articles, or the relevant law is not in the list above — e.g. İcra ve İflas Kanunu, İş Kanunu, Türk Ceza Kanunu), say clearly that the statute database does not contain the relevant provision. You may then give general guidance, but do not cite any article numbers for it, and mark every such part of the answer with this exact sentence in its own paragraph: "Not: Bu bölüm, veritabanındaki kanun metinleriyle doğrulanmamıştır; ilgili mevzuatın güncel metninden kontrol edilmelidir." This applies even when the rest of the answer is grounded in search results.
+- Statute citations go in prose only. The <CITATIONS> block is reserved for user documents; never put statutes in it.
 
 DOCX GENERATION:
 If asked to draft or generate a document, use the generate_docx tool to produce a downloadable Word document. Always use this tool rather than just displaying the document content inline when the user asks for a document to be created.
@@ -136,7 +146,7 @@ The chat-local labels ("doc-0", "doc-1", "doc-N", …) are internal handles for 
 GENERAL GUIDANCE:
 - Be precise and professional.
 - Cite the specific document and quote when making claims about document content.
-- When no documents are provided, answer based on your legal knowledge, but explicitly state that you are doing so.
+- When no documents are provided, ground your answer in search_kanun_maddeleri results as described under STATUTE SEARCH.
 - Do not fabricate document content.
 - Do not use emojis in your responses.
 `;
@@ -263,6 +273,29 @@ export const WORKFLOW_TOOLS = [
 ];
 
 export const TOOLS = [
+    {
+        type: "function",
+        function: {
+            name: "search_kanun_maddeleri",
+            description:
+                "Semantic search over the full text of the Turkish laws listed under STATUTE SEARCH. Returns the most relevant articles with law name, article number, article title, text and a similarity score (0-1; above ~0.6 is usually relevant). Call this before stating any legal rule or citing any article.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: {
+                        type: "string",
+                        description:
+                            "Short Turkish description of the legal issue, e.g. 'hâkimin reddi sebepleri' or 'ayıplı malda tüketicinin seçimlik hakları'.",
+                    },
+                    limit: {
+                        type: "integer",
+                        description: "Number of articles to return (1-10, default 6).",
+                    },
+                },
+                required: ["query"],
+            },
+        },
+    },
     {
         type: "function",
         function: {
@@ -1510,8 +1543,10 @@ export async function runToolCalls(
     docsReplicated: DocReplicatedResult[];
     workflowsApplied: { workflow_id: string; title: string }[];
     docsEdited: DocEditedResult[];
+    kanunSearches: KanunSearchEvent[];
 }> {
     const toolResults: unknown[] = [];
+    const kanunSearches: KanunSearchEvent[] = [];
     const docsRead: { filename: string; document_id?: string }[] = [];
     const docsFound: {
         filename: string;
@@ -1531,7 +1566,51 @@ export async function runToolCalls(
             /* ignore */
         }
 
-        if (tc.function.name === "read_document") {
+        if (tc.function.name === "search_kanun_maddeleri") {
+            const query = typeof args.query === "string" ? args.query.trim() : "";
+            const limit = typeof args.limit === "number" ? Math.min(Math.max(Math.trunc(args.limit), 1), 10) : 6;
+            write(`data: ${JSON.stringify({ type: "kanun_search_start", query })}\n\n`);
+            let event: KanunSearchEvent;
+            let content: string;
+            try {
+                if (!query) throw new Error("query is required");
+                const matches = await searchKanunMaddeleri({ query, limit, matchThreshold: 0.5 });
+                event = {
+                    type: "kanun_search",
+                    query,
+                    results: matches.map((m) => ({
+                        kanun_no: m.kanun_no,
+                        kanun_adi: m.kanun_adi,
+                        madde_no: m.madde_no,
+                        baslik: m.baslik,
+                        similarity: m.similarity,
+                    })),
+                };
+                content = JSON.stringify({
+                    ok: true,
+                    query,
+                    results: matches.map((m) => ({
+                        kanun: `${m.kanun_adi} (${m.kanun_no})`,
+                        madde_no: m.madde_no,
+                        baslik: m.baslik,
+                        similarity: Number(m.similarity.toFixed(3)),
+                        metin: m.icerik,
+                    })),
+                    note: matches.length === 0 ? "No article scored above the relevance threshold." : undefined,
+                });
+            } catch (error) {
+                const message = error instanceof Error ? error.message : "Unknown error";
+                event = { type: "kanun_search", query, results: [], error: message };
+                content = JSON.stringify({
+                    ok: false,
+                    error: `Statute search failed: ${message}. Tell the user statute search is unavailable and do not cite article numbers.`,
+                });
+            }
+            write(`data: ${JSON.stringify(event)}\n\n`);
+            kanunSearches.push(event);
+            toolResults.push({ role: "tool", tool_call_id: tc.id, content });
+
+        } else if (tc.function.name === "read_document") {
             const rawDocId = args.doc_id as string;
             const docId =
                 resolveDocLabel(rawDocId, docStore, docIndex) ?? rawDocId;
@@ -2213,6 +2292,7 @@ export async function runToolCalls(
         docsReplicated,
         workflowsApplied,
         docsEdited,
+        kanunSearches,
     };
 }
 
@@ -2258,8 +2338,23 @@ export type EditAnnotation = {
     status: "pending" | "accepted" | "rejected";
 };
 
+type KanunSearchEvent = {
+    type: "kanun_search";
+    query: string;
+    results: {
+        kanun_no: string;
+        kanun_adi: string;
+        madde_no: string;
+        baslik: string | null;
+        similarity: number;
+    }[];
+    error?: string;
+};
+
 type AssistantEvent =
     | { type: "reasoning"; text: string }
+    | KanunSearchEvent
+    | { type: "kanun_citations"; citations: StatuteCitation[] }
     | { type: "doc_read"; filename: string; document_id?: string }
     | {
           type: "doc_find";
@@ -2319,8 +2414,10 @@ export async function runLLMStream(params: {
      * generated docs still get persisted, but as standalone documents.
      */
     projectId?: string | null;
+    /** Sohbetin önceki mesajlarında kanun aramasıyla bulunmuş maddeler ("kanun_no|madde_no"). */
+    priorKanunKeys?: Set<string>;
 }): Promise<{ fullText: string; events: AssistantEvent[] }> {
-    const { apiMessages, docStore, docIndex, userId, db, write, extraTools, workflowStore, tabularStore, buildCitations, model, apiKeys, projectId } = params;
+    const { apiMessages, docStore, docIndex, userId, db, write, extraTools, workflowStore, tabularStore, buildCitations, model, apiKeys, projectId, priorKanunKeys } = params;
     const activeTools = extraTools?.length
         ? [...TOOLS, ...WORKFLOW_TOOLS, ...extraTools]
         : [...TOOLS, ...WORKFLOW_TOOLS];
@@ -2479,6 +2576,7 @@ export async function runLLMStream(params: {
                 docsReplicated,
                 workflowsApplied,
                 docsEdited,
+                kanunSearches,
             } = await runToolCalls(
                     toolCalls,
                     docStore,
@@ -2491,6 +2589,7 @@ export async function runLLMStream(params: {
                     turnEditState,
                     projectId,
                 );
+            events.push(...kanunSearches);
             for (const r of docsRead) {
                 events.push({
                     type: "doc_read",
@@ -2584,9 +2683,52 @@ export async function runLLMStream(params: {
               };
           });
     write(`data: ${JSON.stringify({ type: "citations", citations })}\n\n`);
+
+    // Cevaptaki kanun atıflarını, modelin bu sohbette gerçekten okuduğu maddelerle karşılaştır.
+    const retrievedKeys = new Set(priorKanunKeys ?? []);
+    for (const e of events) {
+        if (e.type !== "kanun_search") continue;
+        for (const r of e.results) retrievedKeys.add(`${r.kanun_no}|${r.madde_no}`);
+    }
+    try {
+        const kanunCitations = await checkStatuteCitations(fullText, retrievedKeys, db);
+        if (kanunCitations.length > 0) {
+            const event = { type: "kanun_citations" as const, citations: kanunCitations };
+            write(`data: ${JSON.stringify(event)}\n\n`);
+            events.push(event);
+        }
+    } catch (err) {
+        console.error("[citationCheck] failed:", err);
+    }
+
     write("data: [DONE]\n\n");
 
     return { fullText, events };
+}
+
+/** Sohbetin önceki asistan mesajlarındaki kanun aramalarında dönen maddeler. */
+export async function loadPriorKanunKeys(
+    chatId: string,
+    db: ReturnType<typeof createServerSupabase>,
+): Promise<Set<string>> {
+    const keys = new Set<string>();
+    const { data, error } = await db
+        .from("chat_messages")
+        .select("content")
+        .eq("chat_id", chatId)
+        .eq("role", "assistant");
+    if (error) {
+        console.error("[loadPriorKanunKeys] failed:", error.message);
+        return keys;
+    }
+    for (const row of (data ?? []) as { content: unknown }[]) {
+        if (!Array.isArray(row.content)) continue;
+        for (const e of row.content as AssistantEvent[]) {
+            if (e?.type !== "kanun_search" || !Array.isArray(e.results)) continue;
+            for (const r of e.results) keys.add(`${r.kanun_no}|${r.madde_no}`);
+        }
+    }
+    return keys;
 }
 
 // ---------------------------------------------------------------------------

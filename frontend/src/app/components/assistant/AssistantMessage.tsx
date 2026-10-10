@@ -11,8 +11,10 @@ import { MikeIcon } from "@/components/chat/mike-icon";
 import { displayCitationQuote, formatCitationPage } from "../shared/types";
 import type {
     AssistantEvent,
+    KanunSearchHit,
     MikeCitationAnnotation,
     MikeEditAnnotation,
+    StatuteCitation,
 } from "../shared/types";
 import { EditCard, applyOptimisticResolution } from "./EditCard";
 import { PreResponseWrapper } from "../shared/PreResponseWrapper";
@@ -500,6 +502,158 @@ function DocFindBlock({
                     {isStreaming && "..."}
                 </span>
             </div>
+        </div>
+    );
+}
+
+// "Geçici 1" -> "Geçici md. 1", "315" -> "md. 315"
+function kanunMaddeEtiketi(hit: KanunSearchHit): string {
+    const madde = /^(Geçici|Ek) /.test(hit.madde_no)
+        ? hit.madde_no.replace(/^(Geçici|Ek) /, "$1 md. ")
+        : `md. ${hit.madde_no}`;
+    return `${hit.kanun_adi} ${madde}`;
+}
+
+function KanunSearchBlock({
+    query,
+    results,
+    error,
+    isStreaming,
+    showConnector,
+}: {
+    query: string;
+    results: KanunSearchHit[];
+    error?: string;
+    isStreaming?: boolean;
+    showConnector?: boolean;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const label = isStreaming ? "Kanunlarda aranıyor" : "Kanunlarda arandı";
+    const suffix = isStreaming
+        ? "..."
+        : error
+          ? " (arama yapılamadı)"
+          : ` (${results.length} madde)`;
+    const dotClass = error
+        ? "bg-red-400"
+        : results.length > 0
+          ? "bg-green-400"
+          : "bg-gray-300";
+    return (
+        <div className="flex items-start text-sm font-serif text-gray-500 relative">
+            {showConnector && (
+                <div className="absolute bottom-0 w-[1px] bg-gray-300 top-[13px] left-[2.5px] h-[calc(100%+11px)]" />
+            )}
+            {isStreaming ? (
+                <div className="mt-2 w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
+            ) : (
+                <div className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} />
+            )}
+            <div className="ml-2 min-w-0 flex-1 whitespace-normal break-words">
+                <button
+                    type="button"
+                    onClick={() => !isStreaming && results.length > 0 && setIsOpen((v) => !v)}
+                    className="text-left hover:text-gray-700 transition-colors"
+                >
+                    <span className="font-medium">{label}</span>{" "}
+                    <span>
+                        &ldquo;{query}&rdquo;{suffix}
+                    </span>
+                    {!isStreaming && results.length > 0 && (
+                        <ChevronDown
+                            className={`ml-1 inline h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        />
+                    )}
+                </button>
+                {isOpen && (
+                    <ul className="mt-1 space-y-0.5 text-xs text-gray-500">
+                        {results.map((hit) => (
+                            <li key={`${hit.kanun_no}-${hit.madde_no}`}>
+                                <span className="text-gray-700">{kanunMaddeEtiketi(hit)}</span>
+                                {hit.baslik && <span> – {hit.baslik}</span>}
+                                <span className="ml-1 text-gray-400">
+                                    {Math.round(hit.similarity * 100)}%
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </div>
+    );
+}
+
+const CITATION_STATUS: Record<
+    StatuteCitation["status"],
+    { icon: string; className: string; note: string }
+> = {
+    dogrulandi: {
+        icon: "✓",
+        className: "text-green-700",
+        note: "Asistan bu maddenin metnini aramada görüp atıf yaptı.",
+    },
+    okunmadi: {
+        icon: "!",
+        className: "text-amber-700",
+        note: "Madde veritabanında var ama asistan metnini okumadan atıf yaptı; içerik doğru aktarılmamış olabilir.",
+    },
+    bulunamadi: {
+        icon: "✕",
+        className: "text-red-700",
+        note: "Bu kanunda böyle bir madde numarası bulunamadı.",
+    },
+    kapsam_disi: {
+        icon: "!",
+        className: "text-amber-700",
+        note: "Bu kanun veritabanında yok; atıf doğrulanamadı.",
+    },
+};
+
+function StatuteCitationCheck({ citations }: { citations: StatuteCitation[] }) {
+    const verified = citations.filter((c) => c.status === "dogrulandi").length;
+    const problems = citations.length - verified;
+    const [isOpen, setIsOpen] = useState(problems > 0);
+    return (
+        <div
+            className={`mt-3 rounded-lg border px-3 py-2 text-xs font-sans ${problems > 0 ? "border-amber-200 bg-amber-50/60" : "border-green-200 bg-green-50/60"}`}
+        >
+            <button
+                type="button"
+                onClick={() => setIsOpen((v) => !v)}
+                className="flex w-full items-center gap-1.5 text-left text-gray-700"
+            >
+                <span className="font-medium">Atıf kontrolü:</span>
+                <span>
+                    {verified}/{citations.length} kanun atfı doğrulandı
+                    {problems > 0 && `, ${problems} atıf dikkat gerektiriyor`}
+                </span>
+                <ChevronDown
+                    className={`ml-auto h-3.5 w-3.5 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                />
+            </button>
+            {isOpen && (
+                <ul className="mt-1.5 space-y-1">
+                    {citations.map((c) => {
+                        const meta = CITATION_STATUS[c.status];
+                        return (
+                            <li
+                                key={`${c.kanun_no ?? c.label}-${c.madde_no}`}
+                                className="flex gap-1.5"
+                            >
+                                <span className={`w-3 shrink-0 font-semibold ${meta.className}`}>
+                                    {meta.icon}
+                                </span>
+                                <span>
+                                    <span className="font-medium text-gray-800">{c.label}</span>
+                                    {c.status !== "dogrulandi" && (
+                                        <span className="text-gray-500"> — {meta.note}</span>
+                                    )}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
         </div>
     );
 }
@@ -1169,6 +1323,8 @@ export function AssistantMessage({
     if (events) {
         let current: Extract<EventGroup, { kind: "pre" }> | null = null;
         events.forEach((e, i) => {
+            // Atıf kontrolü adım listesine değil, cevabın altına çizilir.
+            if (e.type === "kanun_citations") return;
             if (e.type === "content") {
                 if (current) {
                     groups.push(current);
@@ -1270,6 +1426,18 @@ export function AssistantMessage({
                             ? () => onCitationClick(ann)
                             : undefined
                     }
+                    showConnector={showConnector}
+                />
+            );
+        }
+        if (event.type === "kanun_search") {
+            return (
+                <KanunSearchBlock
+                    key={globalIdx}
+                    query={event.query}
+                    results={event.results}
+                    error={event.error}
+                    isStreaming={!!event.isStreaming}
                     showConnector={showConnector}
                 />
             );
@@ -1599,6 +1767,14 @@ export function AssistantMessage({
                                 );
                             })}
                         </div>
+                    )}
+
+                {!isStreaming &&
+                    events?.map((e, i) =>
+                        e.type === "kanun_citations" &&
+                        e.citations.length > 0 ? (
+                            <StatuteCitationCheck key={`kc-${i}`} citations={e.citations} />
+                        ) : null,
                     )}
 
                 {/* Copy button */}

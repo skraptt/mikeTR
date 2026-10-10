@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { MikeIcon } from "@/components/chat/mike-icon";
 import { ChatInput } from "./ChatInput";
+import { KanunSearchPanel } from "./KanunSearchPanel";
 import { SelectAssistantProjectModal } from "./SelectAssistantProjectModal";
 import type { MikeMessage } from "../shared/types";
 
@@ -81,6 +82,8 @@ export function InitialView({ onSubmit }: InitialViewProps) {
                         isLoading={false}
                         onProjectsClick={() => setProjectModalOpen(true)}
                     />
+
+                    <KanunSearchPanel />
 
                     <div className="text-center">
                         <p className="text-xs py-3 mb-3 text-gray-500">

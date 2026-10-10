@@ -8,6 +8,7 @@ import {
     buildWorkflowStore,
     extractAnnotations,
     runLLMStream,
+    loadPriorKanunKeys,
     type ChatMessage,
 } from "../lib/chatTools";
 import { completeText } from "../lib/llm";
@@ -450,6 +451,7 @@ chatRouter.post("/", requireAuth, async (req, res) => {
             model,
             apiKeys,
             projectId: project_id ?? null,
+            priorKanunKeys: await loadPriorKanunKeys(chatId, db),
         });
 
         console.log("[chat/stream] LLM stream finished", {

@@ -46,7 +46,7 @@ export async function uploadFile(
   contentType: string,
 ): Promise<void> {
   const client = getClient();
-  await client.send(
+  await (client as any).send(
     new PutObjectCommand({
       Bucket: BUCKET,
       Key: key,
@@ -64,7 +64,7 @@ export async function downloadFile(key: string): Promise<ArrayBuffer | null> {
   if (!storageEnabled) return null;
   try {
     const client = getClient();
-    const response = await client.send(
+    const response = await (client as any).send(
       new GetObjectCommand({ Bucket: BUCKET, Key: key }),
     );
     if (!response.Body) return null;
@@ -82,7 +82,7 @@ export async function downloadFile(key: string): Promise<ArrayBuffer | null> {
 export async function deleteFile(key: string): Promise<void> {
   if (!storageEnabled) return;
   const client = getClient();
-  await client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+  await (client as any).send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
 }
 
 // ---------------------------------------------------------------------------

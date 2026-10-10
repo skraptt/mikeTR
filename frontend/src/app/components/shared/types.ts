@@ -80,8 +80,37 @@ export interface MikeEditAnnotation {
   status: "pending" | "accepted" | "rejected";
 }
 
+export interface KanunSearchHit {
+  kanun_no: string;
+  kanun_adi: string;
+  madde_no: string;
+  baslik: string | null;
+  similarity: number;
+}
+
+export type StatuteCitationStatus =
+  | "dogrulandi"
+  | "okunmadi"
+  | "bulunamadi"
+  | "kapsam_disi";
+
+export interface StatuteCitation {
+  label: string;
+  kanun_no: string | null;
+  madde_no: string;
+  status: StatuteCitationStatus;
+}
+
 export type AssistantEvent =
   | { type: "reasoning"; text: string; isStreaming?: boolean }
+  | { type: "kanun_citations"; citations: StatuteCitation[] }
+  | {
+        type: "kanun_search";
+        query: string;
+        results: KanunSearchHit[];
+        error?: string;
+        isStreaming?: boolean;
+    }
   | {
         type: "tool_call_start";
         name: string;
@@ -298,4 +327,22 @@ export interface TabularReviewDetailOut {
   review: TabularReview;
   cells: TabularCell[];
   documents: MikeDocument[];
+}
+
+export interface KanunMaddesiSearchResult {
+  id: string;
+  kanun_no: string;
+  kanun_adi: string;
+  madde_no: string;
+  baslik: string | null;
+  icerik: string;
+  created_at: string;
+  similarity: number;
+}
+
+export interface KanunMaddeleriSearchOut {
+  query: string;
+  limit: number;
+  match_threshold: number;
+  results: KanunMaddesiSearchResult[];
 }
