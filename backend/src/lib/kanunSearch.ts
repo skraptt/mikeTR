@@ -9,6 +9,8 @@ export type KanunMaddesiMatch = {
   similarity: number;
 };
 
+class NonRetryableError extends Error {}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -35,7 +37,7 @@ async function retryWithBackoff<T>(
       return await fn();
     } catch (error) {
       attempt += 1;
-      if (attempt > retries) throw error;
+      if (attempt > retries || error instanceof NonRetryableError) throw error;
       const jitter = Math.floor(Math.random() * delay * 0.2);
       const waitMs = Math.min(maxDelayMs, delay + jitter);
       await sleep(waitMs);
@@ -70,9 +72,10 @@ export async function createTextEmbedding(text: string): Promise<number[]> {
 
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
-      throw new Error(
-        `OpenAI embedding request failed (${response.status}): ${detail}`,
-      );
+      const message = `OpenAI embedding request failed (${response.status}): ${detail}`;
+      // 429 ve 5xx geçici olabilir; diğer 4xx'ler (geçersiz anahtar, hatalı istek) tekrar denenmez.
+      const retryable = response.status === 429 || response.status >= 500;
+      throw retryable ? new Error(message) : new NonRetryableError(message);
     }
 
     return (await response.json()) as {
