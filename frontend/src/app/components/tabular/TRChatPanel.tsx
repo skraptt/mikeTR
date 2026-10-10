@@ -63,70 +63,6 @@ interface Props {
 }
 
 // ---------------------------------------------------------------------------
-// Reasoning block
-// ---------------------------------------------------------------------------
-
-const THINKING_PHRASES = [
-    "Düşünüyor...",
-    "Değerlendiriyor...",
-    "İnceliyor...",
-    "Akıl yürütüyor...",
-];
-
-function ReasoningBlock({
-    text,
-    isStreaming,
-}: {
-    text: string;
-    isStreaming: boolean;
-}) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [phraseIdx, setPhraseIdx] = useState(0);
-
-    useEffect(() => {
-        if (!isStreaming) return;
-        const interval = setInterval(
-            () => setPhraseIdx((i) => (i + 1) % THINKING_PHRASES.length),
-            2000,
-        );
-        return () => clearInterval(interval);
-    }, [isStreaming]);
-
-    return (
-        <div className="ml-1">
-            <button
-                onClick={() => !isStreaming && setIsOpen((v) => !v)}
-                className="flex items-center text-sm text-gray-400 hover:text-gray-500 transition-colors"
-            >
-                {isStreaming ? (
-                    <div className="w-1.5 h-1.5 rounded-full border border-gray-400 border-t-transparent animate-spin shrink-0" />
-                ) : (
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" />
-                )}
-                <span className="font-medium ml-2">
-                    {isStreaming
-                        ? THINKING_PHRASES[phraseIdx]
-                        : "Düşünme süreci"}
-                </span>
-                {!isStreaming && (
-                    <ChevronDown
-                        size={10}
-                        className={`ml-1.5 transition-transform duration-200 ${isOpen ? "" : "-rotate-90"}`}
-                    />
-                )}
-            </button>
-            {(isOpen || isStreaming) && (
-                <div className="mt-1.5 ml-[14px] text-sm text-gray-400 prose prose-sm max-w-none [&>*]:text-gray-400 [&>*]:text-sm">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {text}
-                    </ReactMarkdown>
-                </div>
-            )}
-        </div>
-    );
-}
-
-// ---------------------------------------------------------------------------
 // DocRead block
 // ---------------------------------------------------------------------------
 
@@ -274,15 +210,6 @@ function TRAssistantMessage({
     };
 
     const renderPreEvent = (event: AssistantEvent, key: number) => {
-        if (event.type === "reasoning") {
-            return (
-                <ReasoningBlock
-                    key={key}
-                    text={event.text}
-                    isStreaming={!!event.isStreaming && !!msg.isStreaming}
-                />
-            );
-        }
         if (event.type === "doc_read") {
             return (
                 <DocReadBlock
@@ -384,11 +311,6 @@ function TRAssistantMessage({
                             );
                         }
                         const subsequentContent = hasContentAfter(gIdx);
-                        // "Working" while at least one event in *this*
-                        // wrapper is actively streaming. Gaps between real
-                        // events are bridged by `pushThinkingPlaceholder`
-                        // so this check stays continuously true through
-                        // the whole pre-content phase.
                         const wrapperIsStreaming = g.events.some(
                             (event) =>
                                 "isStreaming" in event && !!event.isStreaming,
@@ -786,10 +708,6 @@ export function TRChatPanel({
         return updated;
     }
 
-    // Mirror the dripped content text onto eventsRef.current so that any
-    // subsequent setMessages built from a refsnapshot (pushEvent,
-    // updateMatchingEvent, reasoning_*, etc.) doesn't wipe out the content
-    // by replacing it with the stale empty placeholder.
     function syncDripIntoEventsRef(text: string, isStreaming: boolean) {
         const evts = eventsRef.current;
         const idx = findLastContentIndex(evts);
@@ -825,10 +743,6 @@ export function TRChatPanel({
 
     // ---- event helpers ----
 
-    // Transient placeholder events that bridge the gap between real SSE
-    // events so the PreResponseWrapper doesn't briefly flip to "Completed"
-    // when one block ends before the next starts. Anytime a real event
-    // arrives (or content begins streaming), drop them first.
     function isStreamingPlaceholder(e: AssistantEvent) {
         return e.type === "thinking" && !!e.isStreaming;
     }
@@ -852,7 +766,6 @@ export function TRChatPanel({
     function pushThinkingPlaceholder() {
         const events = eventsRef.current;
         const last = events[events.length - 1];
-        // Don't stack placeholders back-to-back.
         if (last && isStreamingPlaceholder(last)) return;
         eventsRef.current = [
             ...events,
@@ -870,7 +783,6 @@ export function TRChatPanel({
     }
 
     function pushEvent(event: AssistantEvent) {
-        // Drop any in-flight placeholder unless we're pushing one ourselves.
         let next = eventsRef.current;
         if (event.type !== "thinking") {
             next = next.filter((e) => !isStreamingPlaceholder(e));
@@ -962,7 +874,6 @@ export function TRChatPanel({
             return;
         }
 
-        // Build messages array for backend (plain text history)
         const history: { role: string; content: string }[] = messages.map(
             (m) => ({
                 role: m.role,
@@ -1082,9 +993,6 @@ export function TRChatPanel({
                                     },
                                 ];
                             } else {
-                                // New reasoning block — drop any bridging
-                                // placeholder before it so the wrapper
-                                // doesn't render both.
                                 const cleaned = events.filter(
                                     (e) => !isStreamingPlaceholder(e),
                                 );
@@ -1152,10 +1060,6 @@ export function TRChatPanel({
                                 lastEvent?.type !== "content" ||
                                 !lastEvent.isStreaming
                             ) {
-                                // Finalize any still-streaming reasoning
-                                // event AND drop bridging placeholders so
-                                // the wrapper transitions cleanly into
-                                // content.
                                 const finalized = events
                                     .filter((e) => !isStreamingPlaceholder(e))
                                     .map((e) =>
@@ -1213,9 +1117,6 @@ export function TRChatPanel({
                         }
 
                         if (data.type === "citations") {
-                            // End-of-stream signal — scrub any lingering
-                            // placeholders so they don't persist into the
-                            // finalised message.
                             clearStreamingPlaceholders();
                             const incoming = (data.citations ??
                                 []) as TRCitationAnnotation[];

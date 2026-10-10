@@ -9,6 +9,7 @@ import { tabularRouter } from "./routes/tabular";
 import { workflowsRouter } from "./routes/workflows";
 import { userRouter } from "./routes/user";
 import { downloadsRouter } from "./routes/downloads";
+import { searchRouter } from "./routes/search";
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -31,6 +32,7 @@ app.use("/workflows", workflowsRouter);
 app.use("/user", userRouter);
 app.use("/users", userRouter);
 app.use("/download", downloadsRouter);
+app.use("/search", searchRouter);
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 

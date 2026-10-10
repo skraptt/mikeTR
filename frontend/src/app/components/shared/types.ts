@@ -299,3 +299,19 @@ export interface TabularReviewDetailOut {
   cells: TabularCell[];
   documents: MikeDocument[];
 }
+
+export interface KanunMaddesiSearchResult {
+  id: string;
+  madde_no: string;
+  icerik: string;
+  embedding: number[] | null;
+  created_at: string;
+  similarity: number;
+}
+
+export interface KanunMaddeleriSearchOut {
+  query: string;
+  limit: number;
+  match_threshold: number;
+  results: KanunMaddesiSearchResult[];
+}
