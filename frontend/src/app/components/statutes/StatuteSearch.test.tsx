@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { MikeApiError } from "@/app/lib/mikeApi";
 import { StatuteSearchPage } from "./StatuteSearch";
 
@@ -25,6 +25,22 @@ const article = {
     icerik: "Kiracı, teslimden sonra muaccel olan kira bedelini ödemezse…",
     similarity: 0.71,
 };
+
+
+// PageHeader measures its breadcrumbs on the next animation frame with
+// matchMedia, which jsdom does not provide.
+beforeAll(() => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+    }));
+});
 
 describe("StatuteSearchPage", () => {
     beforeEach(() => {
