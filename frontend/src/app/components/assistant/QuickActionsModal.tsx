@@ -12,6 +12,7 @@ import { SearchBar } from "../ui/search-bar";
 import { listWorkflows } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { LIQUID_GLASS_MODAL_ROW_HOVER_CLASS } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 type Screen = "list" | "details" | "create";
 
@@ -50,7 +51,7 @@ export function QuickActionsModal({
     if (!open || workflows.length > 0) return;
     void listWorkflows("assistant")
       .then((rows) => setWorkflows(rows))
-      .catch(() => setError("Could not load assistant workflows."));
+      .catch(() => setError(t("Could not load assistant workflows.")));
   }, [open, workflows.length]);
 
   const availableWorkflows = useMemo(() => {
@@ -104,7 +105,7 @@ export function QuickActionsModal({
       await onSave(selected);
       resetToList();
     } catch (reason) {
-      setError(userFacingApiError(reason, "Could not save quick action."));
+      setError(userFacingApiError(reason, t("Could not save quick action.")));
     } finally {
       setSaving(false);
     }
@@ -123,7 +124,7 @@ export function QuickActionsModal({
       });
       resetToList();
     } catch (reason) {
-      setError(userFacingApiError(reason, "Could not create quick action."));
+      setError(userFacingApiError(reason, t("Could not create quick action.")));
     } finally {
       setSaving(false);
     }
@@ -131,13 +132,13 @@ export function QuickActionsModal({
 
   const breadcrumbs =
     screen === "list"
-      ? ["Assistant", "Quick Actions"]
+      ? [t("Assistant"), t("Quick Actions")]
       : [
-          "Assistant",
-          "Quick Actions",
+          t("Assistant"),
+          t("Quick Actions"),
           screen === "create"
-            ? "New Quick Action"
-            : (selected?.name ?? "Quick Action"),
+            ? t("New Quick Action")
+            : (selected?.name ?? t("Quick Action")),
         ];
 
   return (
@@ -188,7 +189,7 @@ export function QuickActionsModal({
             <SearchBar
               value={search}
               onValueChange={setSearch}
-              placeholder="Search quick actions..."
+              placeholder={t("Search quick actions...")}
               autoFocus
             />
           </div>
@@ -204,7 +205,7 @@ export function QuickActionsModal({
             )}
             {filteredActions.length === 0 ? (
               <p className="py-10 text-center text-sm text-gray-400">
-                No quick actions found.
+                {t("No quick actions found.")}
               </p>
             ) : (
               filteredActions.map((action) => (
@@ -334,46 +335,46 @@ function QuickActionForm({
       className="flex min-h-0 flex-1 flex-col gap-6 px-2 pt-1 pb-5"
     >
       <div>
-        <FieldLabel htmlFor="quick-action-name">Name</FieldLabel>
+        <FieldLabel htmlFor="quick-action-name">{t("Name")}</FieldLabel>
         <FormTextInput
           id="quick-action-name"
           value={name}
           onChange={(event) => onNameChange(event.target.value)}
-          placeholder="Quick action name"
+          placeholder={t("Quick action name")}
           variant="minimal"
           autoFocus
         />
       </div>
       <div>
-        <FieldLabel htmlFor="quick-action-workflow">Workflow used</FieldLabel>
+        <FieldLabel htmlFor="quick-action-workflow">{t("Workflow used")}</FieldLabel>
         <ModalSelect
           id="quick-action-workflow"
           value={workflowId}
-          placeholder="Select an assistant workflow"
+          placeholder={t("Select an assistant workflow")}
           options={workflowOptions}
           onChange={onWorkflowChange}
         />
       </div>
       <div>
-        <FieldLabel htmlFor="quick-action-prompt">Prompt</FieldLabel>
+        <FieldLabel htmlFor="quick-action-prompt">{t("Prompt")}</FieldLabel>
         <ModalTextarea
           id="quick-action-prompt"
           value={prompt}
           onChange={(event) => onPromptChange(event.target.value)}
           className="h-28 min-h-28"
-          placeholder="Prompt placed in the Assistant composer"
+          placeholder={t("Prompt placed in the Assistant composer")}
         />
       </div>
       <ToggleRow
-        label="Request document upload"
-        caption="Ask for source documents before launching this workflow."
+        label={t("Request document upload")}
+        caption={t("Ask for source documents before launching this workflow.")}
         checked={documentUpload}
         onChange={onDocumentUploadChange}
       />
       {enabled !== undefined && onEnabledChange && (
         <ToggleRow
-          label="Active"
-          caption="Show this action in the Assistant initial view."
+          label={t("Active")}
+          caption={t("Show this action in the Assistant initial view.")}
           checked={enabled}
           onChange={onEnabledChange}
         />

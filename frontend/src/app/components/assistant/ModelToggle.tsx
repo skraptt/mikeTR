@@ -20,6 +20,7 @@ import {
 import type { ApiKeyState } from "@/app/lib/mikeApi";
 import { useOllamaModels } from "@/app/hooks/useOllamaModels";
 import { useConfiguredModels } from "@/app/hooks/useConfiguredModels";
+import { t } from "@/shared/i18n";
 
 export type { ReasoningLevel };
 
@@ -108,9 +109,9 @@ export function ModelToggle({
     }
   }, [normalizedReasoningLevel, onReasoningChange, reasoningLevel]);
   const selectedLabel = apiKeysLoading
-    ? (models.find((model) => model.id === value)?.label ?? "Select model")
+    ? (models.find((model) => model.id === value)?.label ?? t("Select model"))
     : (selected?.label ??
-      (availableModels.length > 0 ? "Select model" : "No Models"));
+      (availableModels.length > 0 ? t("Select model") : t("No Models")));
   const emptyReason = noModelsReason(apiKeys, routerSelections);
   return (
     <ModelToggleUI
@@ -124,7 +125,7 @@ export function ModelToggle({
       tone={tone}
       modalInput={modalInput}
       triggerClassName={triggerClassName}
-      emptyLabel="No Models"
+      emptyLabel={t("No Models")}
       onEmptyClick={
         onNoModelsClick ? () => onNoModelsClick(emptyReason) : undefined
       }

@@ -12,6 +12,7 @@ import type { Project } from "@/app/components/shared/types";
 import { useProjectPicker } from "@/app/hooks/useProjectPicker";
 import { LIQUID_GLASS_FLAT_CLASS } from "@/app/components/ui/liquid-surface";
 import { cn } from "@/app/lib/utils";
+import { t } from "@/shared/i18n";
 
 export default function IdePage() {
     const router = useRouter();
@@ -46,10 +47,10 @@ export default function IdePage() {
                             unoptimized
                         />
                     }
-                    title="Integrated Drafting Environment"
+                    title={t("Integrated Drafting Environment")}
                     description={
                         projectPicker.error ??
-                        "Open a Project to start drafting and reviewing with the help of the Project Assistant."
+                        t("Open a Project to start drafting and reviewing with the help of the Project Assistant.")
                     }
                     tone={projectPicker.error ? "error" : "default"}
                     action={
@@ -61,7 +62,7 @@ export default function IdePage() {
                                 loading={projectPicker.loading}
                             >
                                 <FolderOpen className="h-3.5 w-3.5" />
-                                Open project
+                                {t("Open project")}
                             </PillButtonUI>
                             <PillButtonUI
                                 tone="white"
@@ -69,7 +70,7 @@ export default function IdePage() {
                                 onClick={() => setNewProjectOpen(true)}
                             >
                                 <Plus className="h-3.5 w-3.5" />
-                                New project
+                                {t("New project")}
                             </PillButtonUI>
                         </div>
                     }
@@ -83,9 +84,9 @@ export default function IdePage() {
                 loading={projectPicker.loading}
                 selectedId={projectPicker.selectedId}
                 onSelect={projectPicker.setSelectedId}
-                breadcrumbs={["IDE", "Open project"]}
+                breadcrumbs={["IDE", t("Open project")]}
                 primaryAction={{
-                    label: "Open project",
+                    label: t("Open project"),
                     type: "button",
                     onClick: openSelectedProject,
                     disabled: !projectPicker.selectedId,

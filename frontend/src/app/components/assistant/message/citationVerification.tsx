@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../ui/popover";
+import { t } from "@/shared/i18n";
 
 export type CitationVerificationDisplayState = "verified" | "unverified";
 
@@ -16,8 +17,8 @@ type VerificationPresentation = {
 };
 
 const UNVERIFIED_PRESENTATION: VerificationPresentation = {
-  label: "Could not verify quote",
-  description: "Quote could not be matched to the source text.",
+  label: t("Could not verify quote"),
+  description: t("Quote could not be matched to the source text."),
   pillClassName:
     "!bg-red-100/85 !text-red-800 hover:!bg-red-200/80 hover:!text-red-800 dark:!bg-red-950 dark:!text-white dark:hover:!bg-red-900 dark:hover:!text-white",
 };
@@ -80,13 +81,10 @@ export function CitationVerificationBadge({
         className="z-[220] w-72"
       >
         <span className="block text-xs font-medium text-gray-900">
-          Quote not found in document
+          {t("Quote not found in document")}
         </span>
         <span className="mt-1 block text-xs font-normal leading-5 text-gray-600">
-          The language model produced a quote that could not be found in the
-          source document. Treat it as hallucinated and double-check the
-          related section of the assistant response against the document
-          before relying on it.
+          {t("The language model produced a quote that could not be found in the source document. Treat it as hallucinated and double-check the related section of the assistant response against the document before relying on it.")}
         </span>
       </PopoverContent>
     </Popover>

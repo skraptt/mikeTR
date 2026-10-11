@@ -19,6 +19,7 @@ import type { Citation, EditAnnotation, PanelDocument } from "../shared/types";
 import { cn } from "@/app/lib/utils";
 import { LIQUID_GLASS_FLOAT_CLASS } from "@/app/components/ui/liquid-surface";
 import { reorderTabs, type TabDropPosition } from "@/app/lib/reorderTabs";
+import { t } from "@/shared/i18n";
 
 // ---------------------------------------------------------------------------
 // Tab data
@@ -313,7 +314,7 @@ export function AssistantSidePanel({
         return () => window.removeEventListener("resize", onResize);
     }, []);
 
-    const active = tabs.find((t) => t.id === activeTabId) ?? tabs[0] ?? null;
+    const active = tabs.find((tab) => tab.id === activeTabId) ?? tabs[0] ?? null;
     if (!active && !onOpenDocuments) return null;
 
     return (
@@ -342,14 +343,14 @@ export function AssistantSidePanel({
             />
 
             <DocumentTabBar
-                label="Assistant documents"
+                label={t("Assistant documents")}
                 idPrefix="assistant-document"
                 activeTabId={active?.id ?? null}
                 onActivate={onActivateTab}
                 onClose={(id) => viewers.requestClose([id], () => onCloseTab(id))}
                 onClosePanel={() => viewers.requestClose(tabs.map((tab) => tab.id), onCloseAll)}
                 onAdd={onOpenDocuments}
-                addLabel="Open Documents"
+                addLabel={t("Open Documents")}
                 onReorder={onReorderTabs}
                 tabs={tabs.map((tab) => {
                     const isLegalSource =
@@ -398,7 +399,7 @@ export function AssistantSidePanel({
                             className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                         >
                             <BookOpenText aria-hidden="true" className="h-4 w-4" />
-                            Open Documents
+                            {t("Open Documents")}
                         </button>
                     </div>
                 ) : null}

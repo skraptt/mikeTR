@@ -10,6 +10,7 @@ import {
     citationVerificationDescription,
     citationVerificationPillClassName,
 } from "./citationVerification";
+import { t } from "@/shared/i18n";
 
 type CitationSourceRow = {
     key: string;
@@ -119,7 +120,7 @@ export function buildCitationAppendix(citations: Citation[]) {
     ];
     const html = [
         `<section class="copied-citations">`,
-        `<h3>Citations</h3>`,
+        `<h3>${escapeHtmlText(t("Citations"))}</h3>`,
         ...entries.map((entry) => {
             const label = escapeHtmlText(ensureTerminalPeriod(entry.label));
             const quote = entry.quote
@@ -157,7 +158,7 @@ export function CitationsBlock({
             <div className={`overflow-hidden ${RESPONSE_GLASS_SURFACE}`}>
                 <div className="flex items-center justify-between gap-3 bg-white/25 px-3 py-2">
                     <h3 className="text-base font-serif text-gray-900">
-                        Citations
+                        {t("Citations")}
                     </h3>
                     {isLoading && (
                         <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />

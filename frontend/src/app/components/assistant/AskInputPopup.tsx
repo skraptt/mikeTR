@@ -13,6 +13,7 @@ import {
     LIQUID_GLASS_SUBTLE_CLASS,
     LIQUID_GLASS_TRANSLUCENT_CLASS,
 } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 type AskInputsEvent = Extract<AssistantEvent, { type: "ask_inputs" }>;
 type AskInputItem = AskInputsEvent["items"][number];
@@ -348,7 +349,7 @@ export function AskInputPopup({
                 const action =
                     asked?.kind === "approval"
                         ? `${asked.title} (${asked.connector_name})`
-                        : "Connector action";
+                        : t("Connector action");
                 return `${index + 1}. ${item.decision === "approve" ? "Approved" : "Rejected"}: ${action}`;
             }
             if (item.kind === "multi_choice") {
@@ -429,7 +430,7 @@ export function AskInputPopup({
 
     return (
         <>
-            {submitFailed && <p role="alert" className="px-3 py-2 text-sm text-red-600">Could not send these inputs. Please try again.</p>}
+            {submitFailed && <p role="alert" className="px-3 py-2 text-sm text-red-600">{t("Could not send these inputs. Please try again.")}</p>}
             <div
                 className={`w-full overflow-hidden rounded-[18px] pb-3 font-serif md:rounded-[22px] ${LIQUID_GLASS_TRANSLUCENT_CLASS}`}
             >
@@ -437,7 +438,7 @@ export function AskInputPopup({
                     <div className="flex min-w-0 items-center">
                         <div className="text-sm text-gray-500">
                             {submitted ? (
-                                isSubmitting ? "Sending inputs…" : "Inputs sent"
+                                isSubmitting ? t("Sending inputs…") : t("Inputs sent")
                             ) : (
                                 <div className="flex flex-wrap gap-x-1.5 gap-y-1">
                                     {event.items.map((item) => {
@@ -476,7 +477,7 @@ export function AskInputPopup({
                     {!submitted && (
                         <CloseButton
                             onClick={dismiss}
-                            label="Dismiss"
+                            label={t("Dismiss")}
                             size="md"
                         />
                     )}
@@ -492,8 +493,7 @@ export function AskInputPopup({
                                             <DocumentPrompt />
                                         ) : activeItem.kind === "approval" ? (
                                             <p className="text-sm text-gray-800">
-                                                Mike wants to run this action.
-                                                Approve it to run it now.
+                                                {t("Mike wants to run this action. Approve it to run it now.")}
                                             </p>
                                         ) : (
                                             <p className="text-sm text-gray-800">
@@ -670,7 +670,7 @@ export function AskInputPopup({
                                         }
                                         className="font-sans"
                                     >
-                                        Reject
+                                        {t("Reject")}
                                     </PillButtonUI>
                                     <PillButtonUI
                                         tone="black"
@@ -687,7 +687,7 @@ export function AskInputPopup({
                                         {answers[activeItem.id] ===
                                         "approve" ? (
                                             <>
-                                                Approved
+                                                {t("Approved")}
                                                 <Check className="h-3 w-3" />
                                             </>
                                         ) : (
@@ -728,7 +728,7 @@ export function AskInputPopup({
                                     >
                                         {confirmed.has(activeItem.id) ? (
                                             <>
-                                                Confirmed
+                                                {t("Confirmed")}
                                                 <Check className="h-3 w-3" />
                                             </>
                                         ) : (
@@ -762,7 +762,7 @@ export function AskInputPopup({
                         selected.filter((doc) => !existing.has(doc.id)),
                     );
                 }}
-                breadcrumb={["Assistant", "Add Documents"]}
+                breadcrumb={[t("Assistant"), t("Add Documents")]}
                 uploadStateId="assistant-ask-input"
                 initialSelectedDocuments={
                     docSelectorTarget
@@ -798,7 +798,7 @@ function OpenTextInput({
                 onChange={(event) =>
                     onChange(event.target.value.slice(0, OPEN_TEXT_MAX_LENGTH))
                 }
-                placeholder="Type your answer..."
+                placeholder={t("Type your answer...")}
                 className="min-h-28 w-full resize-y rounded-lg bg-gray-100/70 px-3 py-2 text-sm leading-5 text-gray-700 outline-none transition-colors placeholder:text-gray-400 focus:bg-gray-200/70 disabled:cursor-default disabled:opacity-60"
             />
             <p
@@ -900,7 +900,7 @@ function OptionInput({
                                         e.target.style.height = "auto";
                                         e.target.style.height = `${e.target.scrollHeight}px`;
                                     }}
-                                    placeholder="Type your answer..."
+                                    placeholder={t("Type your answer...")}
                                     className="flex-1 resize-none overflow-hidden bg-transparent text-sm leading-5 text-gray-600 outline-none placeholder:text-gray-400"
                                 />
                                 <span id={`other-${item.id}-limit`} className="mt-0.5 shrink-0 font-sans text-[10px] text-gray-400">

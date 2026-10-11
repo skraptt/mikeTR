@@ -2,6 +2,7 @@
 
 import type { Workflow } from "../shared/types";
 import { WorkflowPickerModal } from "../workflows/WorkflowPickerModal";
+import { t } from "@/shared/i18n";
 
 interface Props {
     open: boolean;
@@ -24,10 +25,10 @@ export function AssistantWorkflowModal({
         ? [
               "Projects",
               `${projectName}${projectCmNumber ? ` (#${projectCmNumber})` : ""}`,
-              "Assistant",
-              "Add workflow",
+              t("Assistant"),
+              t("Add workflow"),
           ]
-        : ["Assistant", "Add workflow"];
+        : [t("Assistant"), t("Add workflow")];
 
     return (
         <WorkflowPickerModal

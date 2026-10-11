@@ -17,6 +17,7 @@ import {
     type UserFacingError,
 } from "@/app/lib/userFacingError";
 import { LINK_SPENT_MESSAGE, authMessages } from "@/app/lib/authMessages";
+import { t } from "@/shared/i18n";
 
 /** The shared auth table with this screen's deltas: on the callback route
  *  every spent one-time code is the same spent confirmation link. */
@@ -57,7 +58,7 @@ function AuthCallbackContent() {
         process.env.NODE_ENV !== "production" &&
         searchParams.get("preview") === "confirmation-error";
     const displayedMessage = isErrorPreview
-        ? "This confirmation link is invalid or has expired."
+        ? t("This confirmation link is invalid or has expired.")
         : (error?.message ?? null);
 
     useEffect(() => {
@@ -138,7 +139,7 @@ function AuthCallbackContent() {
                     {displayedMessage ? (
                         <>
                             <h1 className="text-2xl font-medium font-serif text-gray-950">
-                                Unable to confirm
+                                {t("Unable to confirm")}
                             </h1>
                             <p
                                 role="alert"
@@ -151,11 +152,11 @@ function AuthCallbackContent() {
                                     <a
                                         href={supportMailtoFor(
                                             error,
-                                            "Failed to complete an auth callback.",
+                                            t("Failed to complete an auth callback."),
                                         )}
                                         className="font-medium underline underline-offset-2"
                                     >
-                                        Contact support
+                                        {t("Contact support")}
                                     </a>
                                 </p>
                             )}
@@ -167,17 +168,17 @@ function AuthCallbackContent() {
                                     className: "mt-6",
                                 })}
                             >
-                                Return to login
+                                {t("Return to login")}
                             </Link>
                         </>
                     ) : (
                         <>
                             <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
                             <h1 className="mt-4 text-2xl font-medium font-serif text-gray-950">
-                                Confirming your request
+                                {t("Confirming your request")}
                             </h1>
                             <p className="mt-2 text-sm text-gray-500">
-                                This should only take a moment.
+                                {t("This should only take a moment.")}
                             </p>
                         </>
                     )}

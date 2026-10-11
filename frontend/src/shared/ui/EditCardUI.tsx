@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { PillButtonUI } from "./PillButtonUI";
 import { TextButtonUI } from "./TextButtonUI";
 import { TextSlabUI } from "./TextSlabUI";
+import { t } from "../i18n";
 
 export type EditCardUIBusyAction =
     | "view"
@@ -96,8 +97,8 @@ export function EditCardUI({
                 <div className="mb-2 flex items-start gap-2">
                     {changeNumber !== undefined && (
                         <span
-                            aria-label={`Tracked change ${changeNumber}`}
-                            title={`Tracked change ${changeNumber}`}
+                            aria-label={t("Tracked change {number}", { number: changeNumber })}
+                            title={t("Tracked change {number}", { number: changeNumber })}
                             className="mt-0.5 inline-flex h-4 w-4 shrink-0 self-start items-center justify-center rounded-full bg-gray-200 text-[9px] font-medium leading-none text-gray-600"
                         >
                             {changeNumber}
@@ -151,7 +152,7 @@ export function EditCardUI({
                 <div
                     className="mt-2 flex items-center gap-2"
                     role="group"
-                    aria-label="Edit actions"
+                    aria-label={t("Edit actions")}
                 >
                     {showAcceptAndApply && (
                         <PillButtonUI
@@ -221,7 +222,7 @@ export function EditCardUI({
                     )}
                     {onClose && (
                         <TextButtonUI size="xs" title="Close tracked change" onClick={onClose} className="ml-auto">
-                            Close
+                            {t("Close")}
                         </TextButtonUI>
                     )}
                     {onView && (
@@ -233,12 +234,12 @@ export function EditCardUI({
                             loading={busyAction === "view"}
                             title={
                                 resolved
-                                    ? "This change has been resolved and is no longer in the document."
+                                    ? t("This change has been resolved and is no longer in the document.")
                                     : undefined
                             }
                             className={onClose ? undefined : "ml-auto"}
                         >
-                            View
+                            {t("View")}
                         </PillButtonUI>
                     )}
                 </div>

@@ -13,6 +13,7 @@ import {
 import { can, roleFrom } from "@/app/lib/permissions";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import type { Chat } from "@/app/components/shared/types";
+import { t } from "@/shared/i18n";
 
 interface Props {
     open: boolean;
@@ -70,7 +71,7 @@ export function ChatAccessModal({ open, chat, onClose }: Props) {
                 setAccessError(
                     userFacingApiError(
                         cause,
-                        "Sharing details could not be loaded, so access cannot be changed here.",
+                        t("Sharing details could not be loaded, so access cannot be changed here."),
                     ),
                 );
             }
@@ -96,7 +97,7 @@ export function ChatAccessModal({ open, chat, onClose }: Props) {
             currentUserId={user?.id ?? null}
             breadcrumb={[
                 "Assistant",
-                chat.title?.trim() || "Untitled chat",
+                chat.title?.trim() || t("Untitled chat"),
                 "Access",
             ]}
             access={{

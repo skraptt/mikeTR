@@ -643,20 +643,24 @@ export function AssistantMessage({
             const count = event.result_count ?? 0;
             const detail = event.isStreaming
                 ? event.query
-                    ? `for "${event.query}"`
+                    ? t('for "{query}"', { query: event.query })
                     : undefined
                 : event.error
                   ? event.error
-                  : `${count} ${count === 1 ? "result" : "results"}${event.query ? ` for "${event.query}"` : ""}`;
+                  : event.query
+                    ? t.plural(count, '{count} result for "{query}"', '{count} results for "{query}"', {
+                          query: event.query,
+                      })
+                    : t.plural(count, "{count} result", "{count} results");
             return (
                 <CourtListenerBlock
                     key={globalIdx}
                     label={
                         event.isStreaming
-                            ? "Searching case law"
+                            ? t("Searching case law")
                             : event.error
-                              ? "Case law search failed"
-                              : "Searched case law"
+                              ? t("Case law search failed")
+                              : t("Searched case law")
                     }
                     detail={detail}
                     isStreaming={!!event.isStreaming}
@@ -667,9 +671,7 @@ export function AssistantMessage({
         }
         if (event.type === "courtlistener_get_cases") {
             const caseCount = event.case_count ?? event.cluster_ids.length;
-            const displayLabel = `${caseCount} ${
-                caseCount === 1 ? "case" : "cases"
-            }`;
+            const displayLabel = t.plural(caseCount, "{count} case", "{count} cases");
             const detail = event.error ? event.error : undefined;
             const items: CourtListenerBlockItem[] =
                 event.cases?.map((caseItem) => ({
@@ -681,7 +683,7 @@ export function AssistantMessage({
                     const citation = caseCitations.get(`us-case-${clusterId}`);
                     return {
                         caseName: citation?.case_name ?? null,
-                        citation: citation?.citation ?? `Cluster ${clusterId}`,
+                        citation: citation?.citation ?? t("Cluster {id}", { id: clusterId }),
                         url: citation?.url ?? null,
                     };
                 });
@@ -690,10 +692,10 @@ export function AssistantMessage({
                     key={globalIdx}
                     label={
                         event.isStreaming
-                            ? `Fetching ${displayLabel}`
+                            ? t("Fetching {cases}", { cases: displayLabel })
                             : event.error
-                              ? "Case fetch failed"
-                              : `Fetched ${displayLabel}`
+                              ? t("Case fetch failed")
+                              : t("Fetched {cases}", { cases: displayLabel })
                     }
                     detail={detail}
                     isStreaming={!!event.isStreaming}
@@ -720,21 +722,22 @@ export function AssistantMessage({
                     ),
                 );
                 const caseCount = caseIds.size || searches.length;
-                const searchLabel = `${searches.length} ${
-                    searches.length === 1 ? "search" : "searches"
-                } in ${caseCount} ${caseCount === 1 ? "case" : "cases"}`;
+                const searchLabel = t("{searches} in {cases}", {
+                    searches: t.plural(searches.length, "{count} search", "{count} searches"),
+                    cases: t.plural(caseCount, "{count} case", "{count} cases"),
+                });
                 const detail = event.isStreaming
                     ? undefined
                     : event.error
                       ? event.error
-                      : `(${matches} ${matches === 1 ? "match" : "matches"})`;
+                      : t.plural(matches, "({count} match)", "({count} matches)");
                 const items: CourtListenerBlockItem[] = searches.map(
                     (search) => ({
                         caseName: search.case_name ?? null,
                         citation:
                             search.citation ??
                             (search.cluster_id
-                                ? `Cluster ${search.cluster_id}`
+                                ? t("Cluster {id}", { id: search.cluster_id })
                                 : null),
                         url: null,
                         query: search.query,
@@ -747,10 +750,10 @@ export function AssistantMessage({
                         key={globalIdx}
                         label={
                             event.isStreaming
-                                ? `Running ${searchLabel}`
+                                ? t("Running {searches}", { searches: searchLabel })
                                 : event.error
-                                  ? "Case searches failed"
-                                  : `Ran ${searchLabel}`
+                                  ? t("Case searches failed")
+                                  : t("Ran {searches}", { searches: searchLabel })
                         }
                         detail={detail}
                         isStreaming={!!event.isStreaming}
@@ -763,23 +766,32 @@ export function AssistantMessage({
             const matches = event.total_matches ?? 0;
             const caseLabel =
                 [event.case_name, event.citation].filter(Boolean).join(", ") ||
-                (event.cluster_id ? `cluster ${event.cluster_id}` : "case");
+                (event.cluster_id ? t("cluster {id}", { id: event.cluster_id }) : t("case"));
             const detail = event.isStreaming
                 ? event.query
-                    ? `for "${event.query}" in ${caseLabel}`
+                    ? t('for "{query}" in {case}', { query: event.query, case: caseLabel })
                     : caseLabel
                 : event.error
                   ? event.error
-                  : `${matches} ${matches === 1 ? "match" : "matches"}${event.query ? ` for "${event.query}"` : ""} in ${caseLabel}`;
+                  : event.query
+                    ? t.plural(
+                          matches,
+                          '{count} match for "{query}" in {case}',
+                          '{count} matches for "{query}" in {case}',
+                          { query: event.query, case: caseLabel },
+                      )
+                    : t.plural(matches, "{count} match in {case}", "{count} matches in {case}", {
+                          case: caseLabel,
+                      });
             return (
                 <CourtListenerBlock
                     key={globalIdx}
                     label={
                         event.isStreaming
-                            ? "Searching case"
+                            ? t("Searching case")
                             : event.error
-                              ? "Case search failed"
-                              : "Searched case"
+                              ? t("Case search failed")
+                              : t("Searched case")
                     }
                     detail={detail}
                     isStreaming={!!event.isStreaming}
@@ -792,23 +804,23 @@ export function AssistantMessage({
             const count = event.opinion_count ?? 0;
             const caseLabel =
                 [event.case_name, event.citation].filter(Boolean).join(", ") ||
-                "case";
+                t("case");
             const detail = event.isStreaming
                 ? undefined
                 : event.error
                   ? event.error
                   : count > 0
-                    ? `(${count} ${count === 1 ? "opinion" : "opinions"})`
+                    ? t.plural(count, "({count} opinion)", "({count} opinions)")
                     : undefined;
             return (
                 <CourtListenerBlock
                     key={globalIdx}
                     label={
                         event.isStreaming
-                            ? `Reading case ${caseLabel}`
+                            ? t("Reading case {case}", { case: caseLabel })
                             : event.error
-                              ? `Case read failed ${caseLabel}`
-                              : `Read case ${caseLabel}`
+                              ? t("Case read failed {case}", { case: caseLabel })
+                              : t("Read case {case}", { case: caseLabel })
                     }
                     detail={detail}
                     isStreaming={!!event.isStreaming}
@@ -820,12 +832,12 @@ export function AssistantMessage({
         if (event.type === "courtlistener_verify_citations") {
             const citations = event.citation_count ?? 0;
             const matches = event.match_count ?? 0;
-            const citationLabel = `${citations} ${citations === 1 ? "citation" : "citations"}`;
+            const citationLabel = t.plural(citations, "{count} citation", "{count} citations");
             const detail = event.isStreaming
                 ? undefined
                 : event.error
                   ? event.error
-                  : `(${matches} ${matches === 1 ? "match" : "matches"})`;
+                  : t.plural(matches, "({count} match)", "({count} matches)");
             // Adjacent `case_citation` events are emitted between the start
             // and final verify_citations events (one per matched citation) —
             // collect them so the user can expand to see resolved cases.
@@ -846,10 +858,10 @@ export function AssistantMessage({
                     key={globalIdx}
                     label={
                         event.isStreaming
-                            ? `Verifying ${citationLabel}`
+                            ? t("Verifying {citations}", { citations: citationLabel })
                             : event.error
-                              ? "Citation verification failed"
-                              : `Verified ${citationLabel}`
+                              ? t("Citation verification failed")
+                              : t("Verified {citations}", { citations: citationLabel })
                     }
                     detail={detail}
                     isStreaming={!!event.isStreaming}

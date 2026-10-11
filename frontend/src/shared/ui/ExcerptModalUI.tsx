@@ -5,6 +5,7 @@ import { ModalUI } from "./ModalUI";
 import { TextSlabUI } from "./TextSlabUI";
 import { excerptLabel } from "./ExcerptPillUI";
 import type { MessageExcerpt } from "../lib/messageExcerpts";
+import { t } from "../i18n";
 
 const LABEL_CLASS = "mb-2 text-sm font-medium text-gray-700";
 
@@ -33,7 +34,7 @@ export function ExcerptModalUI({
             {excerpt && (
                 <div className="flex flex-col gap-4 pb-5">
                     <div>
-                        <p className={LABEL_CLASS}>Excerpt</p>
+                        <p className={LABEL_CLASS}>{t("Excerpt")}</p>
                         {/* Long passages scroll inside the slab; focusable so
                             the scroll is reachable by keyboard. */}
                         <TextSlabUI
@@ -47,7 +48,7 @@ export function ExcerptModalUI({
                     </div>
                     {excerpt.note && (
                         <div>
-                            <p className={LABEL_CLASS}>Annotation</p>
+                            <p className={LABEL_CLASS}>{t("Annotation")}</p>
                             <p className="break-words text-sm text-gray-900">
                                 {excerpt.note}
                             </p>

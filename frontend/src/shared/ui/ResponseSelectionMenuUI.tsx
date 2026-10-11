@@ -11,6 +11,7 @@ import {
     normalizeExcerptText,
     type MessageExcerpt,
 } from "../lib/messageExcerpts";
+import { t } from "../i18n";
 
 /** Marks the response text a reader can highlight to quote or annotate. */
 export const EXCERPT_SOURCE_PROPS = { "data-excerpt-source": "" } as const;
@@ -276,15 +277,15 @@ function AnnotationBubble({
                     ref={inputRef}
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
-                    aria-label="Note about the selected text"
+                    aria-label={t("Note about the selected text")}
                     // Sits on the surface's glass with no fill of its own.
                     data-dropdown-input="flush"
-                    placeholder="Add a note about this passage"
+                    placeholder={t("Add a note about this passage")}
                     className="min-w-0 flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
                 />
                 <button
                     type="submit"
-                    aria-label="Add annotation to chat"
+                    aria-label={t("Add annotation to chat")}
                     disabled={!trimmed}
                     className={`${COMPOSER_SEND_BUTTON_CLASS} h-7 w-7 shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60`}
                 >
@@ -395,7 +396,7 @@ export function ResponseSelectionMenuUI({
                     point={menu.point}
                     followPoint
                     onClose={() => setMenu(null)}
-                    aria-label="Selected text"
+                    aria-label={t("Selected text")}
                     className="w-44"
                 >
                     <DropdownItem
@@ -406,7 +407,7 @@ export function ResponseSelectionMenuUI({
                         }}
                     >
                         <Copy aria-hidden="true" className="h-3.5 w-3.5" />
-                        Copy
+                        {t("Copy")}
                     </DropdownItem>
                     {canAsk && (
                         <>
@@ -419,14 +420,14 @@ export function ResponseSelectionMenuUI({
                                     aria-hidden="true"
                                     className="h-3.5 w-3.5"
                                 />
-                                Ask
+                                {t("Ask")}
                             </DropdownItem>
                             <DropdownItem onSelect={() => setAnnotating(menu)}>
                                 <TextQuote
                                     aria-hidden="true"
                                     className="h-3.5 w-3.5"
                                 />
-                                Annotate and ask
+                                {t("Annotate and ask")}
                             </DropdownItem>
                             {onAskInSideChat && (
                                 <DropdownItem
@@ -449,7 +450,7 @@ export function ResponseSelectionMenuUI({
                                         aria-hidden="true"
                                         className="h-3.5 w-3.5"
                                     />
-                                    Ask in side chat
+                                    {t("Ask in side chat")}
                                 </DropdownItem>
                             )}
                         </>

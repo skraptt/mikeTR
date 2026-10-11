@@ -35,6 +35,7 @@ import {
     type ToastAction,
     type ToastRecord,
 } from "../lib/toastStore";
+import { t } from "../i18n";
 export {
     showToast,
     dismissToast,
@@ -108,7 +109,7 @@ export function ToastActionsUI({ toast }: { toast: ToastRecord }): ReactElement 
                     href={toast.supportHref}
                     className={noticeActionClassName()}
                 >
-                    {toast.supportLabel ?? "Contact support"}
+                    {toast.supportLabel ?? t("Contact support")}
                 </a>
             )}
             {toast.actions?.map((action) => (
@@ -186,7 +187,7 @@ function ToastItemUI({ toast }: { toast: ToastRecord }) {
             title={toast.title}
             message={toast.message}
             onDismiss={() => dismissToast(toast.id)}
-            dismissLabel="Dismiss notification"
+            dismissLabel={t("Dismiss notification")}
             // The item owns the live semantics: `alert` is implicitly
             // assertive, `status` polite. The viewport around it is a plain
             // region, because a live region nested in a live region is
@@ -248,7 +249,7 @@ export function ToastViewportUI({
             // through its own role, and `aria-label` needs a role to be
             // exposed at all.
             role="region"
-            aria-label="Notifications"
+            aria-label={t("Notifications")}
             className={twMerge(
                 clsx(
                     "pointer-events-none fixed left-1/2 top-5 z-[260] flex w-[min(92vw,520px)] -translate-x-1/2 flex-col gap-2 px-4",

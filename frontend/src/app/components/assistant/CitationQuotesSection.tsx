@@ -14,6 +14,7 @@ import {
 } from "./message/citationVerification";
 import { ContextNumberBadge } from "./ContextNumberBadge";
 import { RESPONSE_GLASS_SURFACE } from "./message/messageStyles";
+import { t } from "@/shared/i18n";
 
 export type CitationQuoteSectionItem = {
     id: string;
@@ -116,12 +117,12 @@ export function CitationQuotesSection({
         <div className="px-2 pb-2">
             <div className={`${RESPONSE_GLASS_SURFACE} p-2`}>
                 <div className="mb-2 flex items-center justify-between">
-                    <ContextNumberBadge number={citationRef} label="Citation" />
+                    <ContextNumberBadge number={citationRef} label={t("Citation")} />
                     <div className="ml-auto flex items-center gap-2">
                         {hasMultipleQuotes && (
                             <div className="flex items-center gap-1">
                                 <span className="mr-0.5 text-xs font-medium text-gray-500">
-                                    Quotes
+                                    {t("Quotes")}
                                 </span>
                                 {quotes.map((quote, index) => {
                                     const isUnverified =
@@ -172,12 +173,12 @@ export function CitationQuotesSection({
                         />
                     ) : (
                         <RelevantQuoteMessage>
-                            No relevant quotes.
+                            {t("No relevant quotes.")}
                         </RelevantQuoteMessage>
                     )}
                     {onClose && (isLoading || error || !currentQuote) && (
                         <div className="mt-2 flex justify-end">
-                            <TextButtonUI size="xs" title="Close citation" onClick={onClose}>Close</TextButtonUI>
+                            <TextButtonUI size="xs" title={t("Close citation")} onClick={onClose}>{t("Close")}</TextButtonUI>
                         </div>
                     )}
                 </div>
@@ -276,7 +277,7 @@ function QuoteItem({
                 )}
                 {onClose && (
                     <TextButtonUI size="xs" title="Close citation" onClick={onClose} className="ml-auto">
-                        Close
+                        {t("Close")}
                     </TextButtonUI>
                 )}
                 <PillButtonUI
@@ -285,7 +286,7 @@ function QuoteItem({
                     disabled={isUnverified}
                     onClick={onView}
                 >
-                    View
+                    {t("View")}
                 </PillButtonUI>
             </div>
         </div>
@@ -333,7 +334,7 @@ function CiteQuoteButton({
             tone="white"
             size="xs"
             onClick={handleClick}
-            title="Copy Quote and Citation"
+            title={t("Copy Quote and Citation")}
         >
             {isCopied ? (
                 <Check aria-hidden="true" className="h-3 w-3 text-green-600" />

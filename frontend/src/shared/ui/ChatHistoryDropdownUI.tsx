@@ -15,6 +15,7 @@ import {
     DropdownItem,
     DropdownTrigger,
 } from "./dropdown";
+import { t } from "../i18n";
 
 /** One chat in the history menu. */
 export type ChatHistoryDropdownItemUI = {
@@ -109,10 +110,10 @@ export function ChatHistoryDropdownUI({
     disabled = false,
     query,
     onQueryChange,
-    searchLabel = "Search chats",
-    searchPlaceholder = "Search chats…",
+    searchLabel = t("Search chats"),
+    searchPlaceholder = t("Search chats…"),
     loading = false,
-    loadingLabel = "Loading chats…",
+    loadingLabel = t("Loading chats…"),
     error,
     onRetry,
     notice,
@@ -211,7 +212,7 @@ export function ChatHistoryDropdownUI({
                                     onClick={onRetry}
                                     className="rounded-md text-xs font-medium text-gray-700 underline-offset-2 transition-colors hover:text-gray-950 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                                 >
-                                    Retry
+                                    {t("Retry")}
                                 </button>
                             )}
                         </div>
@@ -264,7 +265,7 @@ export function ChatHistoryDropdownUI({
                             ))}
                             {loadingMore && (
                                 <p role="status" className={STATUS_TEXT_CLASS}>
-                                    Loading more chats…
+                                    {t("Loading more chats…")}
                                 </p>
                             )}
                             {footer && (

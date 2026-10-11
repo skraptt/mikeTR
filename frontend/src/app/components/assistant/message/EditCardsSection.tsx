@@ -5,6 +5,7 @@ import { RESPONSE_GLASS_SURFACE } from "./messageStyles";
 import { resolveDocumentEdit } from "@/app/lib/mikeApi";
 import type { EditAnnotation } from "../../shared/types";
 import { applyOptimisticResolution } from "../EditCard";
+import { t } from "@/shared/i18n";
 
 /**
  * Card rendered above the per-edit EditCards when a message produced
@@ -139,7 +140,7 @@ function BulkEditActions({
                 disabled={!!busy}
                 loading={busy === "accept"}
             >
-                {busy === "accept" ? "Accepting all..." : "Accept all"}
+                {busy === "accept" ? t("Accepting all...") : t("Accept all")}
             </PillButtonUI>
             <PillButtonUI
                 tone="white"
@@ -148,7 +149,7 @@ function BulkEditActions({
                 disabled={!!busy}
                 loading={busy === "reject"}
             >
-                {busy === "reject" ? "Rejecting all..." : "Reject all"}
+                {busy === "reject" ? t("Rejecting all...") : t("Reject all")}
             </PillButtonUI>
             {progress && (
                 <span className="text-xs font-sans text-gray-500">
@@ -165,7 +166,7 @@ function BulkEditActions({
                     disabled={!!busy}
                     className="ml-auto"
                 >
-                    View
+                    {t("View")}
                 </PillButtonUI>
             )}
         </div>

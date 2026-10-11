@@ -2,6 +2,7 @@
 
 import { Children, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
+import { t } from "../i18n";
 
 export interface EditCardsSectionUIProps {
     summary: string;
@@ -20,7 +21,7 @@ export interface EditCardsSectionUIProps {
 export function EditCardsSectionUI({
     summary,
     actions,
-    actionsLabel = "Tracked change actions",
+    actionsLabel = t("Tracked change actions"),
     children,
     className = "",
     defaultOpen = true,
@@ -40,7 +41,7 @@ export function EditCardsSectionUI({
                 <button
                     type="button"
                     onClick={() => setIsOpen((value) => !value)}
-                    aria-label={isOpen ? "Collapse edits" : "Expand edits"}
+                    aria-label={isOpen ? t("Collapse edits") : t("Expand edits")}
                     aria-expanded={isOpen}
                     className="shrink-0 text-gray-500 transition-colors hover:text-gray-700"
                 >

@@ -16,6 +16,7 @@ import {
     QUOTE_HIGHLIGHT_CLASS,
 } from "../shared/views/highlightDocxQuote";
 import { LIQUID_GLASS_FLAT_CLASS } from "@/shared/ui/LiquidGlassUI";
+import { t } from "@/shared/i18n";
 
 const CASE_HTML_SANITIZER_CONFIG = {
     ALLOWED_TAGS: [
@@ -219,7 +220,7 @@ export function CaseView({
                         </p>
                         {onRetry && (
                             <PillButtonUI tone="white" onClick={onRetry}>
-                                Try again
+                                {t("Try again")}
                             </PillButtonUI>
                         )}
                     </div>
@@ -233,7 +234,7 @@ export function CaseView({
                                 surfaceClassName,
                             )}
                         >
-                            No content was returned for this document.
+                            {t("No content was returned for this document.")}
                         </p>
                     )}
                 {!visibleLoading && !visibleError && activeSubdocument && (
@@ -288,7 +289,7 @@ function CaseSubdocument({
                 />
             ) : (
                 <div className="whitespace-pre-wrap font-serif text-sm leading-7 text-gray-900 [&_p]:my-3">
-                    {subdocument.text || "No document text returned."}
+                    {subdocument.text || t("No document text returned.")}
                 </div>
             )}
         </article>
