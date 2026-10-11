@@ -39,6 +39,7 @@ import {
     type PendingDirectGrant,
 } from "../modals/CreateAccessStep";
 import { useConfiguredModels } from "@/app/hooks/useConfiguredModels";
+import { t } from "@/shared/i18n";
 
 const isDev = process.env.NODE_ENV !== "production";
 const devLog = (...args: Parameters<typeof console.log>) => {
@@ -296,7 +297,7 @@ export function NewTRModal({
             handleClose();
         } catch (error) {
             setUploadError(
-                userFacingApiError(error, "Could not create the review."),
+                userFacingApiError(error, t("Could not create the review.")),
             );
         } finally {
             creatingRef.current = false;
@@ -391,7 +392,7 @@ export function NewTRModal({
                         ? failedUploadMessage(err.outcomes)
                         : userFacingApiError(
                               err,
-                              "The selected files could not be uploaded. Please try again.",
+                              t("The selected files could not be uploaded. Please try again."),
                           ),
                 ),
             );
@@ -405,8 +406,8 @@ export function NewTRModal({
         {
             value: "",
             label: loadingWorkflows
-                ? "Loading templates..."
-                : "No template - start from scratch",
+                ? t("Loading templates...")
+                : t("No template - start from scratch"),
         },
         ...workflows.map((workflow) => ({
             value: workflow.id,
@@ -420,7 +421,7 @@ export function NewTRModal({
                   project.name +
                   (project.cm_number ? ` (#${project.cm_number})` : ""),
           }))
-        : [{ value: "", label: "No projects found" }];
+        : [{ value: "", label: t("No projects found") }];
 
     // What to show in the directory depends on mode and toggle state
     const directoryDocuments = isProjectMode
@@ -442,11 +443,11 @@ export function NewTRModal({
     const breadcrumbs =
         isProjectMode && projectName
             ? [
-                  "Projects",
+                  t("Projects"),
                   `${projectName}${projectCmNumber ? ` (#${projectCmNumber})` : ""}`,
-                  "New Tabular Review",
+                  t("New Tabular Review"),
               ]
-            : ["Tabular Reviews", "New Tabular Review"];
+            : [t("Tabular Reviews"), t("New Tabular Review")];
 
     return (
         <Modal
@@ -458,7 +459,7 @@ export function NewTRModal({
                     ? "Details"
                     : step === "access"
                       ? "Access"
-                      : "Add Documents",
+                      : t("Add Documents"),
             ]}
             secondaryAction={
                 step === "documents"
@@ -476,12 +477,12 @@ export function NewTRModal({
                           // dropped without a word. Freeze both.
                           disabled: uploading || reviewExists,
                           title: reviewExists
-                              ? "The review has been created — add documents from the review itself."
+                              ? t("The review has been created — add documents from the review itself.")
                               : undefined,
                       }
                     : step === "access"
                       ? {
-                            label: "Back",
+                            label: t("Back"),
                             type: "button",
                             onClick: () => setStep("details"),
                             disabled: uploading,
@@ -491,16 +492,16 @@ export function NewTRModal({
             cancelAction={
                 step === "documents"
                     ? {
-                          label: "Back",
+                          label: t("Back"),
                           onClick: () => setStep("access"),
                           disabled: uploading || reviewExists,
                           title: reviewExists
-                              ? "The review has been created — its details and access can be changed from the review itself."
+                              ? t("The review has been created — its details and access can be changed from the review itself.")
                               : undefined,
                       }
                     : step === "access"
                       ? {
-                            label: "Skip",
+                            label: t("Skip"),
                             type: "button",
                             onClick: () => {
                                 setDirectGrants([]);
@@ -513,7 +514,7 @@ export function NewTRModal({
             primaryAction={
                 step === "details"
                     ? {
-                          label: "Next",
+                          label: t("Next"),
                           type: "button",
                           onClick: () => setStep("access"),
                           disabled:
@@ -523,7 +524,7 @@ export function NewTRModal({
                       }
                     : step === "access"
                       ? {
-                            label: "Next",
+                            label: t("Next"),
                             type: "button",
                             onClick: (event) => {
                                 // The same footer node becomes the submit button
@@ -565,14 +566,14 @@ export function NewTRModal({
                     <div className="space-y-6">
                         <div>
                             <FieldLabel htmlFor="new-tr-title">
-                                Review name
+                                {t("Review name")}
                             </FieldLabel>
                             <FormTextInput
                                 id="new-tr-title"
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder="Review name"
+                                placeholder={t("Review name")}
                                 variant="minimal"
                                 className="placeholder:text-gray-400"
                                 autoFocus
@@ -580,7 +581,7 @@ export function NewTRModal({
                         </div>
 
                         <div>
-                            <FieldLabel as="p">Model</FieldLabel>
+                            <FieldLabel as="p">{t("Model")}</FieldLabel>
                             <ModelToggle
                                 value={selectedModel}
                                 onChange={setSelectedModel}
@@ -596,7 +597,7 @@ export function NewTRModal({
 
                         {/* Workflow template */}
                         <div>
-                            <FieldLabel as="p">Workflow template</FieldLabel>
+                            <FieldLabel as="p">{t("Workflow template")}</FieldLabel>
                             <ModalSelect
                                 id="new-tr-workflow-template"
                                 value={selectedWorkflowId ?? ""}
@@ -611,7 +612,7 @@ export function NewTRModal({
                         {/* Create under a project toggle */}
                         {!isProjectMode && (
                             <div className="space-y-3">
-                                <FieldLabel as="p">Project</FieldLabel>
+                                <FieldLabel as="p">{t("Project")}</FieldLabel>
                                 <ToggleSwitchUI
                                     checked={underProject}
                                     onCheckedChange={(next) => {
@@ -624,7 +625,7 @@ export function NewTRModal({
                                         }
                                     }}
                                 >
-                                    Create under a project
+                                    {t("Create under a project")}
                                 </ToggleSwitchUI>
 
                                 {underProject && (
@@ -637,7 +638,7 @@ export function NewTRModal({
                                                 void handleSelectProject(value);
                                             }
                                         }}
-                                        placeholder="Select project..."
+                                        placeholder={t("Select project...")}
                                         disabled={projects.length === 0}
                                     />
                                 )}
@@ -645,13 +646,12 @@ export function NewTRModal({
                         )}
 
                         <div>
-                            <FieldLabel as="p">Document grouping</FieldLabel>
+                            <FieldLabel as="p">{t("Document grouping")}</FieldLabel>
                             <ToggleSwitchUI
                                 checked={groupBySubfolder}
                                 onCheckedChange={setGroupBySubfolder}
                             >
-                                Treat documents in the same folder as one review
-                                row
+                                {t("Treat documents in the same folder as one review row")}
                             </ToggleSwitchUI>
                         </div>
                     </div>
@@ -670,15 +670,15 @@ export function NewTRModal({
                                   ? selectedProjectId || null
                                   : null
                         }
-                        ownerLabel="Review owners"
+                        ownerLabel={t("Review owners")}
                     />
                 ) : (
                     <div className="flex min-h-0 flex-1 flex-col">
                         {reviewExists && (
                             <p className="mb-3 text-sm text-gray-500">
-                                The review has been created, so its documents
-                                can no longer be changed here. Add documents
-                                from the review once access has been granted.
+                                {t(
+                                    "The review has been created, so its documents can no longer be changed here. Add documents from the review once access has been granted.",
+                                )}
                             </p>
                         )}
                         {showDirectory && (

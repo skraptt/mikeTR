@@ -25,6 +25,7 @@ import { useUserProfile } from "@/app/contexts/UserProfileContext";
 import { isModelAvailable } from "@/app/lib/modelAvailability";
 import { useConfiguredModels } from "@/app/hooks/useConfiguredModels";
 import { roleFrom } from "@/app/lib/permissions";
+import { t } from "@/shared/i18n";
 
 interface Props {
     workflow: Workflow | null;
@@ -36,7 +37,7 @@ function SelectedWorkflowSummary({ workflow }: { workflow: Workflow }) {
     return (
         <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
             <span className="shrink-0 text-xs font-medium text-gray-700">
-                Selected workflow
+                {t("Selected workflow")}
             </span>
             <span className="min-w-0 flex-1 truncate text-right text-xs text-gray-500">
                 {workflow.metadata.title}
@@ -266,19 +267,19 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
         wf.metadata.type === "assistant"
             ? [
                   { value: "workspace" as const, label: "Assistant" },
-                  { value: "project" as const, label: "Project assistant" },
+                  { value: "project" as const, label: t("Project assistant") },
               ]
             : [
-                  { value: "workspace" as const, label: "Tabular reviews" },
+                  { value: "workspace" as const, label: t("Tabular reviews") },
                   {
                       value: "project" as const,
-                      label: "Project tabular reviews",
+                      label: t("Project tabular reviews"),
                   },
               ];
 
     const breadcrumbs =
         screen === "select"
-            ? ["Workflows", "Select workflow"]
+            ? [t("Workflows"), t("Select workflow")]
             : [
                   <button
                       key="workflows"
@@ -286,11 +287,11 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
                       onClick={() => setScreen("select")}
                       className="transition-colors hover:text-gray-700"
                   >
-                      Workflows
+                      {t("Workflows")}
                   </button>,
                   wf.metadata.title,
-                  wf.metadata.type === "assistant" ? "New Chat" : "New Review",
-                  screen === "details" ? "Details" : "Attach Documents",
+                  wf.metadata.type === "assistant" ? t("New Chat") : t("New Review"),
+                  screen === "details" ? t("Details") : t("Attach Documents"),
               ];
 
     const selectPageAction = () => {
@@ -346,12 +347,12 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
                         }
                       : wf.metadata.type === "assistant"
                         ? {
-                              label: saving ? "Starting…" : "Start Chat",
+                              label: saving ? t("Starting…") : t("Start Chat"),
                               onClick: handleStartChat,
                               disabled: saving || (inProject && !selectedProjectId),
                           }
                         : {
-                              label: saving ? "Creating…" : "Create Review",
+                              label: saving ? t("Creating…") : t("Create Review"),
                               onClick: handleCreateReview,
                               disabled:
                                   saving ||
@@ -388,7 +389,7 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
 
                     <div className="space-y-6">
                         <div>
-                            <FieldLabel as="p">Use in</FieldLabel>
+                            <FieldLabel as="p">{t("Use in")}</FieldLabel>
                             <ModalSegmentedToggle
                                 value={location}
                                 onChange={(value) => {
@@ -402,7 +403,7 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
 
                         {inProject && (
                             <div>
-                                <FieldLabel htmlFor="workflow-project">Project</FieldLabel>
+                                <FieldLabel htmlFor="workflow-project">{t("Project")}</FieldLabel>
                                 <ModalSelect
                                     id="workflow-project"
                                     value={selectedProjectId ?? ""}
@@ -416,10 +417,10 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
                                     }}
                                     placeholder={
                                         dirLoading
-                                            ? "Loading projects..."
+                                            ? t("Loading projects...")
                                             : projects.length
-                                              ? "Select project..."
-                                              : "No projects found"
+                                              ? t("Select project...")
+                                              : t("No projects found")
                                     }
                                     disabled={dirLoading || projects.length === 0}
                                 />
@@ -429,13 +430,13 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
                         {wf.metadata.type === "assistant" && (
                             <div>
                                 <FieldLabel htmlFor="workflow-additional-message">
-                                    Additional message
+                                    {t("Additional message")}
                                 </FieldLabel>
                                 <ModalTextarea
                                     id="workflow-additional-message"
                                     value={assistantPrompt}
                                     onChange={(e) => setAssistantPrompt(e.target.value)}
-                                    placeholder="Add any additional instructions..."
+                                    placeholder={t("Add any additional instructions...")}
                                     rows={4}
                                 />
                             </div>
@@ -443,7 +444,7 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
 
                         {wf.metadata.type === "tabular" && (
                             <div>
-                                <FieldLabel as="p">Model</FieldLabel>
+                                <FieldLabel as="p">{t("Model")}</FieldLabel>
                                 <ModelToggle
                                     value={selectedModel}
                                     onChange={setSelectedModel}

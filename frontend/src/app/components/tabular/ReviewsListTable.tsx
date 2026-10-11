@@ -37,6 +37,7 @@ import type {
     TabularReviewSortDirection,
     TabularReviewSortKey,
 } from "@/app/hooks/usePaginatedTabularReviews";
+import { t } from "@/shared/i18n";
 
 /**
  * The tabular reviews list. Pass `projectColumn` on surfaces that list reviews
@@ -173,7 +174,7 @@ export function ReviewsListTable({
         sort?.key === "created" ? sort.direction : null;
     const nameFilterButton = (
         <TableSortFilter
-            label="Sort by review name"
+            label={t("Sort by review name")}
             value={nameSortDirection}
             align="right"
             onChange={(direction) => handleSortChange("name", direction)}
@@ -181,21 +182,21 @@ export function ReviewsListTable({
     );
     const columnsFilterButton = (
         <TableSortFilter
-            label="Sort by columns"
+            label={t("Sort by columns")}
             value={columnsSortDirection}
             onChange={(direction) => handleSortChange("columns", direction)}
         />
     );
     const documentsFilterButton = (
         <TableSortFilter
-            label="Sort by documents"
+            label={t("Sort by documents")}
             value={documentsSortDirection}
             onChange={(direction) => handleSortChange("documents", direction)}
         />
     );
     const createdFilterButton = (
         <TableSortFilter
-            label="Sort by created date"
+            label={t("Sort by created date")}
             value={createdSortDirection}
             onChange={(direction) => handleSortChange("created", direction)}
         />
@@ -237,33 +238,33 @@ export function ReviewsListTable({
                                 }}
                                 onChange={onToggleAll}
                                 className={TABLE_CHECKBOX_CLASS}
-                                aria-label="Select all reviews"
+                                aria-label={t("Select all reviews")}
                             />
                         )}
-                        <span className="mr-1">Name</span>
+                        <span className="mr-1">{t("Name")}</span>
                         {!loading && nameFilterButton}
                     </TableStickyCell>
                     <TableHeaderCell className="ml-auto w-24">
                         <div className="flex items-center gap-1">
-                            <span>Columns</span>
+                            <span>{t("Columns")}</span>
                             {!loading && columnsFilterButton}
                         </div>
                     </TableHeaderCell>
                     <TableHeaderCell className="w-24">
                         <div className="flex items-center gap-1">
-                            <span>Documents</span>
+                            <span>{t("Documents")}</span>
                             {!loading && documentsFilterButton}
                         </div>
                     </TableHeaderCell>
                     {projectColumn && (
                         <TableHeaderCell className="w-52">
                             <div className="flex items-center gap-1">
-                                <span>Project</span>
+                                <span>{t("Project")}</span>
                                 {!loading && (
                                     <TableFilters
-                                        label="Filter by project"
+                                        label={t("Filter by project")}
                                         value={projectColumn.filter}
-                                        allLabel="All Projects"
+                                        allLabel={t("All Projects")}
                                         options={projectColumn.projects.map(
                                             (project) => ({
                                                 value: project.id,
@@ -278,7 +279,7 @@ export function ReviewsListTable({
                     )}
                     <TableHeaderCell className="w-32">
                         <div className="flex items-center gap-1">
-                            <span>Created</span>
+                            <span>{t("Created")}</span>
                             {!loading && createdFilterButton}
                         </div>
                     </TableHeaderCell>
@@ -294,10 +295,10 @@ export function ReviewsListTable({
             ) : error ? (
                 <TableEmptyState>
                     <p className="text-lg font-medium font-serif text-gray-900">
-                        Unable to load reviews
+                        {t("Unable to load reviews")}
                     </p>
                     <p className="mt-1 text-xs text-gray-400">
-                        Check your connection and try again.
+                        {t("Check your connection and try again.")}
                     </p>
                     <PillButtonUI
                         tone="black"
@@ -305,19 +306,19 @@ export function ReviewsListTable({
                         onClick={onRetry}
                         className="mt-4"
                     >
-                        Try again
+                        {t("Try again")}
                     </PillButtonUI>
                 </TableEmptyState>
             ) : reviews.length === 0 ? (
                 <TableEmptyState>
                     {hasActiveFilters ? (
                         <p className="text-sm text-gray-400">
-                            No reviews found
+                            {t("No reviews found")}
                         </p>
                     ) : (
                         <EmptyState
                             icon={<TabularReviewSkeuoIcon />}
-                            title="Tabular Reviews"
+                            title={t("Tabular Reviews")}
                             description={emptyDescription}
                             action={
                                 <PillButtonUI
@@ -326,7 +327,7 @@ export function ReviewsListTable({
                                     onClick={onCreateReview}
                                     disabled={createDisabled}
                                 >
-                                    Create
+                                    {t("Create")}
                                 </PillButtonUI>
                             }
                         />
@@ -375,7 +376,7 @@ export function ReviewsListTable({
                                                 : [...prev, review.id],
                                         )
                                     }
-                                    label={review.title ?? "Untitled Review"}
+                                    label={review.title ?? t("Untitled Review")}
                                 />
                                 <TableCell className="ml-auto w-24">
                                     {review.columns_config?.length ?? 0}

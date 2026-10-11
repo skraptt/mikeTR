@@ -35,13 +35,14 @@ import {
 } from "@/app/hooks/usePaginatedTabularReviews";
 import { deleteTabularReviewsWithConcurrency } from "@/app/lib/deleteTabularReviewsWithConcurrency";
 import { useQueryParamTab } from "@/app/hooks/useQueryParamTab";
+import { t } from "@/shared/i18n";
 
 type ReviewScope = TabularReviewScope;
 
 const REVIEW_SCOPES: { id: ReviewScope; label: string }[] = [
-    { id: "all", label: "All" },
-    { id: "in-project", label: "In Project" },
-    { id: "standalone", label: "Standalone" },
+    { id: "all", label: t("All") },
+    { id: "in-project", label: t("In Project") },
+    { id: "standalone", label: t("Standalone") },
 ];
 const REVIEW_SCOPE_IDS = REVIEW_SCOPES.map((scope) => scope.id);
 
@@ -345,10 +346,18 @@ export default function TabularReviewsPage() {
         }
         const notices = [
             blocked > 0
-                ? `${blocked} selected review${blocked === 1 ? " was" : "s were"} skipped because only a review owner can delete them.`
+                ? t.plural(
+                      blocked,
+                      "{count} selected review was skipped because only a review owner can delete them.",
+                      "{count} selected reviews were skipped because only a review owner can delete them.",
+                  )
                 : null,
             failedIds.length > 0
-                ? `${failedIds.length} review${failedIds.length === 1 ? " was" : "s were"} not deleted because the request failed. ${failedIds.length === 1 ? "It remains" : "They remain"} selected so you can try again.`
+                ? t.plural(
+                      failedIds.length,
+                      "{count} review was not deleted because the request failed. It remains selected so you can try again.",
+                      "{count} reviews were not deleted because the request failed. They remain selected so you can try again.",
+                  )
                 : null,
         ].filter((notice): notice is string => notice !== null);
         if (notices.length > 0) setBulkDeleteNotice(notices.join(" "));
@@ -390,18 +399,18 @@ export default function TabularReviewsPage() {
                         type: "search",
                         value: search,
                         onChange: setSearch,
-                        placeholder: "Search reviews…",
+                        placeholder: t("Search reviews…"),
                     },
                     {
                         type: "new",
                         onClick: () => setNewTROpen(true),
                         loading: creating,
-                        title: "New tabular review",
+                        title: t("New tabular review"),
                     },
                 ]}
             >
                 <h1 className="text-2xl font-medium font-serif text-gray-900">
-                    Tabular Reviews
+                    {t("Tabular Reviews")}
                 </h1>
             </PageHeader>
 
@@ -426,7 +435,7 @@ export default function TabularReviewsPage() {
                 selectedReviewIds={selectedIds}
                 setSelectedReviewIds={setSelectedIds}
                 createDisabled={creating}
-                emptyDescription="Extract data from documents into tables using AI."
+                emptyDescription={t("Extract data from documents into tables using AI.")}
                 onCreateReview={() => setNewTROpen(true)}
                 onOpenReview={(review) =>
                     router.push(
@@ -503,15 +512,18 @@ export default function TabularReviewsPage() {
             />
             <WarningPopup
                 open={!!bulkDeleteNotice}
-                title="Some reviews were not deleted"
+                title={t("Some reviews were not deleted")}
                 message={bulkDeleteNotice}
                 onClose={() => setBulkDeleteNotice(null)}
             />
             <ConfirmPopup
                 open={confirmDeleteAllOpen && selectedIds.length > 0}
-                title="Delete all selected reviews?"
-                message={`This will permanently delete every selected review you administer, including selected reviews not currently shown. Their review results and associated data will also be deleted. Reviews you cannot delete will be skipped. ${selectedIds.length} reviews are selected.`}
-                confirmLabel="Delete"
+                title={t("Delete all selected reviews?")}
+                message={t(
+                    "This will permanently delete every selected review you administer, including selected reviews not currently shown. Their review results and associated data will also be deleted. Reviews you cannot delete will be skipped. {count} reviews are selected.",
+                    { count: selectedIds.length },
+                )}
+                confirmLabel={t("Delete")}
                 confirmVariant="danger"
                 onCancel={() => setConfirmDeleteAllOpen(false)}
                 onConfirm={() => void handleDeleteSelected()}

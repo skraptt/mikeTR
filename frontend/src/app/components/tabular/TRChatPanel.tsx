@@ -53,6 +53,7 @@ import {
     providerLabel,
     type ModelProvider,
 } from "@/app/lib/modelAvailability";
+import { t } from "@/shared/i18n";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -174,9 +175,9 @@ function TRResponseStatus({ isActive }: { isActive: boolean }) {
             // eslint-disable-next-line react-hooks/set-state-in-effect -- timed 'Done' flash on the active->idle transition
             setShowDone(true);
             setDoneVisible(true);
-            const t = setTimeout(() => setDoneVisible(false), 1500);
+            const timer = setTimeout(() => setDoneVisible(false), 1500);
             wasActiveRef.current = isActive;
-            return () => clearTimeout(t);
+            return () => clearTimeout(timer);
         }
         if (!wasActiveRef.current && isActive) {
             setShowDone(false);
@@ -292,7 +293,7 @@ function TRAssistantMessage({
         if (event.type === "thinking") {
             return (
                 <EventBlock key={key} showConnector={showConnector} isStreaming>
-                    <span>Thinking...</span>
+                    <span>{t("Thinking...")}</span>
                 </EventBlock>
             );
         }
@@ -1737,7 +1738,7 @@ export function TRChatPanel({
                                     typeof data.message === "string" &&
                                     data.message.trim()
                                         ? data.message.trim()
-                                        : "An error occurred. Please try again.",
+                                        : t("An error occurred. Please try again."),
                                 ...(data.safe_to_display === true
                                     ? { safe_to_display: true }
                                     : {}),
@@ -1930,7 +1931,7 @@ export function TRChatPanel({
                                     type: "content" as const,
                                     text: isAbort
                                         ? ""
-                                        : "An error occurred. Please try again.",
+                                        : t("An error occurred. Please try again."),
                                 },
                             ],
                         };
@@ -2037,11 +2038,11 @@ export function TRChatPanel({
                                 }}
                                 items={[
                                     {
-                                        label: "Rename",
+                                        label: t("Rename"),
                                         icon: Pencil,
                                         onSelect: () =>
                                             setTitleDraft(
-                                                currentChatTitle ?? "New Chat",
+                                                currentChatTitle ?? t("New Chat"),
                                             ),
                                         disabled:
                                             !canSend ||
@@ -2050,7 +2051,7 @@ export function TRChatPanel({
                                             isLoading,
                                     },
                                     {
-                                        label: "Delete",
+                                        label: t("Delete"),
                                         icon: Trash2,
                                         onSelect: () => {
                                             if (currentChatId)
@@ -2150,18 +2151,23 @@ export function TRChatPanel({
             </div>
             <WarningPopup
                 open={messageLoadWarning}
-                title="Chat unavailable"
-                message="This chat’s messages could not be loaded. Please try again."
+                title={t("Chat unavailable")}
+                message={t("This chat’s messages could not be loaded. Please try again.")}
                 onClose={() => setMessageLoadWarning(false)}
             />
             <ApiKeyMissingPopup
                 open={rejectedApiKey !== null}
-                title="API key rejected"
-                message={`${
+                title={t("API key rejected")}
+                message={
                     rejectedApiKey?.provider
-                        ? `The ${providerLabel(rejectedApiKey.provider)} API key`
-                        : "That API key"
-                } was rejected. If it is your own key, check it in Settings; otherwise contact your administrator.`}
+                        ? t(
+                              "The {provider} API key was rejected. If it is your own key, check it in Settings; otherwise contact your administrator.",
+                              { provider: providerLabel(rejectedApiKey.provider) },
+                          )
+                        : t(
+                              "That API key was rejected. If it is your own key, check it in Settings; otherwise contact your administrator.",
+                          )
+                }
                 onClose={() => setRejectedApiKey(null)}
             />
         </div>

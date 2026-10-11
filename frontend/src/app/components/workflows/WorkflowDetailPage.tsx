@@ -89,6 +89,7 @@ import { useUserProfile } from "@/app/contexts/UserProfileContext";
 import { useQueryParamTab } from "@/app/hooks/useQueryParamTab";
 import { downloadWorkflowZip } from "./workflowZipExport";
 import { WorkflowAssets, type WorkflowAssetsHandle } from "./WorkflowAssets";
+import { t } from "@/shared/i18n";
 // dynamic import keeps Tiptap (browser-only) out of the SSR bundle
 const MarkdownEditor = dynamic(
   () =>
@@ -276,7 +277,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
       setShareRefreshError(
         userFacingApiError(
           error,
-          "The change was saved, but this list could not be reloaded. Reopen Access to see the current one.",
+          t("The change was saved, but this list could not be reloaded. Reopen Access to see the current one."),
         ),
       );
     }
@@ -403,7 +404,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
             {
               label: "Workflows",
               onClick: () => router.push("/workflows"),
-              title: "Back to Workflows",
+              title: t("Back to Workflows"),
             },
             { loading: true, skeletonClassName: "w-40" },
           ]}
@@ -422,7 +423,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
   if (notFound || !workflow) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-gray-400 font-serif">Workflow not found.</p>
+        <p className="text-gray-400 font-serif">{t("Workflow not found.")}</p>
       </div>
     );
   }
@@ -433,12 +434,12 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
     workflow.open_source_submission?.status === "pending";
   const workflowActionItems: HeaderActionsMenuItem[] = [
     {
-      label: "Download workflow",
+      label: t("Download workflow"),
       icon: Download,
       onSelect: () => downloadWorkflowZip(workflow, promptMd, columns),
     },
     {
-      label: "View and Edit details",
+      label: t("View and Edit details"),
       icon: Pencil,
       onSelect: () => setDetailsOpen(true),
     },
@@ -447,7 +448,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
   if (!readOnly) {
     if (canOpenSource) {
       workflowActionItems.push({
-        label: "Open source this",
+        label: t("Open source this"),
         icon: Globe,
         onSelect: () => setOpenSourceOpen(true),
       });
@@ -474,7 +475,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
     >
       <UploadOverlay
         open={draggingAssets}
-        label="Drop files here to add as workflow assets"
+        label={t("Drop files here to add as workflow assets")}
       />
       {/* Page header */}
       <PageHeader
@@ -483,7 +484,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
           {
             label: "Workflows",
             onClick: () => router.push("/workflows"),
-            title: "Back to Workflows",
+            title: t("Back to Workflows"),
           },
           {
             label: (
@@ -534,7 +535,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
                     setShareRefreshError(null);
                     setShareOpen(true);
                   },
-                  title: "Open workflow access",
+                  title: t("Open workflow access"),
                   iconOnly: true,
                   icon: <Users className="h-4 w-4" />,
                 }
@@ -543,7 +544,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
               type: "custom",
               render: (
                 <HeaderActionsMenu
-                  title="Workflow actions"
+                  title={t("Workflow actions")}
                   items={workflowActionItems}
                 />
               ),
@@ -574,7 +575,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
           "Workflows",
           workflow.metadata.title,
           "Assets",
-          "Add Assets",
+          t("Add Assets"),
         ]}
         keepMounted
       />
@@ -619,7 +620,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
               role: share.role,
             })),
             orgId: workflow.org_id ?? null,
-            ownerLabel: "Workflow owners",
+            ownerLabel: t("Workflow owners"),
             canManage: canShare,
             error: shareRefreshError,
             // The refresh is deliberately not part of the mutation's result:
@@ -651,13 +652,13 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
       )}
       <ConfirmPopup
         open={deleteOpen}
-        title="Delete workflow?"
+        title={t("Delete workflow?")}
         message={
           workflow.is_default
-            ? "Deleting this default workflow also permanently deletes its corresponding Quick Action. The default workflow will not be created again automatically."
-            : "This workflow will be permanently deleted."
+            ? t("Deleting this default workflow also permanently deletes its corresponding Quick Action. The default workflow will not be created again automatically.")
+            : t("This workflow will be permanently deleted.")
         }
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         confirmVariant="danger"
         confirmStatus={deleteStatus}
         onConfirm={() => void handleDeleteWorkflow()}
@@ -701,7 +702,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
             {assistantTab === "prompt" ? (
               <div className="mx-4 mb-2 min-h-0 min-w-0 flex-1 md:mx-8 md:mb-3">
                 <MarkdownEditor
-                  ariaLabel="Workflow prompt"
+                  ariaLabel={t("Workflow prompt")}
                   value={promptMd}
                   onChange={readOnly ? undefined : handlePromptChange}
                   readOnly={readOnly}
@@ -733,7 +734,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
                       )}
                     <TabPillButtonUI onClick={() => setAddColumnOpen(true)}>
                       <Plus className="h-3.5 w-3.5" />
-                      Add Column
+                      {t("Add Column")}
                     </TabPillButtonUI>
                   </div>
                 }
@@ -742,7 +743,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
             {readOnly && (
               <div className="flex h-10 shrink-0 items-center bg-gray-50 px-4 md:px-10">
                 <span className="text-xs font-medium text-gray-500">
-                  Read-only
+                  {t("Read-only")}
                 </span>
               </div>
             )}
@@ -779,17 +780,17 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
                         aria-hidden="true"
                       />
                     )}
-                    <span>Column Title</span>
+                    <span>{t("Column Title")}</span>
                   </TableStickyCell>
                   <TableHeaderCell className="ml-auto w-36">
-                    Format
+                    {t("Format")}
                   </TableHeaderCell>
                   <TableHeaderCell
                     className={
                       readOnly ? PROMPT_COL_W : PROMPT_HEADER_WITH_ACTIONS_W
                     }
                   >
-                    Prompt
+                    {t("Prompt")}
                   </TableHeaderCell>
                 </TableHeaderRow>
               }
@@ -798,8 +799,8 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
                 <TableEmptyState>
                   <EmptyState
                     icon={<TabularReviewSkeuoIcon />}
-                    title="Columns"
-                    description="Add columns to define what this tabular review workflow extracts from each document."
+                    title={t("Columns")}
+                    description={t("Add columns to define what this tabular review workflow extracts from each document.")}
                     action={
                       !readOnly && (
                         <PillButtonUI
@@ -808,7 +809,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
                           onClick={() => setAddColumnOpen(true)}
                         >
                           <Plus className="h-3.5 w-3.5" />
-                          Add Column
+                          {t("Add Column")}
                         </PillButtonUI>
                       )
                     }
@@ -885,8 +886,8 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
                             aria-expanded={expandedPromptIndex === col.index}
                             title={
                               expandedPromptIndex === col.index
-                                ? "Collapse prompt"
-                                : "Expand prompt"
+                                ? t("Collapse prompt")
+                                : t("Expand prompt")
                             }
                             onClick={(event) => {
                               event.stopPropagation();
@@ -902,7 +903,7 @@ export function WorkflowDetailPage({ id, workflowType }: Props) {
                             <TRExpandedCellSurface>
                               <button
                                 type="button"
-                                aria-label="Collapse prompt"
+                                aria-label={t("Collapse prompt")}
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   setExpandedPromptIndex(null);

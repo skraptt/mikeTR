@@ -10,6 +10,7 @@ import { getPillClass } from "./pillUtils";
 import { SkeletonLine } from "../shared/TablePrimitive";
 import { TRExpandedCellSurface } from "./TRExpandedCellSurface";
 import { CitationPillUI } from "@/shared/ui/CitationPillUI";
+import { t } from "@/shared/i18n";
 
 interface Props {
     cell: TCell;
@@ -116,8 +117,8 @@ function CellMarkdown({
                     </a>
                 ),
                 code: ({ node, children, ...props }) => {
-                    const t = String(children);
-                    const citMatch = t.match(/^§c(\d+)§$/);
+                    const codeText = String(children);
+                    const citMatch = codeText.match(/^§c(\d+)§$/);
                     if (citMatch) {
                         const idx = parseInt(citMatch[1]);
                         const citation = citations[idx];
@@ -147,7 +148,7 @@ function CellMarkdown({
                             );
                         }
                     }
-                    const pillMatch = t.match(/^§p(\d+)§$/);
+                    const pillMatch = codeText.match(/^§p(\d+)§$/);
                     if (pillMatch) {
                         const content = pills[parseInt(pillMatch[1])];
                         if (content !== undefined) {
@@ -312,7 +313,7 @@ export function TabularCell({
                             className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors"
                         >
                             <Expand className="h-3 w-3" />
-                            See details
+                            {t("See details")}
                         </button>
                     </div>
                 </TRExpandedCellSurface>

@@ -22,6 +22,7 @@ import {
     LIQUID_GLASS_MODAL_ROW_SELECTED_CLASS,
 } from "@/app/components/ui/liquid-surface";
 import { LIQUID_GLASS_SUBTLE_CLASS } from "@/shared/ui/LiquidGlassUI";
+import { t } from "@/shared/i18n";
 
 type WorkflowPreviewMode = "auto" | "prompt" | "columns";
 type MobilePickerPane = "list" | "details";
@@ -97,9 +98,9 @@ export function WorkflowPickerContent({
     const resolvedEmptyMessage =
         emptyMessage ??
         (search
-            ? "No matches found"
+            ? t("No matches found")
             : workflowType === "all"
-              ? "No workflows found"
+              ? t("No workflows found")
               : `No ${workflowType} workflows found`);
     const handleSelectWorkflow = (workflow: Workflow | null) => {
         onSelect(workflow);
@@ -120,7 +121,7 @@ export function WorkflowPickerContent({
                 <SearchBar
                     value={search}
                     onValueChange={onSearchChange}
-                    placeholder="Search workflows..."
+                    placeholder={t("Search workflows...")}
                 />
 
                 <div
@@ -269,7 +270,7 @@ function WorkflowPreview({
                     ) : (
                         <WorkflowPromptPreview
                             content={
-                                workflow.skill_md ?? "_No prompt defined._"
+                                workflow.skill_md ?? t("_No prompt defined._")
                             }
                         />
                     )}
@@ -283,7 +284,7 @@ function WorkflowPreviewSkeleton({ mode }: { mode: "prompt" | "columns" }) {
     return (
         <div
             role="status"
-            aria-label={`Loading workflow ${mode}`}
+            aria-label={t("Loading workflow {mode}", { mode })}
             className="min-w-0 flex-1 space-y-3 px-3 py-3"
         >
             {(mode === "columns"
@@ -396,7 +397,7 @@ function WorkflowColumnPreview({ columns }: { columns: ColumnConfig[] }) {
         <div className="min-w-0 flex-1 space-y-px rounded-sm">
             {sortedColumns.length === 0 ? (
                 <p className="px-4 py-6 text-center text-xs text-gray-400">
-                    No columns defined
+                    {t("No columns defined")}
                 </p>
             ) : (
                 sortedColumns.map((column) => {
@@ -435,7 +436,7 @@ function WorkflowColumnPreview({ columns }: { columns: ColumnConfig[] }) {
                                     {column.tags && column.tags.length > 0 ? (
                                         <div>
                                             <p className="mb-1.5 text-[11px] font-medium text-gray-600">
-                                                Tags
+                                                {t("Tags")}
                                             </p>
                                             <div className="flex flex-wrap gap-1.5">
                                                 {column.tags.map(
@@ -453,12 +454,12 @@ function WorkflowColumnPreview({ columns }: { columns: ColumnConfig[] }) {
                                     ) : null}
                                     <div>
                                         <p className="mb-1 text-[11px] font-medium text-gray-600">
-                                            Prompt
+                                            {t("Prompt")}
                                         </p>
                                         <WorkflowPromptMarkdown
                                             content={
                                                 column.prompt ||
-                                                "_No prompt defined._"
+                                                t("_No prompt defined._")
                                             }
                                         />
                                     </div>

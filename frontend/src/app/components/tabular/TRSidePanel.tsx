@@ -43,6 +43,7 @@ import {
 import { CloseButton } from "@/shared/ui/CloseButton";
 import { CitationPillUI } from "@/shared/ui/CitationPillUI";
 import { resolveDocumentViewType } from "@/app/lib/documentViewType";
+import { t } from "@/shared/i18n";
 
 interface Props {
     cell: TabularCell;
@@ -345,7 +346,7 @@ export function TRSidePanel({
                         onPointerUp={handleDocumentResizePointerEnd}
                         onPointerCancel={handleDocumentResizePointerEnd}
                         className="absolute inset-y-0 left-0 z-20 w-1.5 cursor-col-resize touch-none bg-transparent transition-colors hover:bg-blue-400/60"
-                        title="Resize document pane"
+                        title={t("Resize document pane")}
                     />
                     <DocumentPaneTitle
                         filename={doc.filename}
@@ -432,13 +433,13 @@ export function TRSidePanel({
                             )}
                             aria-label={
                                 documentPaneOpen
-                                    ? "Collapse document pane"
-                                    : "Expand document pane"
+                                    ? t("Collapse document pane")
+                                    : t("Expand document pane")
                             }
                             title={
                                 documentPaneOpen
-                                    ? "Collapse document pane"
-                                    : "Expand document pane"
+                                    ? t("Collapse document pane")
+                                    : t("Expand document pane")
                             }
                             aria-pressed={documentPaneOpen}
                         >
@@ -457,7 +458,7 @@ export function TRSidePanel({
                                 }
                             }}
                             disabled={regenerating}
-                            title="Regenerate"
+                            title={t("Regenerate")}
                             className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
                         >
                             {regenerating ? (
@@ -470,7 +471,7 @@ export function TRSidePanel({
                     {/* 12px from the top, like the document panel's close. */}
                     <CloseButton
                         onClick={onClose}
-                        label="Close panel"
+                        label={t("Close panel")}
                         className="mt-3 self-start"
                     />
                 </div>
@@ -482,7 +483,7 @@ export function TRSidePanel({
                             <>
                                 <div className="mb-4">
                                     <div className="mb-3 text-xs font-medium text-gray-900">
-                                        Document
+                                        {t("Document")}
                                     </div>
                                     <div className="flex min-h-6 items-center gap-1.5">
                                         <FileTypeIcon
@@ -501,7 +502,7 @@ export function TRSidePanel({
                                 </div>
                                 <div>
                                     <div className="mb-3 text-xs font-medium text-gray-900">
-                                        Version
+                                        {t("Version")}
                                     </div>
                                     <div className="min-h-6 text-xs leading-6 text-gray-800">
                                         V{activeVersionNumber}
@@ -614,7 +615,7 @@ export function TRSidePanel({
                                 {/* Column field */}
                                 <div className="mb-4">
                                     <div className="mb-3 text-xs font-medium text-gray-900">
-                                        Column
+                                        {t("Column")}
                                     </div>
                                     <div className="min-h-6 truncate text-xs leading-6 text-gray-800">
                                         {column.name}
@@ -625,7 +626,7 @@ export function TRSidePanel({
                                 {cell.content?.flag && (
                                     <div className="mb-5">
                                         <h4 className="mb-2 text-xs font-medium text-gray-900">
-                                            Flag
+                                            {t("Flag")}
                                         </h4>
                                         <span
                                             className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${FLAG_BADGE[cell.content.flag] ?? FLAG_BADGE.grey}`}
@@ -641,7 +642,7 @@ export function TRSidePanel({
                                 {/* Results */}
                                 <div className="mb-6">
                                     <h4 className="mb-2 text-xs font-medium text-gray-900">
-                                        Results
+                                        {t("Results")}
                                     </h4>
                                     <div className="text-xs leading-relaxed text-gray-700">
                                         <MarkdownContent
@@ -658,7 +659,7 @@ export function TRSidePanel({
                                 {cell.content?.reasoning && (
                                     <div>
                                         <h4 className="mb-2 text-xs font-medium text-gray-900">
-                                            Reasoning
+                                            {t("Reasoning")}
                                         </h4>
                                         <div className="text-xs leading-relaxed text-gray-700">
                                             <MarkdownContent
@@ -686,7 +687,7 @@ export function TRSidePanel({
                         <div className="grid grid-cols-3 grid-rows-3 gap-0.5">
                             <CellNavigatorButton
                                 className="col-start-2 row-start-1"
-                                label="Previous row"
+                                label={t("Previous row")}
                                 title={previousRow?.label}
                                 disabled={!previousRow}
                                 onClick={() =>
@@ -698,7 +699,7 @@ export function TRSidePanel({
                             </CellNavigatorButton>
                             <CellNavigatorButton
                                 className="col-start-1 row-start-2"
-                                label="Previous column"
+                                label={t("Previous column")}
                                 title={previousColumn?.name}
                                 disabled={!previousColumn}
                                 onClick={() =>
@@ -711,7 +712,7 @@ export function TRSidePanel({
                             <div className="col-start-2 row-start-2 h-7 w-7 rounded-md bg-white/35" />
                             <CellNavigatorButton
                                 className="col-start-3 row-start-2"
-                                label="Next column"
+                                label={t("Next column")}
                                 title={nextColumn?.name}
                                 disabled={!nextColumn}
                                 onClick={() =>
@@ -723,7 +724,7 @@ export function TRSidePanel({
                             </CellNavigatorButton>
                             <CellNavigatorButton
                                 className="col-start-2 row-start-3"
-                                label="Next row"
+                                label={t("Next row")}
                                 title={nextRow?.label}
                                 disabled={!nextRow}
                                 onClick={() =>
@@ -896,8 +897,8 @@ function MarkdownContent({
                     </a>
                 ),
                 code: ({ node, children: codeChildren, ...props }) => {
-                    const t = String(codeChildren);
-                    const citMatch = t.match(/^§c(\d+)§$/);
+                    const codeText = String(codeChildren);
+                    const citMatch = codeText.match(/^§c(\d+)§$/);
                     if (citMatch) {
                         const idx = parseInt(citMatch[1]);
                         const citation = citations[idx];
@@ -911,7 +912,7 @@ function MarkdownContent({
                             );
                         }
                     }
-                    const pillMatch = t.match(/^§p(\d+)§$/);
+                    const pillMatch = codeText.match(/^§p(\d+)§$/);
                     if (pillMatch) {
                         const content = pills[parseInt(pillMatch[1])];
                         if (content !== undefined) {

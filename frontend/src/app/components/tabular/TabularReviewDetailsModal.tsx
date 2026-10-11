@@ -6,6 +6,7 @@ import { ModalSelect } from "../modals/ModalSelect";
 import { FieldLabel, FormTextInput } from "../ui/form-field";
 import { ToggleSwitchUI } from "@/shared/ui/ToggleSwitchUI";
 import type { Project, TabularReview } from "../shared/types";
+import { t } from "@/shared/i18n";
 
 interface TabularReviewDetailsModalProps {
     open: boolean;
@@ -57,7 +58,7 @@ export function TabularReviewDetailsModal({
                           project.name +
                           (project.cm_number ? ` (#${project.cm_number})` : ""),
                   }))
-                : [{ value: "", label: "No projects found" }],
+                : [{ value: "", label: t("No projects found") }],
         [projects],
     );
     const hasChanges = useMemo(() => {
@@ -90,7 +91,7 @@ export function TabularReviewDetailsModal({
             });
             setSaved(true);
         } catch {
-            setError("Could not update tabular review details.");
+            setError(t("Could not update tabular review details."));
         } finally {
             setSaving(false);
         }
@@ -101,15 +102,15 @@ export function TabularReviewDetailsModal({
             open={open}
             onClose={onClose}
             breadcrumbs={[
-                "Tabular Reviews",
-                review.title || "Untitled Review",
+                t("Tabular Reviews"),
+                review.title || t("Untitled Review"),
                 "Details",
             ]}
             footerStatus={
                 error ? (
                     <span className="text-sm text-red-600">{error}</span>
                 ) : saved ? (
-                    <span className="text-sm text-gray-400">Updated</span>
+                    <span className="text-sm text-gray-400">{t("Updated")}</span>
                 ) : null
             }
             primaryAction={
@@ -130,7 +131,7 @@ export function TabularReviewDetailsModal({
             <div className="space-y-6">
                 <div>
                     <FieldLabel htmlFor="tabular-review-details-title">
-                        Review name
+                        {t("Review name")}
                     </FieldLabel>
                     <FormTextInput
                         id="tabular-review-details-title"
@@ -141,7 +142,7 @@ export function TabularReviewDetailsModal({
                             setSaved(false);
                             setError(null);
                         }}
-                        placeholder="Review name"
+                        placeholder={t("Review name")}
                         variant="minimal"
                         className="placeholder:text-gray-400"
                         disabled={!canEdit || saving}
@@ -151,7 +152,7 @@ export function TabularReviewDetailsModal({
 
                 {!lockProject && (
                     <div className="space-y-3">
-                        <FieldLabel as="p">Project</FieldLabel>
+                        <FieldLabel as="p">{t("Project")}</FieldLabel>
                         <ToggleSwitchUI
                             checked={underProject}
                             disabled={!canEdit || saving}
@@ -162,7 +163,7 @@ export function TabularReviewDetailsModal({
                                 setError(null);
                             }}
                         >
-                            Move under a project
+                            {t("Move under a project")}
                         </ToggleSwitchUI>
 
                         {underProject && (
@@ -175,7 +176,7 @@ export function TabularReviewDetailsModal({
                                     setSaved(false);
                                     setError(null);
                                 }}
-                                placeholder="Select project..."
+                                placeholder={t("Select project...")}
                                 disabled={
                                     !canEdit || saving || projects.length === 0
                                 }

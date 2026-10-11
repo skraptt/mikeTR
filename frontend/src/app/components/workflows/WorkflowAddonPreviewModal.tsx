@@ -16,6 +16,7 @@ import { PdfView } from "../shared/views/PdfView";
 import { SpreadsheetView } from "../shared/views/SpreadsheetView";
 import { workflowAddonAssetDisplayUrl } from "@/app/lib/mikeApi";
 import { resolveDocumentViewType } from "@/app/lib/documentViewType";
+import { t } from "@/shared/i18n";
 
 type DetailView = "columns" | "skill" | "assets";
 type AddonAsset = NonNullable<WorkflowAddon["assets"]>[number];
@@ -124,7 +125,7 @@ function SkillViewer({ skill }: { skill: string }) {
           <button
             type="button"
             aria-label={
-              showRaw ? "Show rendered SKILL.md" : "Show raw SKILL.md"
+              showRaw ? t("Show rendered SKILL.md") : t("Show raw SKILL.md")
             }
             aria-pressed={showRaw}
             onClick={() => setShowRaw((current) => !current)}
@@ -150,7 +151,7 @@ function SkillViewer({ skill }: { skill: string }) {
               remarkPlugins={[remarkGfm]}
               components={markdownComponents}
             >
-              {markdown || "_No instructions provided._"}
+              {markdown || t("_No instructions provided._")}
             </ReactMarkdown>
           </div>
         )}
@@ -349,19 +350,19 @@ function WorkflowAddonPreviewDialog({
           <section className="shrink-0">
             <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
               <MetadataItem
-                label="Contributor"
+                label={t("Contributor")}
                 value={addon.contributors
                   .map((contributor) => contributor.name)
                   .join(", ")}
               />
-              <MetadataItem label="Language" value={addon.language || "—"} />
-              <MetadataItem label="Version" value={addon.version || "—"} />
+              <MetadataItem label={t("Language")} value={addon.language || "—"} />
+              <MetadataItem label={t("Version")} value={addon.version || "—"} />
               <MetadataItem
-                label="Practice"
-                value={addon.practice || "General"}
+                label={t("Practice")}
+                value={addon.practice ? t(addon.practice) : t("General")}
               />
               <MetadataItem
-                label="Jurisdiction"
+                label={t("Jurisdiction")}
                 value={addon.jurisdictions?.join(", ") || "—"}
               />
             </div>
@@ -381,7 +382,7 @@ function WorkflowAddonPreviewDialog({
                       }
                       className="ml-1 inline font-medium text-blue-600 transition-colors hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60"
                     >
-                      {descriptionExpanded ? "Show less" : "Show more"}
+                      {descriptionExpanded ? t("Show less") : t("Show more")}
                     </button>
                   )}
                 </p>
@@ -403,10 +404,10 @@ function WorkflowAddonPreviewDialog({
                   <div className="grid min-h-10 shrink-0 grid-cols-[52px_0.8fr_1.8fr] items-center border-b border-white/60 text-xs font-medium text-gray-500">
                     <div className="px-3 py-1.5">#</div>
                     <div className="border-l border-white/60 px-3 py-1.5">
-                      Column
+                      {t("Column")}
                     </div>
                     <div className="border-l border-white/60 px-3 py-1.5">
-                      Prompt
+                      {t("Prompt")}
                     </div>
                   </div>
                   <div className="min-h-0 flex-1 overflow-y-auto">
@@ -431,12 +432,12 @@ function WorkflowAddonPreviewDialog({
               ) : view === "assets" ? (
                 <div className="flex h-full min-h-0 flex-col">
                   <div className="flex min-h-10 shrink-0 items-center border-b border-white/60 px-3 py-1.5 text-xs font-medium text-gray-500">
-                    Assets
+                    {t("Assets")}
                   </div>
                   <div className="min-h-0 flex-1 overflow-y-auto">
                     {assets.length === 0 ? (
                       <div className="flex h-full min-h-24 items-center justify-center px-4 text-xs text-gray-400">
-                        No assets included.
+                        {t("No assets included.")}
                       </div>
                     ) : (
                       assets.map((file) => (

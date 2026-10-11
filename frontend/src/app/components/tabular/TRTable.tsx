@@ -32,6 +32,7 @@ import {
     LIQUID_GLASS_GROUP_HOVER_CLASS,
     LIQUID_GLASS_HOVER_CLASS,
 } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 const SKELETON_COLS = 4;
 const SKELETON_ROWS = 5;
@@ -130,7 +131,7 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
         documents.map((document) => [document.id, document]),
     );
     const firstColumnLabel =
-        documentGrouping === "folder" ? "Folder / Document" : "Document";
+        documentGrouping === "folder" ? t("Folder / Document") : t("Document");
     const totalContentWidth =
         DOC_COL_W_PX + sortedColumns.length * DATA_COL_W_PX + 32;
     const skeletonContentWidth =
@@ -271,8 +272,8 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                     <EmptyState
                         className="mx-auto w-full max-w-xs flex-1 justify-center"
                         icon={<TabularReviewSkeuoIcon />}
-                        title="Tabular Review"
-                        description="Add columns and documents to get started."
+                        title={t("Tabular Review")}
+                        description={t("Add columns and documents to get started.")}
                         action={
                             <div className="flex items-center gap-2">
                                 <PillButtonUI
@@ -281,7 +282,7 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                                     onClick={onAddColumn}
                                 >
                                     <Plus className="h-3.5 w-3.5" />
-                                    Add Columns
+                                    {t("Add Columns")}
                                 </PillButtonUI>
                                 <PillButtonUI
                                     tone="white"
@@ -289,7 +290,7 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                                     onClick={onAddDocuments}
                                 >
                                     <Upload className="h-3.5 w-3.5" />
-                                    Add Documents
+                                    {t("Add Documents")}
                                 </PillButtonUI>
                             </div>
                         }
@@ -321,7 +322,11 @@ export const TRTable = forwardRef<TRTableHandle, Props>(function TRTable(
                             }}
                             onChange={toggleAll}
                             className={TABLE_CHECKBOX_CLASS}
-                            aria-label={`Select all ${firstColumnLabel.toLowerCase()}`}
+                            aria-label={
+                                documentGrouping === "folder"
+                                    ? t("Select all folder / document")
+                                    : t("Select all document")
+                            }
                         />
                         <span>{firstColumnLabel}</span>
                     </div>

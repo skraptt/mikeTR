@@ -94,6 +94,7 @@ import {
 } from "@/shared/lib/modelCatalog";
 import { SUPPORTED_DOCUMENT_ACCEPT } from "@/app/lib/documentUploadValidation";
 import { useConfiguredModels } from "@/app/hooks/useConfiguredModels";
+import { t } from "@/shared/i18n";
 
 interface Props {
     reviewId: string;
@@ -476,8 +477,10 @@ export function TRView({ reviewId, projectId }: Props) {
         if (failedNames.length > 0) {
             setDropUploadWarning(
                 failedNames.length === 1
-                    ? `"${failedNames[0]}" could not be uploaded. Please try again.`
-                    : `${failedNames.length} files could not be uploaded. Please try again.`,
+                    ? t("\"{file}\" could not be uploaded. Please try again.", { file: failedNames[0] })
+                    : t("{count} files could not be uploaded. Please try again.", {
+                          count: failedNames.length,
+                      }),
             );
         }
     }
@@ -619,7 +622,7 @@ export function TRView({ reviewId, projectId }: Props) {
                             typeof data.message === "string" &&
                             data.message.trim()
                                 ? data.message.trim()
-                                : "The review could not be completed. Please try again.",
+                                : t("The review could not be completed. Please try again."),
                         );
                     }
                 }
@@ -1188,9 +1191,9 @@ export function TRView({ reviewId, projectId }: Props) {
         // gets an explanation instead of an unexplained failed save.
         if (projectChanged && !canMoveReview()) {
             setOwnerOnlyAction({
-                title: "Review creator only",
+                title: t("Review creator only"),
                 message:
-                    "Only the person who created this review can move it to another project.",
+                    t("Only the person who created this review can move it to another project."),
             });
             return;
         }
@@ -1335,7 +1338,7 @@ export function TRView({ reviewId, projectId }: Props) {
                                                 router.push(
                                                     `/projects/${projectId}`,
                                                 ),
-                                            title: "Back to project",
+                                            title: t("Back to project"),
                                         }
                                       : {
                                             label: project?.name ?? "",
@@ -1343,26 +1346,26 @@ export function TRView({ reviewId, projectId }: Props) {
                                                 router.push(
                                                     `/projects/${projectId}`,
                                                 ),
-                                            title: "Back to project",
+                                            title: t("Back to project"),
                                         },
                               ]
                             : [
                                   {
-                                      label: "Tabular Reviews",
+                                      label: t("Tabular Reviews"),
                                       onClick: () =>
                                           router.push("/tabular-reviews"),
-                                      title: "Back to Tabular Reviews",
+                                      title: t("Back to Tabular Reviews"),
                                   },
                               ]),
                         ...(projectId
                             ? [
                                   {
-                                      label: "Tabular Reviews",
+                                      label: t("Tabular Reviews"),
                                       onClick: () =>
                                           router.push(
                                               `/projects/${projectId}/tabular-reviews`,
                                           ),
-                                      title: "Back to Tabular Reviews",
+                                      title: t("Back to Tabular Reviews"),
                                   },
                               ]
                             : []),
@@ -1372,7 +1375,7 @@ export function TRView({ reviewId, projectId }: Props) {
                                   skeletonClassName: "w-40",
                               }
                             : {
-                                  label: review?.title || "Untitled Review",
+                                  label: review?.title || t("Untitled Review"),
                               },
                     ]}
                     actionGroups={[
@@ -1381,7 +1384,7 @@ export function TRView({ reviewId, projectId }: Props) {
                                 type: "search",
                                 value: search,
                                 onChange: setSearch,
-                                placeholder: "Search rows…",
+                                placeholder: t("Search rows…"),
                             },
                             !projectId
                                 ? {
@@ -1398,13 +1401,13 @@ export function TRView({ reviewId, projectId }: Props) {
                                     <HeaderActionsMenu
                                         items={[
                                             {
-                                                label: "Edit details",
+                                                label: t("Edit details"),
                                                 icon: Pencil,
                                                 onSelect: requestReviewDetails,
                                                 disabled: !roleKnown,
                                             },
                                             {
-                                                label: "Apply workflow",
+                                                label: t("Apply workflow"),
                                                 icon: WandSparkles,
                                                 onSelect: requestWorkflow,
                                                 disabled: !roleKnown,
@@ -1416,7 +1419,7 @@ export function TRView({ reviewId, projectId }: Props) {
                                                     exportTabularReviewToExcel({
                                                         reviewTitle:
                                                             review?.title ||
-                                                            "Tabular Review",
+                                                            t("Tabular Review"),
                                                         columns,
                                                         rows,
                                                         cells,
@@ -1426,7 +1429,7 @@ export function TRView({ reviewId, projectId }: Props) {
                                                     rows.length === 0,
                                             },
                                             {
-                                                label: "Clear results",
+                                                label: t("Clear results"),
                                                 icon: X,
                                                 onSelect: handleClearAllResults,
                                                 disabled:
@@ -1531,10 +1534,10 @@ export function TRView({ reviewId, projectId }: Props) {
                                         rows.length === 0 ||
                                         savingColumnsConfig,
                                     title: stoppingGeneration
-                                        ? "Stopping generation"
+                                        ? t("Stopping generation")
                                         : generating
-                                          ? "Stop generation"
-                                          : "Run review",
+                                          ? t("Stop generation")
+                                          : t("Run review"),
                                     icon: stoppingGeneration ? (
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                     ) : generating ? (
@@ -1567,8 +1570,8 @@ export function TRView({ reviewId, projectId }: Props) {
                                         columns.length === 0 ||
                                         rows.length === 0,
                                     title: chatOpen
-                                        ? "Close chat"
-                                        : "Open chat",
+                                        ? t("Close chat")
+                                        : t("Open chat"),
                                     icon: chatOpen ? (
                                         <MessageSquareX className="h-4 w-4" />
                                     ) : (
@@ -1576,7 +1579,7 @@ export function TRView({ reviewId, projectId }: Props) {
                                     ),
                                     label: (
                                         <span className="hidden sm:inline">
-                                            Chat
+                                            {t("Chat")}
                                         </span>
                                     ),
                                 },
@@ -1618,7 +1621,7 @@ export function TRView({ reviewId, projectId }: Props) {
                                             }
                                         >
                                             <Plus className="h-3.5 w-3.5" />
-                                            Add Columns
+                                            {t("Add Columns")}
                                         </TabPillButtonUI>
                                     )}
                                 </div>
@@ -1812,9 +1815,9 @@ export function TRView({ reviewId, projectId }: Props) {
                             (project.cm_number
                                 ? ` (#${project.cm_number})`
                                 : ""),
-                        "Tabular Reviews",
-                        ...(review ? [review.title || "Untitled Review"] : []),
-                        "Add Documents",
+                        t("Tabular Reviews"),
+                        ...(review ? [review.title || t("Untitled Review")] : []),
+                        t("Add Documents"),
                     ]}
                     uploadStateId={`tabular-review:${review?.id ?? "new"}:project`}
                     projectId={project.id}
@@ -1829,9 +1832,9 @@ export function TRView({ reviewId, projectId }: Props) {
                     onClose={() => setAddDocsOpen(false)}
                     onSelect={(docs: Document[]) => handleAddDocuments(docs)}
                     breadcrumb={[
-                        "Tabular Reviews",
-                        ...(review ? [review.title || "Untitled Review"] : []),
-                        "Add Documents",
+                        t("Tabular Reviews"),
+                        ...(review ? [review.title || t("Untitled Review")] : []),
+                        t("Add Documents"),
                     ]}
                     uploadStateId={`tabular-review:${review?.id ?? "new"}:library`}
                     tabs={["files", "projects"]}
@@ -1858,14 +1861,14 @@ export function TRView({ reviewId, projectId }: Props) {
                 // cannot offer the caller a Remove that locks them out.
                 currentUserId={user?.id ?? null}
                 breadcrumb={[
-                    "Tabular Reviews",
-                    review?.title || "Untitled Review",
+                    t("Tabular Reviews"),
+                    review?.title || t("Untitled Review"),
                     "Access",
                 ]}
                 access={{
                     grants: grants ?? [],
                     orgId: null,
-                    ownerLabel: "Review owners",
+                    ownerLabel: t("Review owners"),
                     inheritedFromProjectId: review?.project_id ?? null,
                     canManage: can(reviewRole, "access.manage"),
                     // The mutation is what AccessModal reports on. Reloading
@@ -1900,18 +1903,18 @@ export function TRView({ reviewId, projectId }: Props) {
                                       : ""),
                           ]
                         : []),
-                    "Tabular Reviews",
-                    review?.title || "Untitled Review",
-                    "Add workflow",
+                    t("Tabular Reviews"),
+                    review?.title || t("Untitled Review"),
+                    t("Add workflow"),
                 ]}
                 applying={applyingWorkflow}
             />
 
             <ConfirmPopup
                 open={deleteReviewConfirmOpen}
-                title="Delete tabular review?"
-                message="This will permanently delete the tabular review and its generated cells."
-                confirmLabel="Delete"
+                title={t("Delete tabular review?")}
+                message={t("This will permanently delete the tabular review and its generated cells.")}
+                confirmLabel={t("Delete")}
                 confirmVariant="danger"
                 confirmStatus={
                     deleteReviewStatus === "deleting"
@@ -1920,7 +1923,7 @@ export function TRView({ reviewId, projectId }: Props) {
                           ? "complete"
                           : "idle"
                 }
-                cancelLabel="Cancel"
+                cancelLabel={t("Cancel")}
                 onCancel={() => {
                     if (deleteReviewStatus === "deleting") return;
                     setDeleteReviewConfirmOpen(false);
@@ -1937,7 +1940,7 @@ export function TRView({ reviewId, projectId }: Props) {
             <WarningPopup
                 open={generationError !== null}
                 onClose={() => setGenerationError(null)}
-                title="Review stopped"
+                title={t("Review stopped")}
                 message={generationError}
             />
             <WarningPopup
@@ -1948,8 +1951,8 @@ export function TRView({ reviewId, projectId }: Props) {
 
             <WarningPopup
                 open={projectLoadWarning}
-                title="Project unavailable"
-                message="The project for this tabular review could not be loaded. Please try again."
+                title={t("Project unavailable")}
+                message={t("The project for this tabular review could not be loaded. Please try again.")}
                 onClose={() => setProjectLoadWarning(false)}
             />
 
@@ -1957,12 +1960,19 @@ export function TRView({ reviewId, projectId }: Props) {
                 open={apiKeyWarning !== null}
                 title={
                     apiKeyWarning?.kind === "rejected"
-                        ? "API key rejected"
+                        ? t("API key rejected")
                         : undefined
                 }
                 message={
                     apiKeyWarning?.kind === "rejected"
-                        ? `The ${apiKeyWarning.provider ? providerLabel(apiKeyWarning.provider) : "model provider"} API key was rejected. If you added your own key, check it in Settings → Bring Your Own Keys; otherwise contact your administrator.`
+                        ? t(
+                              "The {provider} API key was rejected. If you added your own key, check it in Settings → Bring Your Own Keys; otherwise contact your administrator.",
+                              {
+                                  provider: apiKeyWarning.provider
+                                      ? providerLabel(apiKeyWarning.provider)
+                                      : t("model provider"),
+                              },
+                          )
                         : undefined
                 }
                 onClose={() => setApiKeyWarning(null)}
@@ -1975,20 +1985,20 @@ export function TRView({ reviewId, projectId }: Props) {
 
             <WarningPopup
                 open={modelRequiredWarning}
-                title="Select a model"
-                message="Select a model for this tabular review before running it."
+                title={t("Select a model")}
+                message={t("Select a model for this tabular review before running it.")}
                 onClose={() => setModelRequiredWarning(false)}
             />
 
             <WarningPopup
                 open={generationGuard === "running"}
-                title="Tabular review is already running"
-                message="This review is being run in another tab or by another collaborator. Wait for that run to finish or be stopped before trying again."
+                title={t("Tabular review is already running")}
+                message={t("This review is being run in another tab or by another collaborator. Wait for that run to finish or be stopped before trying again.")}
                 onClose={() => {
                     if (!reloadingLatestReview) setGenerationGuard(null);
                 }}
                 primaryAction={{
-                    label: reloadingLatestReview ? "Checking…" : "Check again",
+                    label: reloadingLatestReview ? t("Checking…") : t("Check again"),
                     disabled: reloadingLatestReview,
                     onClick: () => void loadLatestReview(),
                 }}
@@ -1996,13 +2006,13 @@ export function TRView({ reviewId, projectId }: Props) {
 
             <WarningPopup
                 open={generationGuard === "stale"}
-                title="A newer version is available"
-                message="Load the latest version of this tabular review before running it."
+                title={t("A newer version is available")}
+                message={t("Load the latest version of this tabular review before running it.")}
                 onClose={() => {
                     if (!reloadingLatestReview) setGenerationGuard(null);
                 }}
                 primaryAction={{
-                    label: reloadingLatestReview ? "Loading…" : "Load latest",
+                    label: reloadingLatestReview ? t("Loading…") : t("Load latest"),
                     disabled: reloadingLatestReview,
                     onClick: () => void loadLatestReview(),
                 }}
