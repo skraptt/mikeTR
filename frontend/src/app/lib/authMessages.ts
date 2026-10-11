@@ -21,15 +21,24 @@ import {
     MAX_PASSWORD_LENGTH,
     MIN_PASSWORD_LENGTH,
 } from "@/app/components/auth/passwordPolicy";
+import { t } from "@/shared/i18n";
 
 export const TOO_MANY_ATTEMPTS_MESSAGE =
     "Too many attempts. Wait a moment and try again.";
 
 const SESSION_EXPIRED_MESSAGE = "Your session has expired. Log in again.";
 
-export const WEAK_PASSWORD_MESSAGE = `Choose a stronger password: at least ${MIN_PASSWORD_LENGTH} characters, mixing letters, numbers, and symbols.`;
+// Templated messages are translated here, with their numbers filled in;
+// the plain ones are translated where they are shown.
+export const WEAK_PASSWORD_MESSAGE = t(
+    "Choose a stronger password: at least {min} characters, mixing letters, numbers, and symbols.",
+    { min: MIN_PASSWORD_LENGTH },
+);
 
-export const PASSWORD_LENGTH_MESSAGE = `Password must have at least ${MIN_PASSWORD_LENGTH} characters and use at most ${MAX_PASSWORD_LENGTH} UTF-8 bytes.`;
+export const PASSWORD_LENGTH_MESSAGE = t(
+    "Password must have at least {min} characters and use at most {max} UTF-8 bytes.",
+    { min: MIN_PASSWORD_LENGTH, max: MAX_PASSWORD_LENGTH },
+);
 
 /** Wording for a link that has been used, tampered with, or has expired. */
 export const LINK_SPENT_MESSAGE =
@@ -63,8 +72,13 @@ export const AUTH_ERROR_MESSAGES = {
     // Passwords
     weak_password: WEAK_PASSWORD_MESSAGE,
     same_password: "Choose a password you haven't used on Mike before.",
-    password_too_short: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
-    password_too_long: `Password must be at most ${MAX_PASSWORD_LENGTH} UTF-8 bytes. Accented characters and emoji can use more than one byte.`,
+    password_too_short: t("Password must be at least {min} characters.", {
+        min: MIN_PASSWORD_LENGTH,
+    }),
+    password_too_long: t(
+        "Password must be at most {max} UTF-8 bytes. Accented characters and emoji can use more than one byte.",
+        { max: MAX_PASSWORD_LENGTH },
+    ),
 
     // Input this form can fix
     validation_failed: "Some of the information provided isn't valid.",

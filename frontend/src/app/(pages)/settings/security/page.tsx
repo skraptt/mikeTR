@@ -35,6 +35,7 @@ import {
   needsMfaVerification,
 } from "@/app/components/popups/MfaVerificationPopup";
 import {
+  couldNotTitle,
   describeError,
   supportMailtoFor,
   type UserFacingError,
@@ -205,7 +206,10 @@ export default function SecurityPage() {
     const described = describeError(error, {
       action,
       codeMessages: MFA_ERROR_MESSAGES,
-      fallback: `Mike couldn't ${action}. Try again.`,
+      fallback:
+        t.locale === "en"
+          ? `Mike couldn't ${action}. Try again.`
+          : `${couldNotTitle(action)}. ${t("Try again.")}`,
     });
     setStatus(described.message);
     setStatusError(described);

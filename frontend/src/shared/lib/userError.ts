@@ -12,6 +12,9 @@
  * framework-free and must not import from `frontend/src/app/`.
  */
 
+// Relative import: the Word add-in bundles this file without the "@/" alias.
+import { t } from "../i18n";
+
 export const SUPPORT_EMAIL = "will@mikeoss.com";
 
 export type UserErrorKind =
@@ -111,9 +114,12 @@ export function networkMessage(origin?: string): string {
     // Naming the origin is for self-hosters, whose own server may be the
     // thing that is down, so that variant also says to check the server.
     if (origin) {
-        return `Mike couldn't reach the server at ${origin}. Check your connection and that the server is running, then try again.`;
+        return t(
+            "Mike couldn't reach the server at {origin}. Check your connection and that the server is running, then try again.",
+            { origin },
+        );
     }
-    return "Mike couldn't reach the server. Check your connection and try again.";
+    return t("Mike couldn't reach the server. Check your connection and try again.");
 }
 
 const KIND_MESSAGES: Record<UserErrorKind, string> = {
@@ -277,12 +283,27 @@ function kindForStatus(status: number): UserErrorKind {
     return "unknown";
 }
 
+/**
+ * "Couldn't <action>", translated as a whole sentence.
+ *
+ * Word order differs between languages, so the action is not slotted into a
+ * translated template: each locale lists the full titles it knows (keyed by
+ * the English title), and an action it does not know falls back to a generic
+ * title rather than a sentence half in English.
+ */
+export function couldNotTitle(action: string): string {
+    const english = `Couldn't ${action.trim().replace(/[.!]+$/, "")}`;
+    if (t.locale === "en") return english;
+    const translated = t(english);
+    return translated !== english ? translated : t("The action could not be completed");
+}
+
 function titleFor(kind: UserErrorKind, action?: string): string {
     if (action) {
         const trimmed = action.trim().replace(/[.!]+$/, "");
-        if (trimmed) return `Couldn't ${trimmed}`;
+        if (trimmed) return couldNotTitle(trimmed);
     }
-    return KIND_TITLES[kind];
+    return t(KIND_TITLES[kind]);
 }
 
 /**
@@ -322,13 +343,15 @@ export function describeError(
             typeof like.kind === "string" && like.kind in KIND_TITLES
                 ? (like.kind as UserErrorKind)
                 : "unknown";
-        message = apiMessage;
+        // Messages written for users may have a translation keyed by their
+        // English text; anything unknown is shown as written.
+        message = t(apiMessage);
     } else if (status !== null) {
         kind = (code && CODE_KINDS[code]) || kindForStatus(status);
         // 4xx bodies are written for users by the backend; 5xx bodies never
         // are, and the API client already replaced them with a safe line.
         if (status < 500 && apiMessage && !/^API error: \d+$/.test(apiMessage)) {
-            message = apiMessage;
+            message = t(apiMessage);
         }
     } else if (code && CODE_KINDS[code]) {
         kind = CODE_KINDS[code];
@@ -337,14 +360,14 @@ export function describeError(
     }
 
     if (code && options.codeMessages && options.codeMessages[code]) {
-        message = options.codeMessages[code];
+        message = t(options.codeMessages[code]);
     }
 
     if (!message) {
         message =
             kind === "unknown" && options.fallback
                 ? options.fallback
-                : KIND_MESSAGES[kind];
+                : t(KIND_MESSAGES[kind]);
     }
 
     let retryable = RETRYABLE.has(kind);

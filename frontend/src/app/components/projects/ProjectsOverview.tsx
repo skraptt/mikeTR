@@ -135,6 +135,7 @@ export function ProjectsOverview() {
      */
     const [ownerOnlyAction, setOwnerOnlyAction] = useState<{
         action: string;
+        message?: string;
         contacts?: AccessContact[] | null;
     } | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
@@ -462,6 +463,15 @@ export function ProjectsOverview() {
             );
             setOwnerOnlyAction({
                 action: `delete ${blocked} of the selected projects — only a project owner can delete a project`,
+                // The English refusal is composed from `action`; other
+                // locales get the same facts as one translated sentence.
+                message:
+                    t.locale === "en"
+                        ? undefined
+                        : t(
+                              "Only a project owner can delete a project. {count} of the selected projects could not be deleted.",
+                              { count: blocked },
+                          ),
                 contacts: blockedContacts,
             });
         }
@@ -909,6 +919,7 @@ export function ProjectsOverview() {
             <PermissionDeniedPopup
                 open={!!ownerOnlyAction}
                 action={ownerOnlyAction?.action}
+                message={ownerOnlyAction?.message}
                 contacts={ownerOnlyAction?.contacts}
                 onClose={() => setOwnerOnlyAction(null)}
             />

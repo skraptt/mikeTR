@@ -1,3 +1,4 @@
+import { t } from "@/shared/i18n";
 import { MikeApiError, reportedUpstreamMessage } from "./mikeApi";
 
 export function userFacingApiError(
@@ -8,7 +9,7 @@ export function userFacingApiError(
     // to wait for) get their fixed frontend message (mikeApi.ts).
     if (error instanceof MikeApiError && error.code) {
         const upstream = reportedUpstreamMessage(error.code);
-        if (upstream) return upstream;
+        if (upstream) return t(upstream);
     }
     if (
         error instanceof MikeApiError &&
@@ -16,7 +17,8 @@ export function userFacingApiError(
         error.status < 500 &&
         error.message
     ) {
-        return error.message;
+        // 4xx messages are written for users; translate them by their text.
+        return t(error.message);
     }
     return fallback;
 }
@@ -34,7 +36,7 @@ export function knownErrorCodeMessage(
     fallback: string,
 ): string {
     const code = errorCode(error);
-    return code ? messages[code] ?? fallback : fallback;
+    return code && messages[code] ? t(messages[code]) : fallback;
 }
 
 // ---------------------------------------------------------------------------
@@ -57,6 +59,7 @@ import { isReported, reportError } from "@/app/lib/errorReporting";
 export {
     SUPPORT_EMAIL,
     UserVisibleError,
+    couldNotTitle,
     describeError,
     isAbortError,
     isNetworkError,

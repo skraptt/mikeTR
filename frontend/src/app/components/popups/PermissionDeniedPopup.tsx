@@ -2,10 +2,9 @@
 
 import { Lock } from "lucide-react";
 import { WarningPopup } from "../popups/WarningPopup";
-import {
-    PROJECT_ROLE_LABELS,
-    type ProjectRole,
-} from "@/app/lib/permissions";
+import { t } from "@/shared/i18n";
+import { withNodes } from "@/shared/i18n/react";
+import type { ProjectRole } from "@/app/lib/permissions";
 
 /** Anyone the user could ask for access, as the API returns them. */
 export interface AccessContact {
@@ -39,9 +38,26 @@ const ROLE_SUBJECT: Record<
     NonNullable<Props["requiredRole"]>,
     { title: string; subject: string }
 > = {
-    owner: { title: "Owner-only action", subject: "an owner" },
-    editor: { title: "Editors only", subject: "an editor" },
+    owner: { title: t("Owner-only action"), subject: "an owner" },
+    editor: { title: t("Editors only"), subject: "an editor" },
 };
+
+/**
+ * "Only an owner can <action>.", translated as a whole sentence: each locale
+ * lists the refusals it knows, keyed by the English sentence, and an action
+ * it does not know gets the generic refusal instead of a mixed-language one.
+ */
+function refusalMessage(subject: string, action?: string): string {
+    const english = action
+        ? `Only ${subject} can ${action}.`
+        : `Only ${subject} can perform this action.`;
+    if (t.locale === "en") return english;
+    const translated = t(english);
+    if (translated !== english) return translated;
+    return subject === "an owner"
+        ? t("Only an owner can perform this action.")
+        : t("Only an editor can perform this action.");
+}
 
 /**
  * Fold several rows' contact lists into one, keeping the server's ranking
@@ -101,11 +117,7 @@ export function PermissionDeniedPopup({
 
     const subject = ROLE_SUBJECT[requiredRole];
     const heading = title ?? subject.title;
-    const body =
-        message ??
-        (action
-            ? `Only ${subject.subject} can ${action}.`
-            : `Only ${subject.subject} can perform this action.`);
+    const body = message ?? refusalMessage(subject.subject, action);
     const contact = pickContact(contacts);
 
     return (
@@ -118,14 +130,20 @@ export function PermissionDeniedPopup({
         >
             {contact && (
                 <p className="mt-1 text-xs text-gray-600">
-                    Ask{" "}
-                    <span className="text-gray-600">
-                        {contact.name
-                            ? `${contact.name} (${contact.email})`
-                            : contact.email}
-                    </span>{" "}
-                    if you need {PROJECT_ROLE_LABELS[requiredRole].toLowerCase()}{" "}
-                    access.
+                    {withNodes(
+                        requiredRole === "owner"
+                            ? t("Ask {contact} if you need owner access.")
+                            : t("Ask {contact} if you need editor access."),
+                        {
+                            contact: (
+                                <span className="text-gray-600">
+                                    {contact.name
+                                        ? `${contact.name} (${contact.email})`
+                                        : contact.email}
+                                </span>
+                            ),
+                        },
+                    )}
                 </p>
             )}
         </WarningPopup>
