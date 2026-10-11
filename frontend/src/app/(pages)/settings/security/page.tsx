@@ -573,7 +573,7 @@ export default function SecurityPage() {
         onClose={() => void closeSetupModal()}
         breadcrumbs={[t("Security"), t("Set up authenticator app")]}
         cancelAction={{
-          label: enrollment ? "Back" : "Cancel",
+          label: enrollment ? t("Back") : t("Cancel"),
           onClick: enrollment
             ? () => void returnToSetupInstructions()
             : () => void closeSetupModal(),
@@ -582,7 +582,7 @@ export default function SecurityPage() {
         primaryAction={
           enrollment
             ? {
-                label: busy ? "Verifying..." : "Verify",
+                label: busy ? t("Verifying...") : t("Verify"),
                 onClick: () => void verifyEnrollment(),
                 disabled: busy || verificationCode.trim().length !== 6,
               }
@@ -642,7 +642,7 @@ export default function SecurityPage() {
                     className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition-colors hover:text-gray-950"
                   >
                     <Copy className="h-3 w-3" />
-                    {setupKeyCopied ? "Copied" : "Copy"}
+                    {setupKeyCopied ? t("Copied") : t("Copy")}
                   </button>
                 </div>
                 <p className="break-all text-xs text-gray-700">

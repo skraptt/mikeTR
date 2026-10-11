@@ -7,6 +7,7 @@ import {
     type McpConnectorFormDraft,
 } from "@/app/components/settings/McpConnectorForm";
 import type { McpConnectorSummary } from "@/app/lib/mikeApi";
+import { t } from "@/shared/i18n";
 
 export type NewCustomMcpDraft = McpConnectorFormDraft;
 
@@ -49,12 +50,12 @@ export function NewCustomMcpModal({
         <Modal
             open={open}
             onClose={onClose}
-            breadcrumbs={["Connectors", "New Custom Connector"]}
+            breadcrumbs={[t("Connectors"), t("New Custom Connector")]}
             size="lg"
             primaryAction={
                 step === "success" && result
                     ? {
-                          label: "View connector",
+                          label: t("View connector"),
                           onClick: () => onOpenConnector(result.id),
                       }
                     : {
@@ -92,7 +93,7 @@ export function NewCustomMcpModal({
                 <NewCustomMcpAuth
                     message={
                         authMessage ??
-                        "Complete authorization in the popup to finish connecting this MCP server."
+                        t("Complete authorization in the popup to finish connecting this MCP server.")
                     }
                 />
             ) : (
@@ -101,7 +102,7 @@ export function NewCustomMcpModal({
                         idPrefix="new-mcp"
                         draft={draft}
                         showToken={showToken}
-                        tokenPlaceholder="Bearer token"
+                        tokenPlaceholder={t("Bearer token")}
                         disabled={step === "working"}
                         className="pt-1"
                         onDraftChange={onDraftChange}
@@ -165,7 +166,7 @@ function NewCustomMcpAuth({ message }: { message: string }) {
             </div>
             <div className="max-w-sm space-y-1">
                 <h3 className="text-sm font-medium text-gray-700">
-                    Authentication required
+                    {t("Authentication required")}
                 </h3>
                 <p className="text-sm text-gray-500">{message}</p>
             </div>

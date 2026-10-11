@@ -3,6 +3,7 @@
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { WarningPopup } from "@/app/components/popups/WarningPopup";
 import type { MemoryCurrent } from "@/app/lib/mikeApi";
+import { t } from "@/shared/i18n";
 
 const DISMISSAL_PREFIX = "mike:memory-update-failure-dismissed:";
 const DISMISSAL_EVENT = "mike:memory-update-failure-dismissed";
@@ -75,7 +76,7 @@ export function MemoryUpdateFailedPopup({
         currentFailureId !== sessionDismissedFailureId
       }
       onClose={dismiss}
-      message="The latest automatic update failed. Existing memory is unchanged."
+      message={t("The latest automatic update failed. Existing memory is unchanged.")}
     />
   );
 }

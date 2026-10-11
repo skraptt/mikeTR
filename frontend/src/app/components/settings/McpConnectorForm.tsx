@@ -7,6 +7,7 @@ import {
   FormTextInput,
 } from "@/app/components/ui/form-field";
 import { settingsGlassIconButtonClassName } from "@/app/(pages)/settings/settingsStyles";
+import { t } from "@/shared/i18n";
 
 export type McpConnectorFormDraft = {
   name: string;
@@ -51,19 +52,19 @@ export function McpConnectorForm({
   return (
     <div className={`grid gap-3 ${className}`}>
       <div className="min-w-0">
-        <FieldLabel htmlFor={labelId}>Label</FieldLabel>
+        <FieldLabel htmlFor={labelId}>{t("Label")}</FieldLabel>
         <FormTextInput
           id={labelId}
           value={draft.name}
           onChange={(event) =>
             onDraftChange({ ...draft, name: event.target.value })
           }
-          placeholder="Connector label"
+          placeholder={t("Connector label")}
           disabled={disabled}
         />
       </div>
       <div className="min-w-0">
-        <FieldLabel htmlFor={urlId}>URL endpoint</FieldLabel>
+        <FieldLabel htmlFor={urlId}>{t("URL endpoint")}</FieldLabel>
         <FormTextInput
           id={urlId}
           value={draft.serverUrl}
@@ -76,9 +77,9 @@ export function McpConnectorForm({
       </div>
       <div className="min-w-0">
         <div className="flex items-baseline justify-between gap-2">
-          <FieldLabel htmlFor={tokenId}>Bearer token</FieldLabel>
+          <FieldLabel htmlFor={tokenId}>{t("Bearer token")}</FieldLabel>
           <p className="mb-2 shrink-0 text-xs text-gray-500">
-            Tokens are stored encrypted.
+            {t("Tokens are stored encrypted.")}
           </p>
         </div>
         <div className="relative">
@@ -108,7 +109,7 @@ export function McpConnectorForm({
                 tokenAction ? "right-[3.75rem]" : "right-1.5"
               } flex items-center ${settingsGlassIconButtonClassName}`}
               onClick={() => onShowTokenChange(!showToken)}
-              aria-label={showToken ? "Hide token" : "Show token"}
+              aria-label={showToken ? t("Hide token") : t("Show token")}
               disabled={disabled}
             >
               {showToken ? (
@@ -141,9 +142,9 @@ export function McpConnectorForm({
       </div>
       <div className="min-w-0">
         <div className="flex items-baseline justify-between gap-2">
-          <FieldLabel htmlFor={headersId}>Custom headers</FieldLabel>
+          <FieldLabel htmlFor={headersId}>{t("Custom headers")}</FieldLabel>
           <p className="mb-2 shrink-0 text-xs text-gray-500">
-            Secrets are stored encrypted.
+            {t("Secrets are stored encrypted.")}
           </p>
         </div>
         <textarea

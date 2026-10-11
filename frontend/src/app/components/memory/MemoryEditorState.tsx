@@ -3,10 +3,11 @@
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import type { MemoryAutosaveStatus } from "./useMemoryAutosave";
 import type { MemoryCurrent } from "@/app/lib/mikeApi";
+import { t } from "@/shared/i18n";
 
 export function memoryActivityLabel(memory: MemoryCurrent) {
-  if (memory.status === "scheduled") return "Memory review scheduled";
-  if (memory.status === "processing") return "Updating memory…";
+  if (memory.status === "scheduled") return t("Memory review scheduled");
+  if (memory.status === "processing") return t("Updating memory…");
   return null;
 }
 
@@ -25,18 +26,19 @@ export function MemoryConflictNotice({
       role="alert"
     >
       <p className="font-medium">
-        {project ? "Project memory" : "Memory"} changed while you were editing
+        {project
+          ? t("Project memory changed while you were editing")
+          : t("Memory changed while you were editing")}
       </p>
       <p className="mt-1 text-xs text-amber-800">
-        Reload what is saved now, or keep your draft and let it save over the
-        change.
+        {t("Reload what is saved now, or keep your draft and let it save over the change.")}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <PillButtonUI tone="white" size="sm" onClick={onReload}>
-          Reload latest
+          {t("Reload latest")}
         </PillButtonUI>
         <PillButtonUI tone="black" size="sm" onClick={onKeepDraft}>
-          Keep my draft
+          {t("Keep my draft")}
         </PillButtonUI>
       </div>
     </div>
@@ -67,7 +69,7 @@ export function MemorySaveStatus({
           className="font-medium text-gray-700 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-2"
           onClick={onRetry}
         >
-          Retry
+          {t("Retry")}
         </button>
       </span>
     );

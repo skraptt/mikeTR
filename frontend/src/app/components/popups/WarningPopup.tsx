@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from "react";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { NoticeCardUI } from "@/shared/ui/NoticeCardUI";
 import { useNoticeStackSlot } from "@/shared/ui/ToastUI";
+import { t } from "@/shared/i18n";
 
 /**
  * A single warning that the calling component opens and closes itself.
@@ -77,7 +78,7 @@ export function WarningPopup({
             message={message}
             icon={icon}
             onDismiss={onClose}
-            dismissLabel="Dismiss warning"
+            dismissLabel={t("Dismiss warning")}
             className={className}
             actions={
                 actions || primaryAction ? (

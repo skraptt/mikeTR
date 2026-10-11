@@ -790,7 +790,7 @@ export function AccessEditor({
                                     email.toLowerCase() ===
                                         normalizedCurrentEmail);
                             const name = isYou
-                                ? "You"
+                                ? t("You")
                                 : entry.display_name?.trim() || "—";
                             const isPending = pendingEmail === email;
                             return (

@@ -306,7 +306,7 @@ export default function PrivacyDataPage() {
               className="shrink-0"
             >
               <Download className="h-4 w-4 shrink-0" />
-              {isExportingChats ? "Exporting..." : "Export"}
+              {isExportingChats ? t("Exporting...") : t("Export")}
             </PillButtonUI>
           </SettingsRow>
           <SettingsRow>
@@ -325,12 +325,12 @@ export default function PrivacyDataPage() {
               className="shrink-0"
             >
               <Download className="h-4 w-4 shrink-0" />
-              {isExportingTabularReviews ? "Exporting..." : "Export"}
+              {isExportingTabularReviews ? t("Exporting...") : t("Export")}
             </PillButtonUI>
           </SettingsRow>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Export account JSON</SettingsLabel>
+              <SettingsLabel>{t("Export account JSON")}</SettingsLabel>
               <SettingsDescription>
                 {t("Download account metadata, projects, document metadata, workflows, and review data as JSON.")}
               </SettingsDescription>
@@ -344,7 +344,7 @@ export default function PrivacyDataPage() {
               className="shrink-0"
             >
               <Download className="h-4 w-4 shrink-0" />
-              {isExportingAccount ? "Exporting..." : "Export"}
+              {isExportingAccount ? t("Exporting...") : t("Export")}
             </PillButtonUI>
           </SettingsRow>
           <SettingsRow>
@@ -364,7 +364,7 @@ export default function PrivacyDataPage() {
               className="shrink-0"
             >
               <Download className="h-4 w-4 shrink-0" />
-              {isExportingMemory ? "Exporting..." : "Export"}
+              {isExportingMemory ? t("Exporting...") : t("Export")}
             </PillButtonUI>
           </SettingsRow>
         </GlassCardUI>

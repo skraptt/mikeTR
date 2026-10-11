@@ -73,7 +73,7 @@ export function TableLoadMoreRow({
             >
                 {loadingMore && <Loader2 className="h-3 w-3 animate-spin" />}
                 {loadingMore
-                    ? "Loading…"
+                    ? t("Loading…")
                     : hasError
                       ? t("Retry loading")
                       : t("Load more")}

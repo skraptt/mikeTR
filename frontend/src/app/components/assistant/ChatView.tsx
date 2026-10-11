@@ -751,19 +751,19 @@ export function AssistantChatColumn({
 
     const chatActionItems: HeaderActionsMenuItem[] = [
         {
-            label: "Share",
+            label: t("Share"),
             icon: Users,
             onSelect: handleShareChat,
             disabled: !activeChat,
         },
         {
-            label: "Rename",
+            label: t("Rename"),
             icon: Pencil,
             onSelect: () => void handleRenameChat(),
             disabled: !activeChat,
         },
         {
-            label: "Delete",
+            label: t("Delete"),
             icon: Trash2,
             onSelect: () => void handleDeleteChat(),
             disabled: !activeChat,

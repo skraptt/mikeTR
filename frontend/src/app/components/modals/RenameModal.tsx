@@ -44,7 +44,7 @@ function RenameModalForm({
             breadcrumbs={breadcrumbs}
             cancelAction={{ label: t("Cancel"), onClick: onClose, disabled: saving }}
             primaryAction={{
-                label: saving ? "Saving..." : "Save",
+                label: saving ? t("Saving...") : t("Save"),
                 type: "submit",
                 form: formId,
                 disabled: !trimmed || saving,

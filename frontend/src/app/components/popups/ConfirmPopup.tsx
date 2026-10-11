@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { cn } from "@/app/lib/utils";
 import { LIQUID_GLASS_FLOAT_CLASS } from "@/shared/ui/LiquidGlassUI";
+import { t } from "@/shared/i18n";
 
 type ConfirmStatus = "idle" | "loading" | "complete";
 
@@ -88,7 +89,7 @@ export function ConfirmPopup({
       <div
         role="dialog"
         aria-labelledby={title ? titleId : undefined}
-        aria-label={title ? undefined : "Confirm action"}
+        aria-label={title ? undefined : t("Confirm action")}
         className={cn(
           `pointer-events-auto w-[min(92vw,520px)] rounded-2xl px-4 py-3 text-sm ${LIQUID_GLASS_FLOAT_CLASS}`,
           className,

@@ -1448,8 +1448,8 @@ export default function ConnectorsPage() {
                   ? {
                       label:
                         clearedBearerTokenConnectorId === selectedConnector.id
-                          ? "Cleared"
-                          : "Clear",
+                          ? t("Cleared")
+                          : t("Clear"),
                       loading:
                         busyKey === `clear-token:${selectedConnector.id}`,
                       cleared:
@@ -1647,7 +1647,7 @@ function DiscoverCard({
               : `Add ${name} connector`
           }
         >
-          {authorizing ? "Cancel" : adding ? "Adding..." : "Add"}
+          {authorizing ? t("Cancel") : adding ? t("Adding...") : t("Add")}
         </PillButtonUI>
       }
     />

@@ -7,6 +7,7 @@ import { Modal } from "@/app/components/modals/Modal";
 import { LIQUID_GLASS_FLAT_CLASS } from "@/shared/ui/LiquidGlassUI";
 import { TabPillButtonUI } from "@/shared/ui/TabPillButtonUI";
 import { ToggleSwitchUI } from "@/shared/ui/ToggleSwitchUI";
+import { t } from "@/shared/i18n";
 
 export type ConnectorToolView = {
     id: string;
@@ -97,7 +98,7 @@ export function ConnectorDetailsModal({
             secondaryAction={
                 connector
                     ? {
-                          label: "Delete",
+                          label: t("Delete"),
                           variant: "danger",
                           onClick: onDelete,
                           disabled: busyKey !== null,
@@ -129,7 +130,7 @@ export function ConnectorDetailsModal({
                             {connector.accountEmail && (
                                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                                     <p className="text-sm font-medium text-gray-700">
-                                        Account
+                                        {t("Account")}
                                     </p>
                                     <p className="min-w-0 text-sm text-gray-500 [overflow-wrap:anywhere]">
                                         {connector.accountEmail}
@@ -139,10 +140,10 @@ export function ConnectorDetailsModal({
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                     <p id={`read-only-${connector.id}`} className="text-sm font-medium text-gray-700">
-                                        Read-only
+                                        {t("Read-only")}
                                     </p>
                                     <p id={`read-only-description-${connector.id}`} className="mt-0.5 text-xs text-gray-500">
-                                        Disable all write tools. Turn off to restore your individual tool settings.
+                                        {t("Disable all write tools. Turn off to restore your individual tool settings.")}
                                     </p>
                                 </div>
                                 <ToggleSwitchUI
@@ -164,13 +165,12 @@ export function ConnectorDetailsModal({
                                                 id={`write-approval-${connector.id}`}
                                                 className="text-sm font-medium text-gray-700"
                                             >
-                                                Ask for permission for write
-                                                actions
+                                                {t("Ask for permission for write actions")}
                                             </p>
                                             <p className="mt-0.5 text-xs text-gray-500">
                                                 {hasWriteTools || toolsLoading
-                                                    ? "Mike asks you in the chat before running an action that changes data."
-                                                    : "This connector has no write actions right now."}
+                                                    ? t("Mike asks you in the chat before running an action that changes data.")
+                                                    : t("This connector has no write actions right now.")}
                                             </p>
                                         </div>
                                         <ToggleSwitchUI
@@ -203,7 +203,7 @@ export function ConnectorDetailsModal({
                                                 onClick={onCancelReconnect}
                                                 className="rounded text-xs font-medium text-gray-500 transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                                             >
-                                                Cancel
+                                                {t("Cancel")}
                                             </button>
                                         )}
                                         <button
@@ -218,7 +218,7 @@ export function ConnectorDetailsModal({
                                             ) : (
                                                 <RefreshCw className="h-3.5 w-3.5" />
                                             )}
-                                            Refresh
+                                            {t("Refresh")}
                                         </button>
                                     </div>
                                 </div>
@@ -280,7 +280,7 @@ function ToolList({
             <div
                 className={`min-h-0 flex-1 rounded-lg px-3 py-3 text-sm text-gray-500 ${LIQUID_GLASS_FLAT_CLASS}`}
             >
-                No tools discovered yet.
+                {t("No tools discovered yet.")}
             </div>
         );
     }
@@ -315,7 +315,7 @@ function ToolList({
                                     {tool.title}
                                     {tool.write && (
                                         <span className="ml-2 text-xs font-normal text-gray-500">
-                                            Write
+                                            {t("Write")}
                                         </span>
                                     )}
                                 </p>

@@ -120,7 +120,7 @@ export function DocumentVersionPicker({
                         >
                             {version.version_number
                                 ? `V${version.version_number}`
-                                : "Version"}
+                                : t("Version")}
                             {version.filename && (
                                 <span className="max-w-48 truncate">
                                     {version.filename}

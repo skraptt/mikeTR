@@ -251,11 +251,11 @@ export default function SettingsPage() {
                   aria-live="polite"
                 >
                   {isSavingName
-                    ? "Saving..."
+                    ? t("Saving...")
                     : nameError
                       ? nameError
                       : saved
-                        ? "Saved"
+                        ? t("Saved")
                         : ""}
                 </span>
               </div>
@@ -282,11 +282,11 @@ export default function SettingsPage() {
                   aria-live="polite"
                 >
                   {isSavingOrg
-                    ? "Saving..."
+                    ? t("Saving...")
                     : orgError
                       ? orgError
                       : orgSaved
-                        ? "Saved"
+                        ? t("Saved")
                         : ""}
                 </span>
               </div>
@@ -353,12 +353,12 @@ export default function SettingsPage() {
                   className="text-xs font-medium text-gray-700 transition-colors hover:text-gray-950 disabled:cursor-not-allowed disabled:text-gray-400"
                 >
                   {requiresPasswordForEmailChange
-                    ? "Update"
+                    ? t("Update")
                     : isSavingEmail
-                      ? "Saving..."
+                      ? t("Saving...")
                       : emailSaved
-                        ? "Saved"
-                        : "Save"}
+                        ? t("Saved")
+                        : t("Save")}
                 </button>
               </div>
             </div>

@@ -2638,7 +2638,7 @@ export function DocTable({
                             filename: doc.filename,
                             fileType: doc.file_type,
                             depth,
-                            statusLabel: "Deleting...",
+                            statusLabel: t("Deleting..."),
                         });
                     }
                     return (
@@ -4516,7 +4516,7 @@ export function DocTable({
                                                         filename: doc.filename,
                                                         fileType: doc.file_type,
                                                         depth: 0,
-                                                        statusLabel: "Deleting...",
+                                                        statusLabel: t("Deleting..."),
                                                     });
                                                 }
                                                 return (

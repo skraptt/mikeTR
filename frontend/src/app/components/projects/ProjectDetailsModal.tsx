@@ -163,7 +163,7 @@ export function ProjectDetailsModal({
             primaryAction={
                 canEdit
                     ? {
-                          label: saving ? "Updating..." : "Update",
+                          label: saving ? t("Updating...") : t("Update"),
                           onClick: () => void handleSave(),
                           disabled: saving || !hasChanges || !trimmedName,
                       }

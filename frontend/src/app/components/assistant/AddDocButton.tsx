@@ -48,7 +48,7 @@ export function AddDocButton({
                         <PlusIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
                     )}
                     <span className={hideLabel ? "hidden" : "hidden sm:inline"}>
-                        {selectedDocIds.length === 1 ? "Document" : "Documents"}
+                        {selectedDocIds.length === 1 ? t("Document") : t("Documents")}
                     </span>
                 </button>
             </DropdownTrigger>

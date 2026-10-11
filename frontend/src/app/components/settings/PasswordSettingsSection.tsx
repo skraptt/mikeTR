@@ -165,7 +165,7 @@ export function PasswordSettingsSection() {
             {needsInitialPassword
               ? t("Set password")
               : passwordResetSending
-                ? "Sending..."
+                ? t("Sending...")
                 : t("Send reset email")}
           </PillButtonUI>
         </SettingsRow>
@@ -178,7 +178,7 @@ export function PasswordSettingsSection() {
         size="sm"
         className="h-auto"
         cancelAction={{
-          label: "Cancel",
+          label: t("Cancel"),
           onClick: closeSetPassword,
           disabled: passwordSaving,
         }}

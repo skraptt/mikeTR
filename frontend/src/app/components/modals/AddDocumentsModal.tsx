@@ -384,7 +384,7 @@ export function AddDocumentsModal({
             keepMounted={keepMounted}
             breadcrumbs={breadcrumb}
             secondaryAction={{
-                label: uploading ? "Uploading…" : "Upload",
+                label: uploading ? t("Uploading…") : t("Upload"),
                 icon: uploading ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
@@ -394,7 +394,7 @@ export function AddDocumentsModal({
                 disabled: uploading,
             }}
             primaryAction={{
-                label: uploading ? "Saving…" : "Confirm",
+                label: uploading ? t("Saving…") : t("Confirm"),
                 onClick: handleConfirm,
                 disabled: selectedDocuments.length === 0 || uploading,
             }}

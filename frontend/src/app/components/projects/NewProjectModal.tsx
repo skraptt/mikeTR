@@ -534,9 +534,9 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                         }
                       : {
                             label: loading
-                                ? "Creating…"
+                                ? t("Creating…")
                                 : pendingProject
-                                  ? "Continue"
+                                  ? t("Continue")
                                   : t("Create project"),
                             type: "button",
                             onClick: () => void createProjectFromDocuments(),

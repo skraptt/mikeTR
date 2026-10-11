@@ -7,6 +7,7 @@ import {
     type NoModelsReason,
 } from "@/shared/lib/modelCatalog";
 import { WarningPopup } from "./WarningPopup";
+import { t } from "@/shared/i18n";
 
 export function NoModelsWarningPopup({
     reason,
@@ -33,13 +34,13 @@ function VisibleNoModelsWarning({
         <WarningPopup
             open
             onClose={onClose}
-            title="No models available"
-            message={NO_MODELS_MESSAGES[reason]}
+            title={t("No models available")}
+            message={t(NO_MODELS_MESSAGES[reason])}
             icon={
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-600" />
             }
             primaryAction={{
-                label: "Open Bring Your Own Keys",
+                label: t("Open Bring Your Own Keys"),
                 onClick: () => {
                     onClose();
                     router.push("/settings/byok");

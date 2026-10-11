@@ -136,8 +136,8 @@ export function OrganizationsOverview() {
     { id: OrganizationFilter; label: string }[]
   >(
     () => [
-      { id: "managed", label: "Managing" },
-      { id: "joined", label: "Joined" },
+      { id: "managed", label: t("Managing") },
+      { id: "joined", label: t("Joined") },
       {
         id: "invites",
         // A failed fetch and an empty inbox both left this reading plain
@@ -145,10 +145,10 @@ export function OrganizationsOverview() {
         // exactly like the one that is not. Plain text in the label, not a
         // badge: this is a status, not a control.
         label: invitationsError
-          ? "Invites (unavailable)"
+          ? t("Invites (unavailable)")
           : invitations.length > 0
-            ? `Invites (${invitations.length})`
-            : "Invites",
+            ? t("Invites ({count})", { count: invitations.length })
+            : t("Invites"),
       },
     ],
     [invitations.length, invitationsError],

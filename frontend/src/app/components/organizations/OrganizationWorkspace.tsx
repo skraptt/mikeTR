@@ -73,9 +73,9 @@ import { t } from "@/shared/i18n";
 type OrganizationTab = "people" | "projects" | "workflows";
 
 const TABS: { id: OrganizationTab; label: string }[] = [
-  { id: "people", label: "People" },
-  { id: "projects", label: "Projects" },
-  { id: "workflows", label: "Workflows" },
+  { id: "people", label: t("People") },
+  { id: "projects", label: t("Projects") },
+  { id: "workflows", label: t("Workflows") },
 ];
 
 const EMPTY_RESOURCES: OrgResources = { projects: [], workflows: [] };

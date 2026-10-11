@@ -286,7 +286,7 @@ export default function HistoryPage() {
             ) : (
               <Download className="h-4 w-4" />
             ),
-            label: "Export",
+            label: t("Export"),
             title: t("Export history"),
             disabled: exporting,
             onClick: () => void handleExport(),

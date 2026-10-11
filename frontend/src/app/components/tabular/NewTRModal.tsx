@@ -456,9 +456,9 @@ export function NewTRModal({
             breadcrumbs={[
                 ...breadcrumbs,
                 step === "details"
-                    ? "Details"
+                    ? t("Details")
                     : step === "access"
-                      ? "Access"
+                      ? t("Access")
                       : t("Add Documents"),
             ]}
             secondaryAction={

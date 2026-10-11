@@ -132,8 +132,8 @@ export function CreateOrganizationModal({
           label: createdOrg
             ? t("Open organization")
             : creating
-              ? "Creating..."
-              : "Create",
+              ? t("Creating...")
+              : t("Create"),
           icon: creating ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : undefined,
@@ -371,8 +371,8 @@ export function InviteOrganizationMemberModal({
                       <p className="text-[10px] text-gray-400">
                         {ORG_ROLE_LABELS[invitation.role]} ·{" "}
                         {invitation.status === "expired"
-                          ? "Expired"
-                          : "Pending"}
+                          ? t("Expired")
+                          : t("Pending")}
                       </p>
                     </div>
                     <button
@@ -506,7 +506,7 @@ export function OrganizationSettingsModal({
         breadcrumbs={[t("Organizations"), org.name, t("Settings")]}
         size="md"
         primaryAction={{
-          label: saving ? "Saving..." : "Save",
+          label: saving ? t("Saving...") : t("Save"),
           icon: saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : undefined,

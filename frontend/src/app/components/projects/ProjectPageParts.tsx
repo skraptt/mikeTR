@@ -215,7 +215,7 @@ export function DocVersionHistory({
                     v.version_number >= 1
                         ? `${v.version_number}`
                         : v.source === "upload"
-                          ? "Original"
+                          ? t("Original")
                           : "—";
                 const displayLabel = v.filename?.trim() || numberLabel;
                 const downloadFilename = v.filename?.trim() || filename;

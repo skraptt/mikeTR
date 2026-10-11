@@ -714,7 +714,7 @@ export function FileDirectory({
                         <button
                             type="button"
                             aria-expanded={isExpanded}
-                            aria-label={`${isExpanded ? "Collapse" : "Expand"} ${folder.name}`}
+                            aria-label={t(isExpanded ? "Collapse {name}" : "Expand {name}", { name: folder.name })}
                             onClick={() =>
                                 toggleLibraryFolder(
                                     folder.id,
@@ -1156,7 +1156,7 @@ export function FileDirectory({
                                         <button
                                             type="button"
                                             aria-expanded={isExpanded}
-                                            aria-label={`${isExpanded ? "Collapse" : "Expand"} ${project.name}`}
+                                            aria-label={t(isExpanded ? "Collapse {name}" : "Expand {name}", { name: project.name })}
                                             onClick={() =>
                                                 toggleFolder(project.id)
                                             }

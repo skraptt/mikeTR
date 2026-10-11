@@ -26,6 +26,7 @@ import {
   updateUserMemory,
 } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
+import { t } from "@/shared/i18n";
 
 type ConfirmAction = "disable";
 
@@ -68,10 +69,10 @@ export function UserMemoryPage() {
     loadMemory,
     saveMemory,
     conflictLoadError:
-      "Memory changed while you were editing. Reload the page before saving again.",
-    saveError: "Memory could not be saved. Your draft has been kept.",
+      t("Memory changed while you were editing. Reload the page before saving again."),
+    saveError: t("Memory could not be saved. Your draft has been kept."),
     disabledError:
-      "Memory was turned off while you were editing, so your changes were not saved.",
+      t("Memory was turned off while you were editing, so your changes were not saved."),
   });
 
   const interactionLocked =
@@ -92,7 +93,7 @@ export function UserMemoryPage() {
       setError(
         userFacingApiError(
           cause,
-          "App-wide memory could not be turned on. Please try again.",
+          t("App-wide memory could not be turned on. Please try again."),
         ),
       );
     } finally {
@@ -112,7 +113,7 @@ export function UserMemoryPage() {
       setError(
         userFacingApiError(
           cause,
-          "App-wide memory could not be turned off. Please try again.",
+          t("App-wide memory could not be turned off. Please try again."),
         ),
       );
       setConfirmAction(null);
@@ -128,14 +129,14 @@ export function UserMemoryPage() {
         aria-labelledby="app-memory-settings-heading"
       >
         <SettingsHeading id="app-memory-settings-heading">
-          Memory
+          {t("Memory")}
         </SettingsHeading>
 
         <GlassCardUI>
           {loading ? (
             <div
               className="flex items-center justify-between gap-3 px-4 py-5"
-              aria-label="Loading memory settings"
+              aria-label={t("Loading memory settings")}
             >
               <div className="space-y-2">
                 <div className="h-4 w-36 animate-pulse rounded bg-gray-200" />
@@ -146,22 +147,21 @@ export function UserMemoryPage() {
           ) : loadError || !memory ? (
             <SettingsRow>
               <div className="space-y-1">
-                <SettingsLabel>Memory settings are unavailable</SettingsLabel>
+                <SettingsLabel>{t("Memory settings are unavailable")}</SettingsLabel>
                 <p className="text-sm text-red-600" role="alert">
-                  Could not load memory settings. Please try again.
+                  {t("Could not load memory settings. Please try again.")}
                 </p>
               </div>
               <PillButtonUI tone="white" size="sm" onClick={() => void load()}>
-                Retry
+                {t("Retry")}
               </PillButtonUI>
             </SettingsRow>
           ) : (
             <SettingsRow>
               <div className="space-y-1">
-                <SettingsLabel>App-wide memory</SettingsLabel>
+                <SettingsLabel>{t("App-wide memory")}</SettingsLabel>
                 <SettingsDescription>
-                  Let Mike curate useful details after saved conversations and
-                  use them in future answers.
+                  {t("Let Mike curate useful details after saved conversations and use them in future answers.")}
                 </SettingsDescription>
               </div>
               <div className="flex items-center gap-3">
@@ -169,7 +169,7 @@ export function UserMemoryPage() {
                   checked={memory.enabled}
                   disabled={interactionLocked}
                   aria-busy={settingsMutation === "enable"}
-                  aria-label="App-wide memory"
+                  aria-label={t("App-wide memory")}
                   onCheckedChange={(enabled) => {
                     if (enabled) void enableMemory();
                     else {
@@ -208,7 +208,7 @@ export function UserMemoryPage() {
         >
           <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
             <SettingsHeading id="app-memory-file-heading">
-              Memory file
+              {t("Memory file")}
             </SettingsHeading>
             <div className="flex flex-wrap items-center gap-3">
               <MemorySaveStatus
@@ -241,7 +241,7 @@ export function UserMemoryPage() {
               onChange={(value) => {
                 changeDraft(value);
               }}
-              ariaLabel="App-wide memory"
+              ariaLabel={t("App-wide memory")}
               className="min-h-[24rem]"
               suspended={editorLocked}
               allowTables={false}
@@ -252,9 +252,17 @@ export function UserMemoryPage() {
 
       <ConfirmPopup
         open={confirmAction !== null}
-        title="Turn off and delete app-wide memory?"
-        message={`This will delete the existing app-wide memory.md file${dirty ? " and your unsaved draft" : ""}, cancel pending memory updates, and stop future memory updates until you turn app-wide memory on again.`}
-        confirmLabel="Disable"
+        title={t("Turn off and delete app-wide memory?")}
+        message={
+          dirty
+            ? t(
+                "This will delete the existing app-wide memory.md file and your unsaved draft, cancel pending memory updates, and stop future memory updates until you turn app-wide memory on again.",
+              )
+            : t(
+                "This will delete the existing app-wide memory.md file, cancel pending memory updates, and stop future memory updates until you turn app-wide memory on again.",
+              )
+        }
+        confirmLabel={t("Disable")}
         confirmVariant="danger"
         confirmStatus={settingsMutation ? "loading" : "idle"}
         onConfirm={() => void confirmSettingsMutation()}
@@ -288,7 +296,7 @@ function ProjectMemoryDefaultRow() {
       setError(
         userFacingApiError(
           cause,
-          "That preference could not be saved. Please try again.",
+          t("That preference could not be saved. Please try again."),
         ),
       );
     } finally {
@@ -299,10 +307,9 @@ function ProjectMemoryDefaultRow() {
   return (
     <SettingsRow>
       <div className="space-y-1">
-        <SettingsLabel>Project memory for new projects</SettingsLabel>
+        <SettingsLabel>{t("Project memory for new projects")}</SettingsLabel>
         <SettingsDescription>
-          Choose whether memory is enabled by default for projects you create.
-          Project owners can still change it for each project.
+          {t("Choose whether memory is enabled by default for projects you create. Project owners can still change it for each project.")}
         </SettingsDescription>
         {error ? (
           <p className="text-xs text-red-600" role="alert">
@@ -314,7 +321,7 @@ function ProjectMemoryDefaultRow() {
         checked={profile?.projectMemoryDefault !== false}
         disabled={!profile || saving}
         aria-busy={saving}
-        aria-label="Project memory for new projects"
+        aria-label={t("Project memory for new projects")}
         onCheckedChange={(enabled) => void handleToggle(enabled)}
       />
     </SettingsRow>
@@ -323,7 +330,7 @@ function ProjectMemoryDefaultRow() {
 
 function MemoryEditorSkeleton() {
   return (
-    <div className="space-y-3" aria-label="Loading memory editor">
+    <div className="space-y-3" aria-label={t("Loading memory editor")}>
       <div className="space-y-2">
         <div className="h-7 w-36 animate-pulse rounded bg-gray-200" />
         <div className="h-3 w-full max-w-xl animate-pulse rounded bg-gray-100" />

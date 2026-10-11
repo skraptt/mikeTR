@@ -14,6 +14,7 @@ import { SettingsDescription, SettingsLabel } from "./SettingsText";
 import { isMfaRequiredError } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { settingsGlassIconButtonClassName } from "@/app/(pages)/settings/settingsStyles";
+import { t } from "@/shared/i18n";
 
 // The backend never returns saved keys, so the mask is a fixed-length stand-in.
 const SAVED_KEY_MASK = "x".repeat(24);
@@ -136,7 +137,7 @@ export function ApiKeyField({
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       } else {
-        setWarningMessage(`Failed to save ${label}. Please try again.`);
+        setWarningMessage(t("Failed to save {label}. Please try again.", { label }));
       }
     } catch (error) {
       if (isMfaRequiredError(error)) {
@@ -145,7 +146,7 @@ export function ApiKeyField({
         // A validation 400 carries the server's fixed explanation;
         // anything else gets the generic retry message.
         setWarningMessage(
-          userFacingApiError(error, `Failed to save ${label}. Please try again.`),
+          userFacingApiError(error, t("Failed to save {label}. Please try again.", { label })),
         );
       }
     } finally {
@@ -162,7 +163,7 @@ export function ApiKeyField({
       }
       const ok = await onRemove();
       if (!ok) {
-        setWarningMessage(`Failed to remove ${label}. Please try again.`);
+        setWarningMessage(t("Failed to remove {label}. Please try again.", { label }));
       }
     } catch (error) {
       if (isMfaRequiredError(error)) {
@@ -171,7 +172,7 @@ export function ApiKeyField({
         // A validation 400 carries the server's fixed explanation;
         // anything else gets the generic retry message.
         setWarningMessage(
-          userFacingApiError(error, `Failed to remove ${label}. Please try again.`),
+          userFacingApiError(error, t("Failed to remove {label}. Please try again.", { label })),
         );
       }
     } finally {
@@ -195,7 +196,7 @@ export function ApiKeyField({
     disabled: isSaving || !dirty || saved,
   };
   const removeAction = hasSavedKey ? {
-    label: "Remove",
+    label: t("Remove"),
     onClick: handleRemove,
     disabled: isSaving,
   } : undefined;
@@ -243,7 +244,7 @@ export function ApiKeyField({
                 type="button"
                 onClick={() => setReveal((current) => !current)}
                 className={`absolute inset-y-1 right-1.5 flex items-center ${settingsGlassIconButtonClassName}`}
-                aria-label={reveal ? "Hide key" : "Show key"}
+                aria-label={reveal ? t("Hide key") : t("Show key")}
               >
                 {reveal ? (
                   <EyeOff className="h-4 w-4" />
@@ -325,7 +326,7 @@ export function ApiKeyField({
       />
       <WarningPopup
         open={!!warningMessage}
-        title="API key update failed"
+        title={t("API key update failed")}
         message={warningMessage}
         onClose={() => setWarningMessage(null)}
       />
