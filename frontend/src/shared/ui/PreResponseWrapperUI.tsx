@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { GlassCardUI } from "./GlassCardUI";
+import { t } from "../i18n";
 
 export interface PreResponseWrapperUIProps {
     children: ReactNode;
@@ -41,10 +42,9 @@ export function PreResponseWrapperUI({
         setIsOpen(!shouldMinimize && !hasMinimizedRef.current);
     }, [forceOpen, shouldMinimize, userToggled]);
 
-    const stepWord = `step${stepCount === 1 ? "" : "s"}`;
     const label = isStreaming
-        ? "Working"
-        : `Completed in ${stepCount} ${stepWord}`;
+        ? t("Working")
+        : t.plural(stepCount, "Completed in {count} step", "Completed in {count} steps");
 
     return (
         <GlassCardUI>

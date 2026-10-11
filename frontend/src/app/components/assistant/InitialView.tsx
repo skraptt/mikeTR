@@ -12,6 +12,7 @@ import {
     LIQUID_GLASS_HOVER_CLASS,
     LIQUID_GLASS_SUBTLE_CLASS,
 } from "@/shared/ui/LiquidGlassUI";
+import { t } from "@/shared/i18n";
 
 interface InitialViewProps {
     onSubmit: (message: Message) => void;
@@ -40,7 +41,7 @@ export function InitialView({
     const chatInputRef = inputRef ?? localInputRef;
 
     const username =
-        profile?.displayName?.trim() || user?.email?.split("@")[0] || "there";
+        profile?.displayName?.trim() || user?.email?.split("@")[0] || "";
     const visibleQuickActions = quickActions.filter((action) => action.enabled);
 
     useLayoutEffect(() => {
@@ -52,8 +53,8 @@ export function InitialView({
 
     useEffect(() => {
         if (!iconOffset) return;
-        const t = setTimeout(() => setLoaded(true), 100);
-        return () => clearTimeout(t);
+        const timer = setTimeout(() => setLoaded(true), 100);
+        return () => clearTimeout(timer);
     }, [iconOffset]);
 
     function handleQuickAction(action: QuickAction) {
@@ -109,7 +110,7 @@ export function InitialView({
                                 "transform 900ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 800ms ease-in-out 300ms",
                         }}
                     >
-                        Hi, {username}
+                        {username ? t("Hi, {name}", { name: username }) : t("Hi there")}
                     </h1>
                 </div>
             </div>
@@ -127,7 +128,7 @@ export function InitialView({
             <div className="min-h-0 w-full max-w-4xl justify-self-center px-0 pt-1 xl:px-8">
                 <div className="text-center">
                     <p className="text-xs py-2 mb-12 text-gray-500">
-                        AI can make mistakes. Answers are not legal advice.
+                        {t("AI can make mistakes. Answers are not legal advice.")}
                     </p>
                 </div>
 
@@ -144,12 +145,12 @@ export function InitialView({
                                     aria-hidden="true"
                                     className="h-3.5 w-3.5 shrink-0"
                                 />
-                                Quick actions
+                                {t("Quick actions")}
                             </span>
                             <button
                                 type="button"
                                 onClick={onEditQuickActions}
-                                aria-label="Configure quick actions"
+                                aria-label={t("Configure quick actions")}
                                 className="absolute left-full ml-1.5 flex h-5 w-5 items-center justify-center text-gray-400 opacity-0 transition-all hover:text-gray-700 group-hover:opacity-100 focus:opacity-100"
                             >
                                 <MoreHorizontal className="h-3.5 w-3.5" />

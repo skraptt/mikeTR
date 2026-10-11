@@ -23,6 +23,7 @@ import {
   LIQUID_GLASS_SELECTED_CLASS,
   LIQUID_GLASS_SUBTLE_CLASS,
 } from "./LiquidGlassUI";
+import { t } from "../i18n";
 
 export type ModelToggleGroup = string;
 
@@ -181,7 +182,7 @@ export function ModelToggleUI({
   tone = "muted",
   modalInput = false,
   triggerClassName,
-  emptyLabel = "No Models",
+  emptyLabel = t("No Models"),
   onEmptyClick,
   reasoningLevel,
   onReasoningChange,
@@ -204,7 +205,7 @@ export function ModelToggleUI({
   const label =
     selectedLabel ??
     selected?.label ??
-    (models.length > 0 ? "Select model" : emptyLabel);
+    (models.length > 0 ? t("Select model") : emptyLabel);
   const reasoningIndex = reasoningLevel
     ? Math.max(0, reasoningLevels.indexOf(reasoningLevel))
     : 0;
@@ -222,8 +223,8 @@ export function ModelToggleUI({
     return (
       <button
         type="button"
-        aria-label="No models available"
-        title="Configure models"
+        aria-label={t("No models available")}
+        title={t("Configure models")}
         onClick={onEmptyClick}
         disabled={!onEmptyClick}
         className={
@@ -245,15 +246,15 @@ export function ModelToggleUI({
       <DropdownTrigger asChild>
         <button
           type="button"
-          aria-label="Choose model"
+          aria-label={t("Choose model")}
           title={
             loading
-              ? "Checking API keys"
+              ? t("Checking API keys")
               : models.length === 0
-                ? "No API key configured"
+                ? t("No API key configured")
                 : selectedAvailable
-                  ? `Choose model — ${label}`
-                  : "API key missing for selected model"
+                  ? t("Choose model — {label}", { label })
+                  : t("API key missing for selected model")
           }
           disabled={loading}
           className={
@@ -308,7 +309,7 @@ export function ModelToggleUI({
                     setExpandedGroup(expanded ? null : group);
                   }}
                 >
-                  <span className="flex-1">{group}</span>
+                  <span className="flex-1">{t(group)}</span>
                   <ChevronDown
                     className={`h-3.5 w-3.5 text-gray-400 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
                   />
@@ -353,7 +354,7 @@ export function ModelToggleUI({
           <div className="shrink-0">
             <DropdownSeparator />
             <DropdownItem
-              aria-label={`Reasoning level: ${REASONING_LEVEL_LABELS[reasoningLevel]}`}
+              aria-label={t("Reasoning level: {level}", { level: t(REASONING_LEVEL_LABELS[reasoningLevel]) })}
               onSelect={(event) => event.preventDefault()}
               onFocus={(event) => {
                 if (event.target === event.currentTarget) {
@@ -364,9 +365,9 @@ export function ModelToggleUI({
             >
               <div>
                 <div className="mb-1.5 flex items-center gap-2 text-xs text-gray-700">
-                  <span className="font-medium">Reasoning</span>
+                  <span className="font-medium">{t("Reasoning")}</span>
                   <span className="ml-auto text-[10px] text-gray-500">
-                    {REASONING_LEVEL_LABELS[reasoningLevel]}
+                    {t(REASONING_LEVEL_LABELS[reasoningLevel])}
                   </span>
                 </div>
                 <div className="relative h-4 w-full rounded-full bg-gray-200/80 transition-shadow duration-150 has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-blue-500/40 has-[input:focus-visible]:ring-offset-2">
@@ -388,8 +389,8 @@ export function ModelToggleUI({
                   <input
                     ref={reasoningInputRef}
                     type="range"
-                    aria-label="Reasoning level"
-                    aria-valuetext={REASONING_LEVEL_LABELS[reasoningLevel]}
+                    aria-label={t("Reasoning level")}
+                    aria-valuetext={t(REASONING_LEVEL_LABELS[reasoningLevel])}
                     min={0}
                     max={reasoningLevels.length - 1}
                     step={1}

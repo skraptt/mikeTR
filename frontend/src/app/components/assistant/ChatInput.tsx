@@ -79,6 +79,7 @@ import {
     routerSelections,
     type NoModelsReason,
 } from "@/shared/lib/modelCatalog";
+import { t } from "@/shared/i18n";
 
 export interface ChatInputHandle {
     addDoc: (doc: Document) => void;
@@ -155,10 +156,10 @@ function placeholderFor({
     chatLoading: boolean;
     isLoading: boolean;
 }): string {
-    if (canSend === null) return "Loading…";
-    if (!canSend) return "Viewing only — sending needs edit access";
-    if (!chatLoading) return "How can I help?";
-    return isLoading ? "A response is still arriving…" : "Loading this chat…";
+    if (canSend === null) return t("Loading…");
+    if (!canSend) return t("Viewing only — sending needs edit access");
+    if (!chatLoading) return t("How can I help?");
+    return isLoading ? t("A response is still arriving…") : t("Loading this chat…");
 }
 
 function ChatInputForChatImpl(
@@ -381,7 +382,7 @@ function ChatInputForChatImpl(
             if (!composerOpen) {
                 if (canSend === false) {
                     setUploadWarning(
-                        "Only someone with edit access can add documents.",
+                        t("Only someone with edit access can add documents."),
                     );
                 }
                 return;
@@ -459,7 +460,7 @@ function ChatInputForChatImpl(
                         ? failedUploadMessage(error.outcomes)
                         : userFacingApiError(
                               error,
-                              "Documents could not be uploaded. Please try again.",
+                              t("Documents could not be uploaded. Please try again."),
                           ),
                 );
             } finally {
@@ -732,7 +733,7 @@ function ChatInputForChatImpl(
                                             );
                                             setWorkflowModalOpen(true);
                                         }}
-                                        aria-label={`Open workflow ${selectedWorkflow.title}`}
+                                        aria-label={t("Open workflow {title}", { title: selectedWorkflow.title })}
                                         className="inline-flex min-w-0 items-center gap-1 rounded-full transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                                     >
                                         <Waypoints className="h-2.5 w-2.5 shrink-0" />
@@ -891,7 +892,7 @@ function ChatInputForChatImpl(
                                         setWorkflowModalInitialId(undefined);
                                         setWorkflowModalOpen(true);
                                     }}
-                                    aria-label="Open workflows"
+                                    aria-label={t("Open workflows")}
                                     className={cn(
                                         "flex h-7.5 cursor-pointer items-center gap-1.5 rounded-lg px-2 text-sm transition-colors",
                                         selectedWorkflow
@@ -911,7 +912,7 @@ function ChatInputForChatImpl(
                                                 : "hidden sm:inline"
                                         }
                                     >
-                                        Workflows
+                                        {t("Workflows")}
                                     </span>
                                 </button>
                             )}
@@ -940,7 +941,7 @@ function ChatInputForChatImpl(
                             <button
                                 type="button"
                                 aria-label={
-                                    isLoading ? "Stop response" : "Send message"
+                                    isLoading ? t("Stop response") : t("Send message")
                                 }
                                 className={cn(
                                     COMPOSER_SEND_BUTTON_CLASS,
@@ -976,7 +977,7 @@ function ChatInputForChatImpl(
                 accept={SUPPORTED_DOCUMENT_ACCEPT}
                 multiple
                 hidden
-                aria-label="Upload Documents"
+                aria-label={t("Upload Documents")}
                 disabled={!composerOpen || uploadingFiles.length > 0}
                 onChange={(event) => {
                     const files = Array.from(event.currentTarget.files ?? []);
@@ -1000,8 +1001,8 @@ function ChatInputForChatImpl(
                 uploadStateId={`assistant-chat:${projectId ?? "standalone"}`}
                 breadcrumb={
                     selectedWorkflow
-                        ? ["Assistant", selectedWorkflow.title, "Add Documents"]
-                        : ["Assistant", "Add Documents"]
+                        ? [t("Assistant"), selectedWorkflow.title, t("Add Documents")]
+                        : [t("Assistant"), t("Add Documents")]
                 }
             />
             <AssistantWorkflowModal
@@ -1029,8 +1030,8 @@ function ChatInputForChatImpl(
             <WarningPopup
                 open={modelRequiredWarning}
                 onClose={() => setModelRequiredWarning(false)}
-                title="Select a model"
-                message="Choose a model before sending your message."
+                title={t("Select a model")}
+                message={t("Choose a model before sending your message.")}
             />
             <UploadOverlay
                 open={isDraggingFiles}

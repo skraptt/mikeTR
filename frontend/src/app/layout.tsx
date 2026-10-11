@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./fonts/fonts.css";
 import "./globals.css";
 import { Providers } from "@/app/components/providers";
+import { DEFAULT_LOCALE } from "@/shared/i18n";
 
 export const metadata: Metadata = {
     metadataBase: new URL("https://app.mikeoss.com"),
@@ -47,7 +48,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang={DEFAULT_LOCALE}>
             <body
                 className="font-sans antialiased"
             >
