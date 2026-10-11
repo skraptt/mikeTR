@@ -50,6 +50,7 @@ import {
     LIQUID_GLASS_SELECTED_CLASS,
     LIQUID_GLASS_HOVER_CLASS,
 } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 const NAV_ITEMS = [
     { href: "/assistant", label: "Assistant", icon: ChatSkeuoIcon },
@@ -374,13 +375,13 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                         }}
                         onPointerEnter={() => setToggleHoverSuppressed(false)}
                         onPointerLeave={() => setToggleHoverSuppressed(false)}
-                        aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
+                        aria-label={isOpen ? t("Close sidebar") : t("Open sidebar")}
                         className={cn(
                             "group flex h-8 w-8 shrink-0 items-center justify-center transition-[border-radius] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/40",
                             isOpen ? "rounded-md" : "rounded-[16px]",
                             !toggleHoverSuppressed && LIQUID_GLASS_HOVER_CLASS,
                         )}
-                        title={isOpen ? "Close sidebar" : "Open sidebar"}
+                        title={isOpen ? t("Close sidebar") : t("Open sidebar")}
                     >
                         {isOpen ? (
                             <PanelLeft aria-hidden="true" className="h-4 w-4 shrink-0" />
@@ -433,7 +434,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                                     : ""
                                             }`}
                                         >
-                                            {label}
+                                            {t(label)}
                                         </span>
                                     )}
                                 </button>
@@ -452,7 +453,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                     shouldAnimate ? "sidebar-fade-in" : ""
                                 }`}
                             >
-                                <span>Recent Projects</span>
+                                <span>{t("Recent Projects")}</span>
                                 <ChevronDown
                                     className={`h-3.5 w-3.5 transition-transform ${
                                         projectsCollapsed ? "-rotate-90" : ""
@@ -496,7 +497,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                                     : ""
                                             }`}
                                         >
-                                            No projects yet
+                                            {t("No projects yet")}
                                         </div>
                                     ) : (
                                         <div
@@ -555,7 +556,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                     shouldAnimate ? "sidebar-fade-in" : ""
                                 }`}
                             >
-                                <span>Assistant History</span>
+                                <span>{t("Assistant History")}</span>
                                 <ChevronDown
                                     className={`h-3.5 w-3.5 transition-transform ${
                                         historyCollapsed ? "-rotate-90" : ""
@@ -594,7 +595,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                                 : ""
                                         }`}
                                     >
-                                        No chats yet
+                                        {t("No chats yet")}
                                     </div>
                                 ) : (
                                     <>
@@ -673,7 +674,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                           <DropdownTrigger asChild>
                             <button
                                 type="button"
-                                aria-label="Account menu"
+                                aria-label={t("Account menu")}
                                 className={cn(
                                     "flex h-9 w-full shrink-0 items-center px-1.5 outline-none [transition:border-radius_300ms_cubic-bezier(0.4,0,0.2,1),background-color_150ms,color_150ms] focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-2",
                                     isOpen ? "rounded-xl" : "rounded-[18px]",
@@ -721,21 +722,21 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                   className="h-8 gap-2 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:text-gray-700 focus:text-gray-700 data-[selected=true]:text-gray-900 data-[selected=true]:hover:text-gray-900 data-[selected=true]:focus:text-gray-900"
                               >
                                   <HistorySkeuoIcon className={cn("h-4 w-4", pathname === "/history" ? "text-gray-900" : "text-black")} />
-                                  History
+                                  {t("History")}
                               </DropdownItem>
                               <DropdownItem
                                   onSelect={() => router.push("/settings")}
                                   className="h-8 gap-2 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:text-gray-700 focus:text-gray-700 data-[selected=true]:text-gray-900 data-[selected=true]:hover:text-gray-900 data-[selected=true]:focus:text-gray-900"
                               >
                                   <SettingsSkeuoIcon className="h-4 w-4 text-black" />
-                                  Settings
+                                  {t("Settings")}
                               </DropdownItem>
                               <DropdownItem
                                   onSelect={() => router.push("/organizations")}
                                   className="h-8 gap-2 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:text-gray-700 focus:text-gray-700 data-[selected=true]:text-gray-900 data-[selected=true]:hover:text-gray-900 data-[selected=true]:focus:text-gray-900"
                               >
                                   <OrganizationSkeuoIcon className="h-4 w-4 text-black" />
-                                  Organizations
+                                  {t("Organizations")}
                               </DropdownItem>
                               <DropdownItem
                                   onSelect={() => {
@@ -748,7 +749,7 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
                                   className="h-8 gap-2 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:text-gray-700 focus:text-gray-700 data-[selected=true]:text-gray-900 data-[selected=true]:hover:text-gray-900 data-[selected=true]:focus:text-gray-900"
                               >
                                   <SignOutSkeuoIcon className="h-4 w-4 text-black" />
-                                  Sign out
+                                  {t("Sign out")}
                               </DropdownItem>
                           </DropdownContent>
                         </Dropdown>
@@ -757,8 +758,8 @@ export function AppSidebar({ isOpen, onToggle }: AppSidebarProps) {
             </div>
             <WarningPopup
                 open={signOutWarningOpen}
-                title="Sign out failed"
-                message="Unable to sign out. Please try again."
+                title={t("Sign out failed")}
+                message={t("Unable to sign out. Please try again.")}
                 onClose={() => setSignOutWarningOpen(false)}
             />
         </>

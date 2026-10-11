@@ -20,6 +20,7 @@ import {
     supportMailtoFor,
     type UserFacingError,
 } from "@/app/lib/userFacingError";
+import { t } from "@/shared/i18n";
 
 
 /** A failure the form found itself, so the text is already user-facing. */
@@ -36,11 +37,11 @@ function localSignupError(message: string): UserFacingError {
  * still says what actually happened.
  */
 const SIGNUP_ERROR_MESSAGES = authMessages({
-    validation_failed: "Check your email address and password and try again.",
-    invalid_request: "Check your email address and password and try again.",
+    validation_failed: t("Check your email address and password and try again."),
+    invalid_request: t("Check your email address and password and try again."),
     over_email_send_rate_limit:
-        "Too many signup emails have been requested. Wait a few minutes and try again.",
-    request_timeout: "The signup request timed out. Try again.",
+        t("Too many signup emails have been requested. Wait a few minutes and try again."),
+    request_timeout: t("The signup request timed out. Try again."),
 });
 
 /** Classify a signup failure into text a person can act on. */
@@ -48,7 +49,7 @@ function describeSignupError(error: unknown): UserFacingError {
     const described = describeError(error, {
         action: "create your account",
         codeMessages: SIGNUP_ERROR_MESSAGES,
-        fallback: "Unable to create your account right now. Try again.",
+        fallback: t("Unable to create your account right now. Try again."),
     });
     return described.kind === "rate_limited"
         ? { ...described, message: TOO_MANY_ATTEMPTS_MESSAGE }
@@ -99,7 +100,7 @@ function SignupContent() {
 
         // Validate passwords match
         if (password !== confirmPassword) {
-            setError(localSignupError("The two passwords don't match."));
+            setError(localSignupError(t("The two passwords don't match.")));
             setLoading(false);
             return;
         }
@@ -151,10 +152,10 @@ function SignupContent() {
                 <div className="w-full max-w-md">
                     <div className={authGlassCardUIClassName}>
                         <h1 className="font-serif text-2xl font-medium text-gray-950">
-                            Account created!
+                            {t("Account created!")}
                         </h1>
                         <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                            Redirecting you to finish setting up your account...
+                            {t("Redirecting you to finish setting up your account...")}
                         </p>
                         <Link
                             href="/onboarding/profile"
@@ -164,7 +165,7 @@ function SignupContent() {
                                 className: "mt-6",
                             })}
                         >
-                            Continue
+                            {t("Continue")}
                         </Link>
                     </div>
                 </div>
@@ -181,13 +182,13 @@ function SignupContent() {
             <div className="w-full max-w-md">
                 <div className={cn(authGlassCardUIClassName, "mb-4")}>
                     <h2 className="mb-6 text-left text-2xl font-medium font-serif text-gray-950">
-                        Sign Up
+                        {t("Sign Up")}
                     </h2>
 
                     <form onSubmit={handleSignup} className="space-y-4">
                         <div>
                             <FieldLabel htmlFor="email">
-                                Email
+                                {t("Email")}
                             </FieldLabel>
                             <InputUI
                                 id="email"
@@ -201,14 +202,14 @@ function SignupContent() {
 
                         <div>
                             <FieldLabel htmlFor="password">
-                                Password
+                                {t("Password")}
                             </FieldLabel>
                             <InputUI
                                 id="password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder={`Min. ${MIN_PASSWORD_LENGTH} Characters`}
+                                placeholder={t("Min. {count} Characters", { count: MIN_PASSWORD_LENGTH })}
                                 required
                                 className={`w-full ${authInputUIClassName}`}
                             />
@@ -216,7 +217,7 @@ function SignupContent() {
 
                         <div>
                             <FieldLabel htmlFor="confirmPassword">
-                                Confirm Password
+                                {t("Confirm Password")}
                             </FieldLabel>
                             <InputUI
                                 id="confirmPassword"
@@ -240,11 +241,11 @@ function SignupContent() {
                                     <a
                                         href={supportMailtoFor(
                                             error,
-                                            "Failed to create an account.",
+                                            t("Failed to create an account."),
                                         )}
                                         className="ml-2 underline underline-offset-2"
                                     >
-                                        Contact support
+                                        {t("Contact support")}
                                     </a>
                                 )}
                             </div>
@@ -278,7 +279,7 @@ function SignupContent() {
                                 disabled={loading}
                                 className="w-full"
                             >
-                                {loading ? "Creating account..." : "Sign up"}
+                                {loading ? t("Creating account...") : t("Sign up")}
                             </PillButtonUI>
                             <AuthDividerUI />
                             <GoogleAuthButton
@@ -295,7 +296,7 @@ function SignupContent() {
                         href="/login"
                         className="font-medium transition-colors hover:text-gray-950"
                     >
-                        Log in
+                        {t("Log in")}
                     </Link>
                 </div>
             </div>

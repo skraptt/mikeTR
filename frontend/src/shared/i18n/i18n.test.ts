@@ -53,7 +53,10 @@ describe("tr dictionary", () => {
         // A key that is not in the code is dead or mistyped (wrong casing,
         // missing punctuation) and silently never applies.
         const unused = Object.keys(tr).filter(
-            (key) => !source.includes(JSON.stringify(key)) && !source.includes(`"${key}"`),
+            (key) =>
+                !source.includes(JSON.stringify(key)) &&
+                !source.includes(`"${key}"`) &&
+                !source.includes(`'${key}'`),
         );
         expect(unused).toEqual([]);
     });

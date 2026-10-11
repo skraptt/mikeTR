@@ -19,6 +19,7 @@ import {
     DocReadBlockUI,
 } from "@/shared/ui/DocumentEventBlocksUI";
 import { RESPONSE_GLASS_SURFACE, withoutMarkdownNode } from "./messageStyles";
+import { t } from "@/shared/i18n";
 
 const THINKING_PHRASES = [
     "Thinking...",
@@ -122,7 +123,7 @@ function ReasoningContent({ text }: { text: string }) {
             <div
                 ref={viewportRef}
                 role="region"
-                aria-label="Thought process"
+                aria-label={t("Thought process")}
                 tabIndex={0}
                 className="max-h-36 overflow-y-auto overscroll-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
@@ -187,8 +188,8 @@ export function ReasoningBlock({
                 onToggle={toggleContent}
                 label={
                     isStreaming
-                        ? THINKING_PHRASES[thinkingIndex]
-                        : "Thought process"
+                        ? t(THINKING_PHRASES[thinkingIndex])
+                        : t("Thought process")
                 }
             />
             {isContentOpen && <ReasoningContent text={text} />}
@@ -270,7 +271,7 @@ export function DocCreatedBlock({
         >
             <div className="flex min-w-0 items-center gap-1.5">
                 <EventLabel className="shrink-0">
-                    {isStreaming ? "Creating" : "Created"}
+                    {isStreaming ? t("Creating") : t("Created")}
                 </EventLabel>
                 {isStreaming || !onClick ? (
                     <span className="flex min-w-0 items-center gap-1.5">
@@ -329,10 +330,10 @@ export function DocReplicatedBlock({
         version_id: string;
     }) => void;
 }) {
-    const label = isStreaming ? "Replicating" : "Replicated";
+    const label = isStreaming ? t("Replicating") : t("Replicated");
     const suffix =
         !isStreaming && count > 1
-            ? ` ${count} times`
+            ? ` ${t("{count} times", { count })}`
             : isStreaming
               ? "..."
               : "";
@@ -470,7 +471,7 @@ export function DocDownloadBlock({
         <button
             type="button"
             onClick={handleDownload}
-            aria-label={`Download ${filename}`}
+            aria-label={t("Download {filename}", { filename })}
             className="shrink-0 flex items-center bg-white/25 px-4 text-gray-500 transition-colors hover:bg-white/55 hover:text-gray-700 cursor-pointer @md:px-6"
         >
             <Download className="size-3 @md:size-[13px]" />
@@ -538,7 +539,7 @@ export function WorkflowAppliedBlock({
                     <button
                         type="button"
                         onClick={onClick}
-                        aria-label={`Open workflow ${title}`}
+                        aria-label={t("Open workflow {title}", { title })}
                         className="flex min-w-0 cursor-pointer items-center gap-1.5 text-left transition-colors hover:text-gray-700"
                     >
                         <WorkflowSkeuoIcon className="h-3.5 w-3.5 shrink-0" />
@@ -571,11 +572,11 @@ export function AskInputsBlock({
     const onlyApprovals = event.items.every((item) => item.kind === "approval");
     const label = onlyApprovals
         ? response
-            ? "Asked for approval"
-            : "Asking for approval"
+            ? t("Asked for approval")
+            : t("Asking for approval")
         : response
-          ? "Asked for input"
-          : "Asking for input";
+          ? t("Asked for input")
+          : t("Asking for input");
     return (
         <EventBlock
             showConnector={showConnector}
@@ -594,9 +595,9 @@ export function AskInputsBlock({
                             if (!itemResponse) return null;
                             if (itemResponse.kind === "approval")
                                 return itemResponse.decision === "approve"
-                                    ? "Approved"
-                                    : "Rejected";
-                            if (itemResponse.skipped) return "Skipped";
+                                    ? t("Approved")
+                                    : t("Rejected");
+                            if (itemResponse.skipped) return t("Skipped");
                             if (itemResponse.kind === "multi_choice") {
                                 return itemResponse.answers?.join(", ") ?? "";
                             }
@@ -606,22 +607,22 @@ export function AskInputsBlock({
                             const filenames = itemResponse.filenames;
                             return filenames.length
                                 ? filenames.join(", ")
-                                : "No documents attached";
+                                : t("No documents attached");
                         })();
                         return (
                             <div key={item.id}>
                                 <p className="text-xs text-gray-500">
                                     {index + 1}.{" "}
                                     {item.kind === "documents"
-                                        ? "Documents"
+                                        ? t("Documents")
                                         : item.kind === "approval"
-                                          ? "Approval"
-                                          : "Question"}
+                                          ? t("Approval")
+                                          : t("Question")}
                                 </p>
                                 <p className="mt-0.5 [overflow-wrap:anywhere]">
                                     {item.kind === "documents"
                                         ? item.document_types.join(", ") ||
-                                          "Documents requested"
+                                          t("Documents requested")
                                         : item.kind === "approval"
                                           ? `${item.connector_name}: ${item.title}`
                                           : item.question}
@@ -694,17 +695,19 @@ export function CourtListenerBlock({
                         const label = [item.caseName, item.citation]
                             .filter(Boolean)
                             .join(", ");
-                        const primary = label || item.url || "Unknown case";
+                        const primary = label || item.url || t("Unknown case");
                         const searchText = item.query
-                            ? `Searched for "${item.query}" in ${primary}${
-                                  typeof item.totalMatches === "number"
-                                      ? ` (${item.totalMatches} ${
-                                            item.totalMatches === 1
-                                                ? "match"
-                                                : "matches"
-                                        })`
-                                      : ""
-                              }`
+                            ? typeof item.totalMatches === "number"
+                                ? t.plural(
+                                      item.totalMatches,
+                                      'Searched for "{query}" in {source} ({count} match)',
+                                      'Searched for "{query}" in {source} ({count} matches)',
+                                      { query: item.query, source: primary },
+                                  )
+                                : t('Searched for "{query}" in {source}', {
+                                      query: item.query,
+                                      source: primary,
+                                  })
                             : null;
                         return (
                             <li key={idx}>
@@ -750,7 +753,7 @@ export function DocEditBlock({
     hasError?: boolean;
     onClick?: () => void;
 }) {
-    const label = isStreaming ? "Editing" : hasError ? "Edit failed" : "Edited";
+    const label = isStreaming ? t("Editing") : hasError ? t("Edit failed") : t("Edited");
 
     return (
         <DocEditBlockUI

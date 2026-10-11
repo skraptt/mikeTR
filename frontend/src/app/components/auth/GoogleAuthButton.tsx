@@ -8,13 +8,12 @@ import {
     describeError,
     type UserFacingError,
 } from "@/app/lib/userFacingError";
+import { t } from "@/shared/i18n";
 
 const GOOGLE_ERROR_MESSAGES = {
-    provider_disabled:
-        "Google sign-in is turned off for this workspace. Use your email and password instead.",
-    oauth_provider_not_supported:
-        "Google sign-in is turned off for this workspace. Use your email and password instead.",
-    over_request_rate_limit: "Too many attempts. Wait a moment and try again.",
+    provider_disabled: t("Google sign-in is turned off for this workspace. Use your email and password instead."),
+    oauth_provider_not_supported: t("Google sign-in is turned off for this workspace. Use your email and password instead."),
+    over_request_rate_limit: t("Too many attempts. Wait a moment and try again."),
 } as const;
 
 interface GoogleAuthButtonProps {
@@ -47,7 +46,7 @@ export function GoogleAuthButton({
                     action: "continue with Google",
                     codeMessages: GOOGLE_ERROR_MESSAGES,
                     fallback:
-                        "Unable to continue with Google. Try again, or log in with your email and password.",
+                        t("Unable to continue with Google. Try again, or log in with your email and password."),
                 }),
             );
             setLoading(false);
@@ -66,7 +65,7 @@ export function GoogleAuthButton({
             onClick={() => void handleGoogleAuth()}
         >
             <GoogleIconUI className="h-4 w-4" />
-            {loading ? "Continuing…" : "Continue with Google"}
+            {loading ? t("Continuing…") : t("Continue with Google")}
         </PillButtonUI>
     );
 }

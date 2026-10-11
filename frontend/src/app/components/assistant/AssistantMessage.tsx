@@ -37,6 +37,7 @@ import {
     WorkflowAppliedBlock,
     type CourtListenerBlockItem,
 } from "./message/EventBlocks";
+import { t } from "@/shared/i18n";
 
 interface Props {
     events?: AssistantEvent[];
@@ -441,7 +442,7 @@ export function AssistantMessage({
                             className="h-3.5 w-3.5 shrink-0"
                         />
                         <span className="min-w-0 break-words">
-                            {event.isStreaming ? "Using connector..." : label}
+                            {event.isStreaming ? t("Using connector...") : label}
                         </span>
                     </span>
                     {isError && event.error && (
@@ -614,16 +615,21 @@ export function AssistantMessage({
                 ? `"${event.query}"`
                 : event.error
                   ? event.error
-                  : `"${event.query}" (${results.length} madde)`;
+                  : t.plural(
+                        results.length,
+                        '"{query}" ({count} article)',
+                        '"{query}" ({count} articles)',
+                        { query: event.query },
+                    );
             return (
                 <CourtListenerBlock
                     key={globalIdx}
                     label={
                         event.isStreaming
-                            ? "Kanunlarda aranıyor"
+                            ? t("Searching statutes")
                             : event.error
-                              ? "Kanun araması yapılamadı"
-                              : "Kanunlarda arandı"
+                              ? t("Statute search failed")
+                              : t("Searched statutes")
                     }
                     detail={detail}
                     isStreaming={!!event.isStreaming}
@@ -1184,7 +1190,7 @@ export function AssistantMessage({
                         <button
                             type="button"
                             aria-label={
-                                isCopied ? "Response copied" : "Copy response"
+                                isCopied ? t("Response copied") : t("Copy response")
                             }
                             className="-ml-1.5 p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                             onClick={handleCopy}

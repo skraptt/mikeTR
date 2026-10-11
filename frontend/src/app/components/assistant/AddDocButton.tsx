@@ -8,6 +8,7 @@ import {
     DropdownItem,
     DropdownTrigger,
 } from "@/shared/ui/dropdown";
+import { t } from "@/shared/i18n";
 
 interface Props {
     onBrowseAll: () => void;
@@ -36,8 +37,8 @@ export function AddDocButton({
                             ? "text-gray-700 hover:text-gray-900"
                             : "text-gray-400 hover:text-gray-700"
                     }`}
-                    title="Add documents"
-                    aria-label="Add documents"
+                    title={t("Add documents")}
+                    aria-label={t("Add documents")}
                 >
                     {uploading ? (
                         <Loader2 aria-hidden="true" className="h-4 w-4 shrink-0 animate-spin" />
@@ -66,14 +67,14 @@ export function AddDocButton({
             >
                 <DropdownItem onSelect={onLocalFiles}>
                     <Upload aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
-                    Upload Documents
+                    {t("Upload Documents")}
                 </DropdownItem>
                 <DropdownItem onSelect={() => {
                     openingDialog.current = true;
                     onBrowseAll();
                 }}>
                     <Library aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500" />
-                    Saved Documents
+                    {t("Saved Documents")}
                 </DropdownItem>
             </DropdownContent>
         </Dropdown>

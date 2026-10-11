@@ -7,6 +7,7 @@ import type {
     StatuteCitation,
 } from "@/app/components/shared/types";
 import type { CourtListenerBlockItem } from "./EventBlocks";
+import { t } from "@/shared/i18n";
 
 // mikeTR: Türk mevzuatı araması ve atıf kontrolü için sohbet blokları.
 
@@ -36,7 +37,7 @@ export function kanunMaddeEtiketi(hit: Pick<KanunSearchHit, "kanun_no" | "madde_
 export function kanunSearchItems(results: KanunSearchHit[]): CourtListenerBlockItem[] {
     return results.map((hit) => ({
         caseName: `${kanunMaddeEtiketi(hit)}${hit.baslik ? ` – ${hit.baslik}` : ""}`,
-        citation: `%${Math.round(hit.similarity * 100)} uyum`,
+        citation: t("{percent}% match", { percent: Math.round(hit.similarity * 100) }),
     }));
 }
 
@@ -48,17 +49,17 @@ const CITATION_STATUS: Record<
     okunmadi: {
         Icon: AlertTriangle,
         className: "text-amber-600",
-        note: "Madde veritabanında var ama asistan metnini okumadan atıf yaptı; içerik doğru aktarılmamış olabilir.",
+        note: "The article exists, but the assistant cited it without reading its text; the content may be misstated.",
     },
     bulunamadi: {
         Icon: XCircle,
         className: "text-red-600",
-        note: "Bu kanunda böyle bir madde numarası bulunamadı.",
+        note: "No article with this number exists in this law.",
     },
     kapsam_disi: {
         Icon: AlertTriangle,
         className: "text-amber-600",
-        note: "Bu kanun veritabanında yok; atıf doğrulanamadı.",
+        note: "This law is not in the statute database; the citation could not be verified.",
     },
 };
 
@@ -80,10 +81,14 @@ export function KanunCitationCheck({ citations }: { citations: StatuteCitation[]
                 ) : (
                     <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" aria-hidden />
                 )}
-                <span className="font-medium">Atıf kontrolü:</span>
+                <span className="font-medium">{t("Citation check:")}</span>
                 <span>
-                    {verified}/{citations.length} kanun atfı doğrulandı
-                    {problems > 0 && `, ${problems} atıf dikkat gerektiriyor`}
+                    {t("{verified}/{total} statute citations verified", {
+                        verified,
+                        total: citations.length,
+                    })}
+                    {problems > 0 &&
+                        t.plural(problems, ", {count} needs attention", ", {count} need attention")}
                 </span>
                 <ChevronDown
                     className={`h-3.5 w-3.5 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -99,7 +104,7 @@ export function KanunCitationCheck({ citations }: { citations: StatuteCitation[]
                                 <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${className}`} aria-hidden />
                                 <span className="min-w-0 break-words">
                                     <span className="text-gray-800">{c.label}</span>
-                                    {note && <span className="text-gray-500"> — {note}</span>}
+                                    {note && <span className="text-gray-500"> — {t(note)}</span>}
                                 </span>
                             </li>
                         );

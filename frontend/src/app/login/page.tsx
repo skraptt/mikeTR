@@ -28,6 +28,7 @@ import {
     TOO_MANY_ATTEMPTS_MESSAGE,
     authMessages,
 } from "@/app/lib/authMessages";
+import { t } from "@/shared/i18n";
 
 /**
  * The shared auth table (`@/app/lib/authMessages`) with this screen's
@@ -41,10 +42,10 @@ const LOGIN_ERROR_MESSAGES = authMessages({
     // anyone test which addresses are registered.
     user_not_found: AUTH_ERROR_MESSAGES.invalid_credentials,
     // Here the account exists; it is this sign-in route that is closed.
-    signup_disabled: "This account can't be used to log in.",
-    validation_failed: "Enter your email address and password.",
-    invalid_request: "Enter your email address and password.",
-    request_timeout: "The login request timed out. Try again.",
+    signup_disabled: t("This account can't be used to log in."),
+    validation_failed: t("Enter your email address and password."),
+    invalid_request: t("Enter your email address and password."),
+    request_timeout: t("The login request timed out. Try again."),
 });
 
 /** Classify a login failure into text a person can act on. */
@@ -52,7 +53,7 @@ function describeLoginError(error: unknown): UserFacingError {
     const described = describeError(error, {
         action: "log in",
         codeMessages: LOGIN_ERROR_MESSAGES,
-        fallback: "Unable to log in right now. Try again.",
+        fallback: t("Unable to log in right now. Try again."),
     });
     // A 429 without a GoTrue code still means "you tried too often".
     return described.kind === "rate_limited"
@@ -144,7 +145,7 @@ export default function LoginPage() {
             setError(
                 describeError(caught, {
                     action: "restore your session",
-                    fallback: "Unable to restore your session. Try again.",
+                    fallback: t("Unable to restore your session. Try again."),
                 }),
             );
         } finally {
@@ -180,7 +181,7 @@ export default function LoginPage() {
                 );
                 if (result.requiresEmailConfirmation) {
                     throw new Error(
-                        "Guest sign-in needs an auto-confirming local stack.",
+                        t("Guest sign-in needs an auto-confirming local stack."),
                     );
                 }
             }
@@ -197,7 +198,7 @@ export default function LoginPage() {
                 describeError(error, {
                     action: "open your local workspace",
                     codeMessages: LOGIN_ERROR_MESSAGES,
-                    fallback: "Unable to continue as guest right now. Please try again.",
+                    fallback: t("Unable to continue as guest right now. Please try again."),
                 }),
             );
         } finally {
@@ -214,7 +215,7 @@ export default function LoginPage() {
                 {/* Login Form */}
                 <div className={cn(authGlassCardUIClassName, "mb-4")}>
                     <h2 className="mb-6 text-left text-2xl font-medium font-serif text-gray-950">
-                        {guest ? "Your workspace on this Mac" : "Log In"}
+                        {guest ? t("Your workspace on this Mac") : t("Log In")}
                     </h2>
                     {guest && (
                         <div className="mb-6 space-y-3">
@@ -232,8 +233,8 @@ export default function LoginPage() {
                                 disabled={loading}
                             >
                                 {loading
-                                    ? "Opening workspace…"
-                                    : "Continue on this Mac"}
+                                    ? t("Opening workspace…")
+                                    : t("Continue on this Mac")}
                             </PillButtonUI>
                         </div>
                     )}
@@ -242,11 +243,11 @@ export default function LoginPage() {
                             hidden={!guest}
                             className="mb-4 cursor-pointer text-sm text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring"
                         >
-                            Use a separate local account
+                            {t("Use a separate local account")}
                         </summary>
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
-                                <FieldLabel htmlFor="email">Email</FieldLabel>
+                                <FieldLabel htmlFor="email">{t("Email")}</FieldLabel>
                                 <InputUI
                                     id="email"
                                     type="email"
@@ -260,13 +261,13 @@ export default function LoginPage() {
                             <div>
                                 <div className="flex items-start justify-between gap-3">
                                     <FieldLabel htmlFor="password">
-                                        Password
+                                        {t("Password")}
                                     </FieldLabel>
                                     <Link
                                         href="/forgot-password"
                                         className="text-xs font-medium text-gray-500 transition-colors hover:text-gray-950"
                                     >
-                                        Forgot password?
+                                        {t("Forgot password?")}
                                     </Link>
                                 </div>
                                 <InputUI
@@ -289,7 +290,7 @@ export default function LoginPage() {
                                     disabled={loading}
                                     className="w-full"
                                 >
-                                    {loading ? "Logging in..." : "Log in"}
+                                    {loading ? t("Logging in...") : t("Log in")}
                                 </PillButtonUI>
                             </div>
                             {!guest && (
@@ -337,18 +338,18 @@ export default function LoginPage() {
                                     disabled={loading || retryingSession}
                                     className="ml-2 underline underline-offset-2 disabled:no-underline disabled:opacity-60"
                                 >
-                                    Retry
+                                    {t("Retry")}
                                 </button>
                             )}
                             {error?.supportable && (
                                 <a
                                     href={supportMailtoFor(
                                         error,
-                                        "Failed to log in.",
+                                        t("Failed to log in."),
                                     )}
                                     className="ml-2 underline underline-offset-2"
                                 >
-                                    Contact support
+                                    {t("Contact support")}
                                 </a>
                             )}
                         </div>
@@ -360,7 +361,7 @@ export default function LoginPage() {
                         href="/signup"
                         className="font-medium transition-colors hover:text-gray-950"
                     >
-                        Sign up
+                        {t("Sign up")}
                     </Link>
                 </div>
             </div>

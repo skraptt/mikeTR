@@ -3,6 +3,7 @@
 import { Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
+import { t } from "@/shared/i18n";
 
 interface SsoAuthButtonProps {
     disabled?: boolean;
@@ -21,7 +22,7 @@ export function SsoAuthButton({ disabled = false }: SsoAuthButtonProps) {
             onClick={() => router.push("/login/sso")}
         >
             <Globe aria-hidden="true" className="h-4 w-4" />
-            Continue with SSO
+            {t("Continue with SSO")}
         </PillButtonUI>
     );
 }
