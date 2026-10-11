@@ -36,3 +36,6 @@ backend/supabase/*
 
 # Local review artifact; it is a nested repository, not application source.
 /pr-267-analysis-site/
+
+# mikeTR production secrets
+deploy/production.env

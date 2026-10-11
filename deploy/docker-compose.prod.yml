@@ -1,0 +1,118 @@
+# mikeTR production stack for a single server.
+#
+# Managed services stay outside: Supabase (database + auth) and an
+# S3-compatible bucket (Cloudflare R2). This file runs the web app, the API
+# with its background workers, the BGE-M3 embedding model and an HTTPS proxy.
+# Only Caddy publishes ports; everything else is reachable on the internal
+# network alone.
+#
+#   cp deploy/production.env.example deploy/production.env   # then fill it in
+#   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/production.env up -d --build
+#
+# See deploy/README.md for the full runbook.
+
+name: miketr
+
+services:
+  caddy:
+    image: caddy:2.10.2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - DOMAIN=${DOMAIN:?set DOMAIN in deploy/production.env}
+      - ACME_EMAIL=${ACME_EMAIL:?set ACME_EMAIL in deploy/production.env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_DEFAULT_LOCALE: ${NEXT_PUBLIC_DEFAULT_LOCALE:-tr}
+        # Upstream Mike reports errors to the Mike team's Sentry unless this
+        # is set. Client documents must not leave the deployment that way.
+        NEXT_PUBLIC_SENTRY_DISABLED: "true"
+        GIT_SHA: ${GIT_SHA:-}
+    environment:
+      - API_BASE_URL=http://backend:3001
+      - SENTRY_DISABLED=true
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      args:
+        GIT_SHA: ${GIT_SHA:-}
+    image: miketr-backend:prod
+    env_file:
+      - path: ./production.env
+        required: true
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - FRONTEND_URL=https://${DOMAIN}
+      - API_PUBLIC_URL=https://${DOMAIN}/api
+      - SENTRY_DISABLED=true
+      - EMBEDDING_PROVIDER=bge-m3
+      - OLLAMA_URL=http://ollama:11434
+      # Background workers (uploads, conversions, the daily statute check)
+      # run in a worker thread inside this container.
+      - WORKERS_MODE=thread
+    depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # The BGE-M3 embedding model for statute search. CPU is enough: a search
+  # embeds one short query.
+  ollama:
+    image: ollama/ollama:0.34.4
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # One-shot: downloads bge-m3 into the volume on first start (~1.2 GB).
+  ollama-pull:
+    image: ollama/ollama:0.34.4
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    entrypoint: ["ollama", "pull", "bge-m3"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+
+  # One-shot release job: refreshes the Mike workflow catalog. Run it after
+  # each deploy: docker compose ... run --rm workflow-sync
+  workflow-sync:
+    image: miketr-backend:prod
+    env_file:
+      - path: ./production.env
+        required: true
+    environment:
+      - NODE_ENV=production
+      - SENTRY_DISABLED=true
+    command: ["npm", "run", "sync:workflows"]
+    profiles: ["jobs"]
+    restart: "no"
+
+volumes:
+  caddy_data:
+  caddy_config:
+  ollama_models:

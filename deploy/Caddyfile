@@ -1,0 +1,19 @@
+# HTTPS for the mikeTR web app. Caddy obtains and renews the certificate
+# for {$DOMAIN} automatically; the DNS A record must point at this server.
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# The Next.js server serves the app and the same-origin /api gateway.
+	reverse_proxy frontend:3000
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
