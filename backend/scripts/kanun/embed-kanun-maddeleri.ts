@@ -9,18 +9,13 @@ import {
   EMBEDDING_PROVIDERS,
   createTextEmbeddings,
   getEmbeddingProvider,
+  kanunEmbeddingText as embeddingText,
 } from "../../src/lib/kanunSearch";
 
 const BATCH_SIZE = 16;
 
 type Row = { id: string; kanun_adi: string; madde_no: string; baslik: string | null; icerik: string };
 
-// Kanun adı ve madde başlığı da vektöre girer; "KVKK açık rıza" gibi sorgular bunlarla eşleşir.
-function embeddingText(row: Row): string {
-  const etiket = row.madde_no.replace(/^(Geçici|Ek) /, "$1 Madde ");
-  const ad = /^(Geçici|Ek) /.test(row.madde_no) ? etiket : `Madde ${etiket}`;
-  return `${row.kanun_adi} ${ad}${row.baslik ? ` – ${row.baslik}` : ""}\n${row.icerik}`;
-}
 
 async function main() {
   const db = createServerSupabase();

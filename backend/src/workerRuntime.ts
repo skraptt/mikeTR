@@ -22,6 +22,7 @@ import {
 } from "./jobs/registry";
 import { enqueueDbJob } from "./lib/dbq/enqueue";
 import { runStaleWorkSweep } from "./jobs/maintenance";
+import { maybeStartScheduledStatuteCheck } from "./modules/kanun/kanun.service";
 import { startUploadProcessingWorkers } from "./modules/uploads/uploads.service";
 import { uploadProcessingConfiguration } from "./lib/runtimeConfig";
 import { createServerSupabase } from "./lib/supabase";
@@ -47,6 +48,10 @@ const MCP_REFRESH_MAX_EXPIRED_AGE_MS = 24 * 60 * 60 * 1000;
 let sweepTimer: ReturnType<typeof setInterval> | null = null;
 let initialSweep: ReturnType<typeof setTimeout> | null = null;
 let mcpRefreshTimer: ReturnType<typeof setInterval> | null = null;
+let kanunCheckTimer: ReturnType<typeof setInterval> | null = null;
+
+/** How often to see whether the daily statute check is due. */
+const KANUN_CHECK_POLL_MS = 60 * 60 * 1000;
 let stopUploadWorker: (() => void) | null = null;
 
 /**
@@ -134,6 +139,20 @@ export function startAllWorkers(): void {
         });
     mcpRefreshTimer = setInterval(runMcpRefresh, MCP_REFRESH_SWEEP_INTERVAL_MS);
     mcpRefreshTimer.unref();
+
+    // mikeTR: compare the statute index with mevzuat.gov.tr once a day and
+    // queue any differences for review (KANUN_SYNC_INTERVAL_HOURS=0 disables).
+    const reportKanunError = (err: unknown) => {
+        reportError(err, { tags: { component: "kanun-check" } });
+        console.error("[kanun-check] failed", err);
+    };
+    const runKanunCheck = () =>
+        void maybeStartScheduledStatuteCheck(createServerSupabase(), reportKanunError).catch(
+            reportKanunError,
+        );
+    kanunCheckTimer = setInterval(runKanunCheck, KANUN_CHECK_POLL_MS);
+    kanunCheckTimer.unref();
+    setTimeout(runKanunCheck, 60_000).unref();
 }
 
 /** Stop everything gracefully; safe to call more than once. */
@@ -141,6 +160,8 @@ export async function stopAllWorkers(): Promise<void> {
     if (initialSweep) clearTimeout(initialSweep);
     if (sweepTimer) clearInterval(sweepTimer);
     if (mcpRefreshTimer) clearInterval(mcpRefreshTimer);
+    if (kanunCheckTimer) clearInterval(kanunCheckTimer);
+    kanunCheckTimer = null;
     initialSweep = null;
     sweepTimer = null;
     mcpRefreshTimer = null;

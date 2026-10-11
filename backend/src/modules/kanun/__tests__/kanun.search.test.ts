@@ -56,6 +56,8 @@ describe("searchStatutes", () => {
             baslik: "Ödememe",
             icerik: match.icerik,
             similarity: 0.71,
+            // No law list in this fake database, so no date.
+            guncellik_tarihi: null,
           },
         ],
       },

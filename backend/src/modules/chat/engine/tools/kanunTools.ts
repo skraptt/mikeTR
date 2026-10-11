@@ -5,6 +5,7 @@ import type { KanunCitationsEvent, KanunSearchEvent } from "@mike/contracts";
 import type { Db } from "../../../../lib/supabase";
 import { searchKanunMaddeleri } from "../../../../lib/kanunSearch";
 import { checkStatuteCitations } from "../../../../lib/citationCheck";
+import { statuteCurrencyDates } from "../../../kanun/kanun.service";
 
 export type { KanunCitationsEvent, KanunSearchEvent } from "@mike/contracts";
 
@@ -20,6 +21,7 @@ The search_kanun_maddeleri tool performs semantic search over the full text of t
 - Cite statutes inline in prose using the law's short name and article number exactly as returned, e.g. "(TBK md. 315)", "(KVKK md. 5)", "(TMK Geçici md. 1)". Only cite article numbers that appear in the tool results of this conversation. NEVER cite an article number from memory.
 - When you quote statutory text, quote it verbatim from the tool result.
 - If the results do not cover the question (unrelated articles, or the relevant law is not in the list above — e.g. İcra ve İflas Kanunu, İş Kanunu, Türk Ceza Kanunu), say clearly that the statute database does not contain the relevant provision. You may then give general guidance, but do not cite any article numbers for it, and mark every such part of the answer with this exact sentence in its own paragraph: "Not: Bu bölüm, veritabanındaki kanun metinleriyle doğrulanmamıştır; ilgili mevzuatın güncel metninden kontrol edilmelidir." This applies even when the rest of the answer is grounded in search results.
+- Each result has metin_guncelligi: the date the law's text was last confirmed against mevzuat.gov.tr. If it is "doğrulanmadı" or more than 30 days old, add a short note that recent amendments may not be reflected.
 - Statute citations go in prose only. The <CITATIONS> block is reserved for user documents and fetched opinions; never put statutes in it.`;
 
 export const KANUN_TOOLS = [
@@ -65,6 +67,7 @@ export async function runKanunSearch(
             limit,
             matchThreshold: MATCH_THRESHOLD,
         });
+        const currentAsOf = await statuteCurrencyDates(db);
         return {
             event: {
                 type: "kanun_search",
@@ -85,6 +88,7 @@ export async function runKanunSearch(
                     madde_no: m.madde_no,
                     baslik: m.baslik,
                     similarity: Number(m.similarity.toFixed(3)),
+                    metin_guncelligi: currentAsOf.get(m.kanun_no) ?? "doğrulanmadı",
                     metin: m.icerik,
                 })),
                 note:

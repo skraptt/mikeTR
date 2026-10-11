@@ -17,10 +17,21 @@ import type {
   KanunSearchHit,
   KanunSearchResponse,
   StatuteCitation,
+  StatuteStatus,
+  StatuteUpdate,
+  StatuteUpdatesResponse,
 } from "@mike/contracts";
 
-// mikeTR: Turkish statute search and citation checking.
-export type { KanunArticle, KanunSearchHit, KanunSearchResponse, StatuteCitation };
+// mikeTR: Turkish statute search, citation checking and statute updates.
+export type {
+  KanunArticle,
+  KanunSearchHit,
+  KanunSearchResponse,
+  StatuteCitation,
+  StatuteStatus,
+  StatuteUpdate,
+  StatuteUpdatesResponse,
+};
 
 export interface Folder {
   id: string;

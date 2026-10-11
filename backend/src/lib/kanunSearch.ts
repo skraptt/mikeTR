@@ -73,6 +73,19 @@ export const EMBEDDING_PROVIDERS = {
 
 export type EmbeddingProvider = keyof typeof EMBEDDING_PROVIDERS;
 
+// The law's name and the article title go into the vector too, so queries
+// like "KVKK açık rıza" match on them.
+export function kanunEmbeddingText(row: {
+  kanun_adi: string;
+  madde_no: string;
+  baslik: string | null;
+  icerik: string;
+}): string {
+  const etiket = row.madde_no.replace(/^(Geçici|Ek) /, "$1 Madde ");
+  const ad = /^(Geçici|Ek) /.test(row.madde_no) ? etiket : `Madde ${etiket}`;
+  return `${row.kanun_adi} ${ad}${row.baslik ? ` – ${row.baslik}` : ""}\n${row.icerik}`;
+}
+
 export function getEmbeddingProvider(): EmbeddingProvider {
   const name = process.env.EMBEDDING_PROVIDER?.trim() || "bge-m3";
   if (!(name in EMBEDDING_PROVIDERS)) {

@@ -227,11 +227,48 @@ export type KanunSearchHit = {
 export type KanunArticle = KanunSearchHit & {
   id: string;
   icerik: string;
+  /** Last time the law's text was confirmed against mevzuat.gov.tr. */
+  guncellik_tarihi: string | null;
 };
 
 export type KanunSearchResponse = {
   query: string;
   results: KanunArticle[];
+};
+
+/** GET /kanun/status */
+export type StatuteStatus = {
+  kanunlar: {
+    kanun_no: string;
+    kanun_adi: string;
+    guncellik_tarihi: string | null;
+    son_kontrol: string | null;
+    son_kontrol_hatasi: string | null;
+  }[];
+  bekleyen: number;
+  /** Whether the caller may review changes (KANUN_ADMIN_EMAILS). */
+  yetkili: boolean;
+  kontrol_suruyor: boolean;
+};
+
+/** One difference between the index and mevzuat.gov.tr, awaiting review. */
+export type StatuteUpdate = {
+  id: string;
+  kanun_no: string;
+  madde_no: string;
+  tur: "yeni" | "degisti" | "kaldirildi";
+  eski_baslik: string | null;
+  eski_icerik: string | null;
+  yeni_baslik: string | null;
+  yeni_icerik: string | null;
+  durum: "beklemede" | "onaylandi" | "reddedildi";
+  tespit_tarihi: string;
+};
+
+/** GET /kanun/updates */
+export type StatuteUpdatesResponse = {
+  kanunlar: (StatuteStatus["kanunlar"][number] & { kaynak_url: string })[];
+  degisiklikler: StatuteUpdate[];
 };
 
 export type KanunSearchEvent = {

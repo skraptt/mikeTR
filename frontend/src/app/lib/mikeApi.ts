@@ -48,6 +48,8 @@ import type {
     Message,
     MessageFile,
     KanunSearchResponse,
+    StatuteStatus,
+    StatuteUpdatesResponse,
     PanelDocument,
     OpenSourceWorkflowContributorMode,
     OpenSourceWorkflowResponse,
@@ -3272,6 +3274,26 @@ export async function searchStatutes(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query, limit }),
     });
+}
+
+export async function getStatuteStatus(): Promise<StatuteStatus> {
+    return apiRequest<StatuteStatus>("/kanun/status");
+}
+
+export async function listStatuteUpdates(): Promise<StatuteUpdatesResponse> {
+    return apiRequest<StatuteUpdatesResponse>("/kanun/updates");
+}
+
+/** Starts a comparison with mevzuat.gov.tr in the background. */
+export async function startStatuteCheck(): Promise<{ started: boolean }> {
+    return apiRequest<{ started: boolean }>("/kanun/updates/check", { method: "POST" });
+}
+
+export async function decideStatuteUpdate(
+    id: string,
+    decision: "approve" | "reject",
+): Promise<{ durum: string; aranabilir: boolean }> {
+    return apiRequest(`/kanun/updates/${encodeURIComponent(id)}/${decision}`, { method: "POST" });
 }
 
 export async function listQuickActions(

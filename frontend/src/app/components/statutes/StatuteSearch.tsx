@@ -6,14 +6,15 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, Loader2, Search } from "lucide-react";
 import { PageHeader } from "@/app/components/shared/PageHeader";
 import { EmptyState } from "@/app/components/ui/empty-state";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { kanunMaddeEtiketi } from "@/app/components/assistant/message/KanunBlocks";
-import type { KanunArticle } from "@/app/components/shared/types";
-import { searchStatutes } from "@/app/lib/mikeApi";
+import type { KanunArticle, StatuteStatus } from "@/app/components/shared/types";
+import { getStatuteStatus, searchStatutes } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { LIQUID_GLASS_FLAT_CLASS } from "@/app/components/ui/liquid-surface";
 import { LIQUID_GLASS_SUBTLE_CLASS } from "@/shared/ui/LiquidGlassUI";
@@ -34,6 +35,15 @@ function excerpt(text: string): string {
     return cleaned.length <= EXCERPT_LENGTH
         ? cleaned
         : `${cleaned.slice(0, EXCERPT_LENGTH).trimEnd()}…`;
+}
+
+/** "12 Ekim 2026" in a Turkish deployment, the browser's format otherwise. */
+export function formatStatuteDate(value: string): string {
+    return new Date(value).toLocaleDateString(t.locale === "tr" ? "tr-TR" : undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
 }
 
 function ArticleCard({ article }: { article: KanunArticle }) {
@@ -59,6 +69,13 @@ function ArticleCard({ article }: { article: KanunArticle }) {
             </div>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-gray-700">
                 {expanded ? article.icerik.trim() : excerpt(article.icerik)}
+            </p>
+            <p className="mt-2 text-[11px] text-gray-400">
+                {article.guncellik_tarihi
+                    ? t("Text checked against mevzuat.gov.tr on {date}", {
+                          date: formatStatuteDate(article.guncellik_tarihi),
+                      })
+                    : t("Not yet checked against mevzuat.gov.tr")}
             </p>
             {long && (
                 <button
@@ -155,6 +172,14 @@ export function StatuteSearchPage() {
     // effect never has to set state before its request resolves.
     const [outcome, setOutcome] = useState<SearchOutcome | null>(null);
     const requestId = useRef(0);
+    // Only used to offer the review page to statute admins; the search works
+    // without it.
+    const [status, setStatus] = useState<StatuteStatus | null>(null);
+    useEffect(() => {
+        getStatuteStatus()
+            .then(setStatus)
+            .catch(() => setStatus(null));
+    }, []);
 
     const run = useCallback(async (query: string) => {
         const id = ++requestId.current;
@@ -198,7 +223,19 @@ export function StatuteSearchPage() {
     return (
         <div className="flex h-full min-h-0 flex-col">
             <PageHeader shrink>
-                <h1 className="font-serif text-2xl font-medium text-gray-900">{t("Statutes")}</h1>
+                <div className="flex w-full items-center justify-between gap-3">
+                    <h1 className="font-serif text-2xl font-medium text-gray-900">{t("Statutes")}</h1>
+                    {status?.yetkili && (
+                        <Link
+                            href="/statutes/updates"
+                            className="rounded-full px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                        >
+                            {status.bekleyen > 0
+                                ? t("Updates ({count})", { count: status.bekleyen })
+                                : t("Updates")}
+                        </Link>
+                    )}
+                </div>
             </PageHeader>
             <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-10 md:px-8">
                 <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
