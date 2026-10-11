@@ -1,4 +1,5 @@
 import type { ResourceAccessScope } from "./types";
+import { t } from "@/shared/i18n";
 
 interface AccessScopeLabelProps {
   scope?: ResourceAccessScope;
@@ -7,9 +8,9 @@ interface AccessScopeLabelProps {
 }
 
 const ACCESS_SCOPE_DETAILS = {
-  private: { label: "Private" },
-  shared: { label: "Shared" },
-  organization: { label: "Organisation" },
+  private: { label: t("Private") },
+  shared: { label: t("Shared") },
+  organization: { label: t("Organisation") },
 } as const;
 
 export function AccessScopeLabel({
@@ -28,15 +29,15 @@ export function AccessScopeLabel({
     scope === "organization" && organizationName
       ? organizationName
       : hasDirectGrantCount
-        ? `${accessUserCount} ${accessUserCount === 1 ? "user" : "users"}`
+        ? t.plural(accessUserCount ?? 0, "{count} user", "{count} users")
         : detail.label;
   const description =
     scope === "organization"
       ? organizationName
-        ? `Shared with ${organizationName}`
-        : "Shared with an organisation"
+        ? t("Shared with {organization}", { organization: organizationName })
+        : t("Shared with an organisation")
       : hasDirectGrantCount
-        ? `Shared with ${accessUserCount} ${accessUserCount === 1 ? "user" : "users"}`
+        ? t.plural(accessUserCount ?? 0, "Shared with {count} user", "Shared with {count} users")
         : detail.label;
 
   return (

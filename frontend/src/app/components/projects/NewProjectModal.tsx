@@ -30,6 +30,7 @@ import {
     type PendingOrgOverride,
 } from "../modals/CreateAccessStep";
 import { WarningPopup } from "../popups/WarningPopup";
+import { t } from "@/shared/i18n";
 
 const PERSONAL_WORKSPACE = "__personal__";
 
@@ -355,7 +356,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                             ? failedUploadMessage(uploadError.outcomes)
                             : userFacingApiError(
                                   uploadError,
-                                  "The attached files could not be uploaded. Please try again.",
+                                  t("The attached files could not be uploaded. Please try again."),
                               );
                 }
             }
@@ -418,7 +419,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
 
             finishCreation({ ...stamped, document_count: attachedCount });
         } catch (err: unknown) {
-            setError(userFacingApiError(err, "Failed to create project"));
+            setError(userFacingApiError(err, t("Failed to create project")));
         } finally {
             setLoading(false);
         }
@@ -464,14 +465,14 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
             onClose={handleClose}
             breadcrumbs={[
                 "Projects",
-                "New project",
+                t("New project"),
                 step === "details"
-                    ? "Details"
+                    ? t("Details")
                     : step === "access"
                       ? orgId === PERSONAL_WORKSPACE
-                          ? "Access"
-                          : "Organisational Access"
-                      : "Add Documents",
+                          ? t("Access")
+                          : t("Organisational Access")
+                      : t("Add Documents"),
             ]}
             secondaryAction={
                 step === "documents"
@@ -536,7 +537,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                                 ? "Creating…"
                                 : pendingProject
                                   ? "Continue"
-                                  : "Create project",
+                                  : t("Create project"),
                             type: "button",
                             onClick: () => void createProjectFromDocuments(),
                             disabled: !name.trim() || loading,
@@ -559,14 +560,14 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                     <div className="space-y-6">
                         <div>
                             <FieldLabel htmlFor="new-project-name">
-                                Project name
+                                {t("Project name")}
                             </FieldLabel>
                             <FormTextInput
                                 id="new-project-name"
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="Add project name"
+                                placeholder={t("Add project name")}
                                 variant="minimal"
                                 // Once the project EXISTS the retry reuses
                                 // `createdProjectRef` and never reads these
@@ -581,14 +582,14 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
 
                         <div>
                             <FieldLabel htmlFor="new-project-cm-number">
-                                CM number
+                                {t("CM number")}
                             </FieldLabel>
                             <FormTextInput
                                 id="new-project-cm-number"
                                 type="text"
                                 value={cmNumber}
                                 onChange={(e) => setCmNumber(e.target.value)}
-                                placeholder="Add a CM number..."
+                                placeholder={t("Add a CM number...")}
                                 variant="minimal"
                                 className="text-xl text-gray-600"
                                 disabled={projectExists}
@@ -597,7 +598,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
 
                         <div>
                             <FieldLabel htmlFor="new-project-practice">
-                                Practice
+                                {t("Practice")}
                             </FieldLabel>
                             <ProjectPracticeField
                                 id="new-project-practice"
@@ -612,7 +613,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
 
                         <div>
                             <FieldLabel htmlFor="new-project-org">
-                                Share across Organisation
+                                {t("Share across Organisation")}
                             </FieldLabel>
                             <ModalSelect
                                 id="new-project-org"
@@ -633,7 +634,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                                 options={[
                                     {
                                         value: PERSONAL_WORKSPACE,
-                                        label: "No organization",
+                                        label: t("No organization"),
                                     },
                                     ...orgs.map((org) => ({
                                         value: org.id,
@@ -643,25 +644,24 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                             />
                             {projectExists && (
                                 <p className="mt-2 text-sm text-gray-500">
-                                    The project has been created, so its name,
-                                    CM number, practice and workspace can no
-                                    longer be changed here. Edit them from the
-                                    project once this finishes.
+                                    {t(
+                                        "The project has been created, so its name, CM number, practice and workspace can no longer be changed here. Edit them from the project once this finishes.",
+                                    )}
                                 </p>
                             )}
                         </div>
 
                         <div>
-                            <FieldLabel as="p">Project memory</FieldLabel>
+                            <FieldLabel as="p">{t("Project memory")}</FieldLabel>
                             <ToggleSwitchUI
                                 checked={memoryEnabled}
                                 onCheckedChange={(enabled) => {
                                     memoryEditedRef.current = true;
                                     setMemoryEnabled(enabled);
                                 }}
-                                aria-label="Enable project memory"
+                                aria-label={t("Enable project memory")}
                             >
-                                Let Mike remember shared project context
+                                {t("Let Mike remember shared project context")}
                             </ToggleSwitchUI>
                         </div>
                     </div>
@@ -677,7 +677,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                         onDirectGrantsChange={setSharedUsers}
                         orgOverrides={orgOverrides}
                         onOrgOverridesChange={setOrgOverrides}
-                        ownerLabel="Project owners"
+                        ownerLabel={t("Project owners")}
                     />
                 ) : (
                     <div className="flex min-h-0 flex-1 flex-col">
@@ -693,8 +693,8 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
             </form>
             <WarningPopup
                 open={organizationLoadWarning}
-                title="Organizations unavailable"
-                message="Your organizations could not be loaded. Close this message and try opening the project form again."
+                title={t("Organizations unavailable")}
+                message={t("Your organizations could not be loaded. Close this message and try opening the project form again.")}
                 onClose={() => setOrganizationLoadWarning(false)}
             />
         </Modal>

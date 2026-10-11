@@ -29,6 +29,7 @@ import {
     DropdownTrigger,
 } from "@/shared/ui/dropdown";
 import { LIQUID_GLASS_HOVER_CLASS } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 export { CLOSE_ROW_ACTIONS_EVENT, closeRowActionMenus };
 
@@ -104,12 +105,12 @@ export function RowActionMenuItems({
     onEditDetails,
     onRename,
     onUpdateCmNumber,
-    viewLabel = "View",
-    editDetailsLabel = "Edit details",
-    newSubfolderLabel = "New subfolder",
-    renameLabel = "Rename",
-    uploadNewVersionLabel = "Upload new version",
-    deleteLabel = "Delete",
+    viewLabel = t("View"),
+    editDetailsLabel = t("Edit details"),
+    newSubfolderLabel = t("New subfolder"),
+    renameLabel = t("Rename"),
+    uploadNewVersionLabel = t("Upload new version"),
+    deleteLabel = t("Delete"),
     onClose,
 }: RowActionMenuItemsProps) {
     const run = (action: () => void) => () => {
@@ -122,7 +123,7 @@ export function RowActionMenuItems({
             {onDeselect && (
                 <DropdownItem onSelect={run(onDeselect)}>
                     <X className="h-3.5 w-3.5" />
-                    Deselect rows
+                    {t("Deselect rows")}
                 </DropdownItem>
             )}
             {onView && (
@@ -178,19 +179,19 @@ export function RowActionMenuItems({
             {onUpdateCmNumber && (
                 <DropdownItem onSelect={run(onUpdateCmNumber)}>
                     <Hash className="h-3.5 w-3.5" />
-                    Edit CM No.
+                    {t("Edit CM No.")}
                 </DropdownItem>
             )}
             {onDownload && (
                 <DropdownItem onSelect={run(onDownload)}>
                     <Download className="h-3.5 w-3.5" />
-                    Download
+                    {t("Download")}
                 </DropdownItem>
             )}
             {onShowAllVersions && (
                 <DropdownItem onSelect={run(onShowAllVersions)}>
                     <History className="h-3.5 w-3.5" />
-                    Show all versions
+                    {t("Show all versions")}
                 </DropdownItem>
             )}
             {onUploadNewVersion && (
@@ -202,25 +203,25 @@ export function RowActionMenuItems({
             {onRemoveFromFolder && (
                 <DropdownItem onSelect={run(onRemoveFromFolder)}>
                     <FolderMinus className="h-3.5 w-3.5" />
-                    Remove from subfolder
+                    {t("Remove from subfolder")}
                 </DropdownItem>
             )}
             {onClearResults && (
                 <DropdownItem disabled={clearResultsDisabled} onSelect={run(onClearResults)}>
                     <Eraser className="h-3.5 w-3.5" />
-                    Clear results
+                    {t("Clear results")}
                 </DropdownItem>
             )}
             {onUnhide && (
                 <DropdownItem onSelect={run(onUnhide)}>
                     <Eye className="h-3.5 w-3.5" />
-                    Activate
+                    {t("Activate")}
                 </DropdownItem>
             )}
             {onHide && (
                 <DropdownItem onSelect={run(onHide)}>
                     <EyeOff className="h-3.5 w-3.5" />
-                    Deactivate
+                    {t("Deactivate")}
                 </DropdownItem>
             )}
             {onDelete && (
@@ -274,7 +275,7 @@ export function RowActions(props: Props) {
             <DropdownTrigger asChild>
                 <button
                     type="button"
-                    aria-label="Open row actions"
+                    aria-label={t("Open row actions")}
                     // The row itself is clickable; opening its menu must not
                     // also activate the row.
                     onClick={(event) => event.stopPropagation()}

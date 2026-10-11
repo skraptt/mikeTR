@@ -26,6 +26,7 @@ import {
     LIQUID_GLASS_MODAL_ROW_HOVER_CLASS,
     LIQUID_GLASS_MODAL_ROW_SELECTED_CLASS,
 } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 type DirectoryFolder = Pick<
     LibraryFolder,
@@ -705,8 +706,8 @@ export function FileDirectory({
                             }
                             label={
                                 folderSelectionReady
-                                    ? `Select all files in ${folder.name}`
-                                    : `Expand ${folder.name} and load all files before selecting it`
+                                    ? t("Select all files in {name}", { name: folder.name })
+                                    : t("Expand {name} and load all files before selecting it", { name: folder.name })
                             }
                             onChange={() => toggleDocuments(docsInFolder)}
                         />
@@ -834,7 +835,7 @@ export function FileDirectory({
                       paddingLeft: indentedRowPadding(depth + 1),
                                     }}
                                 >
-                                    Empty
+                                    {t("Empty")}
                                 </p>
                             )}
                         </div>
@@ -850,7 +851,7 @@ export function FileDirectory({
                 <SearchBar
                     value={search}
                     onValueChange={setSearch}
-                    placeholder="Search..."
+                    placeholder={t("Search...")}
                     autoFocus
                     wrapperClassName={showTabs ? "mb-4" : "mb-3"}
                 />
@@ -902,7 +903,7 @@ export function FileDirectory({
                 <SearchBar
                     value={search}
                     onValueChange={setSearch}
-                    placeholder="Search..."
+                    placeholder={t("Search...")}
                     autoFocus
                     wrapperClassName={showTabs ? "mb-4" : "mb-3"}
                 />
@@ -917,7 +918,7 @@ export function FileDirectory({
                 )}
                 <div className="min-h-0 flex-1 overflow-y-auto">
                     <p className="text-center text-sm text-gray-400 py-8">
-                        No documents yet
+                        {t("No documents yet")}
                     </p>
                 </div>
             </div>
@@ -929,7 +930,7 @@ export function FileDirectory({
             <SearchBar
                 value={search}
                 onValueChange={setSearch}
-                placeholder="Search..."
+                placeholder={t("Search...")}
                 autoFocus
                 wrapperClassName={showTabs ? "mb-4" : "mb-3"}
             />
@@ -945,14 +946,14 @@ export function FileDirectory({
             {activeTabHasNoResults ? (
                 <div className="min-h-0 flex-1 overflow-y-auto">
                     <p className="text-center text-sm text-gray-400 py-8">
-                        No matches found
+                        {t("No matches found")}
                     </p>
                 </div>
             ) : (
                 <div className="flex min-h-0 flex-1 flex-col">
                     <FileDirectoryHeader />
                     <div
-                      aria-label="File directory"
+                      aria-label={t("File directory")}
                       className="min-h-0 flex-1 overflow-y-auto"
                       onScroll={handleDirectoryScroll}
                     >
@@ -1046,7 +1047,7 @@ export function FileDirectory({
                                 directoryFileFolders.length === 0 &&
                                 visibleUploadingFilenames.length === 0 && (
                                     <p className="text-center text-sm text-gray-400 py-8">
-                                        No documents yet
+                                        {t("No documents yet")}
                                     </p>
                                 )}
                         </>
@@ -1094,7 +1095,7 @@ export function FileDirectory({
                                 visibleTemplateDocs.length === 0 &&
                                 directoryTemplateFolders.length === 0 && (
                                     <p className="text-center text-sm text-gray-400 py-8">
-                                        No templates yet
+                                        {t("No templates yet")}
                                     </p>
                                 )}
                         </>
@@ -1143,8 +1144,10 @@ export function FileDirectory({
                                             }
                                             label={
                                                 projectSelectionReady
-                                                    ? `Select all files in ${project.name}`
-                                                    : `Expand ${project.name} and load all files before selecting it`
+                                                    ? t("Select all files in {name}", { name: project.name })
+                                                    : t("Expand {name} and load all files before selecting it", {
+                                                          name: project.name,
+                                                      })
                                             }
                                             onChange={() =>
                                                 toggleDocuments(docs)
@@ -1187,11 +1190,11 @@ export function FileDirectory({
                         {loadingProjectLevels.has(`${project.id}:root`) ? (
                           <p className="flex items-center gap-2 pl-7 py-2 text-xs text-gray-400">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Loading project files
+                            {t("Loading project files")}
                           </p>
                         ) : docs.length === 0 && projectFolders.length === 0 ? (
                                                 <p className="pl-7 py-1 text-xs text-gray-400">
-                                                    Empty
+                                                    {t("Empty")}
                                                 </p>
                                             ) : (
                                                 <>
@@ -1240,7 +1243,7 @@ export function FileDirectory({
                         !q &&
                         visibleDirectoryProjects.length === 0 && (
                             <p className="text-center text-sm text-gray-400 py-8">
-                                No projects yet
+                                {t("No projects yet")}
                             </p>
                         )}
             {activeTab === "projects" && !q && (
@@ -1276,8 +1279,8 @@ function FileDirectoryHeader() {
             className={`${DIRECTORY_GRID_CLASS} px-2 pb-1 pt-0.5 text-[11px] font-medium text-gray-400`}
         >
             <span className="col-span-3">Name</span>
-            <span>Version</span>
-            <span>Created</span>
+            <span>{t("Version")}</span>
+            <span>{t("Created")}</span>
             <span className="text-right">Size</span>
         </div>
     );

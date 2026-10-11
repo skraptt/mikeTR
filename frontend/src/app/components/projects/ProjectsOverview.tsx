@@ -65,6 +65,7 @@ import { EmptyState } from "@/app/components/ui/empty-state";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { useQueryParamTab } from "@/app/hooks/useQueryParamTab";
 import { AccessScopeLabel } from "@/app/components/shared/AccessScopeLabel";
+import { t } from "@/shared/i18n";
 
 function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(undefined, {
@@ -82,11 +83,11 @@ function getProjectCreatorLabel(
     project: Project,
     currentUserId?: string | null,
 ) {
-    if (project.is_owner ?? project.user_id === currentUserId) return "Me";
+    if (project.is_owner ?? project.user_id === currentUserId) return t("Me");
     return (
         project.owner_display_name?.trim() ||
         project.owner_email?.trim() ||
-        "Shared"
+        t("Shared")
     );
 }
 
@@ -94,9 +95,9 @@ type ProjectFilter = "all" | "shared" | "private";
 type ProjectSortKey = "name" | "cm" | "files" | "chats" | "reviews" | "created";
 
 const PROJECT_FILTERS: { id: ProjectFilter; label: string }[] = [
-    { id: "all", label: "All" },
-    { id: "shared", label: "Shared" },
-    { id: "private", label: "Private" },
+    { id: "all", label: t("All") },
+    { id: "shared", label: t("Shared") },
+    { id: "private", label: t("Private") },
 ];
 const PROJECT_FILTER_IDS = PROJECT_FILTERS.map((filter) => filter.id);
 const PROJECT_FILTER_SCOPES: Record<ProjectFilter, ProjectScope> = {
@@ -105,8 +106,8 @@ const PROJECT_FILTER_SCOPES: Record<ProjectFilter, ProjectScope> = {
     private: "private",
 };
 const ACCESS_FILTER_OPTIONS: TableFilterOption<"private" | "shared">[] = [
-    { value: "private", label: "Private" },
-    { value: "shared", label: "Shared" },
+    { value: "private", label: t("Private") },
+    { value: "shared", label: t("Shared") },
 ];
 
 export function ProjectsOverview() {
@@ -171,7 +172,7 @@ export function ProjectsOverview() {
         ownerUserIdFilter: ownerFilter,
         sort,
     });
-    const loadError = loadErrorObj ? "Could not load projects." : null;
+    const loadError = loadErrorObj ? t("Could not load projects.") : null;
     const effectiveLoading = loading && !previewEmptyStates;
     const visibleProjects = useMemo(
         () => (previewEmptyStates ? [] : projects),
@@ -258,7 +259,7 @@ export function ProjectsOverview() {
         sort?.key === "created" ? sort.direction : null;
     const nameFilterButton = (
         <TableSortFilter
-            label="Sort by project name"
+            label={t("Sort by project name")}
             value={nameSortDirection}
             align="right"
             onChange={(direction) => handleSortChange("name", direction)}
@@ -266,9 +267,9 @@ export function ProjectsOverview() {
     );
     const accessFilterButton = (
         <TableFilters
-            label="Filter by access"
+            label={t("Filter by access")}
             value={activeFilter === "all" ? null : activeFilter}
-            allLabel="All Access"
+            allLabel={t("All Access")}
             widthClassName="w-40"
             options={ACCESS_FILTER_OPTIONS}
             onChange={(value) => {
@@ -279,16 +280,16 @@ export function ProjectsOverview() {
     );
     const cmFilterButton = (
         <TableSortFilter
-            label="Sort by CM"
+            label={t("Sort by CM")}
             value={cmSortDirection}
             onChange={(direction) => handleSortChange("cm", direction)}
         />
     );
     const practiceFilterButton = (
         <TableFilters
-            label="Filter by practice"
+            label={t("Filter by practice")}
             value={practiceFilter}
-            allLabel="All Practices"
+            allLabel={t("All Practices")}
             options={practices.map((practice) => ({
                 value: practice,
                 label: practice,
@@ -298,9 +299,9 @@ export function ProjectsOverview() {
     );
     const ownerFilterButton = (
         <TableFilters
-            label="Filter by creator"
+            label={t("Filter by creator")}
             value={ownerFilter}
-            allLabel="All Creators"
+            allLabel={t("All Creators")}
             widthClassName="w-44"
             options={ownerOptions}
             onChange={handleOwnerFilterChange}
@@ -308,28 +309,28 @@ export function ProjectsOverview() {
     );
     const filesFilterButton = (
         <TableSortFilter
-            label="Sort by files"
+            label={t("Sort by files")}
             value={filesSortDirection}
             onChange={(direction) => handleSortChange("files", direction)}
         />
     );
     const chatsFilterButton = (
         <TableSortFilter
-            label="Sort by chats"
+            label={t("Sort by chats")}
             value={chatsSortDirection}
             onChange={(direction) => handleSortChange("chats", direction)}
         />
     );
     const reviewsFilterButton = (
         <TableSortFilter
-            label="Sort by tabular reviews"
+            label={t("Sort by tabular reviews")}
             value={reviewsSortDirection}
             onChange={(direction) => handleSortChange("reviews", direction)}
         />
     );
     const createdFilterButton = (
         <TableSortFilter
-            label="Sort by created date"
+            label={t("Sort by created date")}
             value={createdSortDirection}
             onChange={(direction) => handleSortChange("created", direction)}
         />
@@ -401,7 +402,7 @@ export function ProjectsOverview() {
             setActionError(
                 userFacingApiError(
                     error,
-                    "This project could not be deleted. Please try again.",
+                    t("This project could not be deleted. Please try again."),
                 ),
             );
         }
@@ -483,7 +484,7 @@ export function ProjectsOverview() {
                         ? undefined
                         : () => router.push(`/projects/${project!.id}`)
                 }
-                viewLabel="Open"
+                viewLabel={t("Open")}
                 onEditDetails={
                     appliesToSelection || !canManage
                         ? undefined
@@ -526,17 +527,17 @@ export function ProjectsOverview() {
                         type: "search",
                         value: search,
                         onChange: setSearch,
-                        placeholder: "Search projects…",
+                        placeholder: t("Search projects…"),
                     },
                     {
                         type: "new",
                         onClick: () => setModalOpen(true),
-                        title: "New project",
+                        title: t("New project"),
                     },
                 ]}
             >
                 <h1 className="text-2xl font-medium font-serif text-gray-900">
-                    Projects
+                    {t("Projects")}
                 </h1>
             </PageHeader>
 
@@ -573,14 +574,14 @@ export function ProjectsOverview() {
                                     }}
                                     onChange={toggleAll}
                                     className={TABLE_CHECKBOX_CLASS}
-                                    aria-label="Select all projects"
+                                    aria-label={t("Select all projects")}
                                 />
                             )}
-                            <span className="mr-1">Name</span>
+                            <span className="mr-1">{t("Name")}</span>
                             {!loading && nameFilterButton}
                         </TableStickyCell>
                         <TableHeaderCell className="ml-auto w-32">
-                            <span className="mr-1">Access</span>
+                            <span className="mr-1">{t("Access")}</span>
                             {!loading && accessFilterButton}
                         </TableHeaderCell>
                         <TableHeaderCell className="w-32">
@@ -591,37 +592,37 @@ export function ProjectsOverview() {
                         </TableHeaderCell>
                         <TableHeaderCell className="w-36">
                             <div className="flex items-center gap-1">
-                                <span>Practice</span>
+                                <span>{t("Practice")}</span>
                                 {!loading && practiceFilterButton}
                             </div>
                         </TableHeaderCell>
                         <TableHeaderCell className="w-32">
                             <div className="flex items-center gap-1">
-                                <span>Created by</span>
+                                <span>{t("Created by")}</span>
                                 {!loading && ownerFilterButton}
                             </div>
                         </TableHeaderCell>
                         <TableHeaderCell className="w-24">
                             <div className="flex items-center gap-1">
-                                <span>Files</span>
+                                <span>{t("Files")}</span>
                                 {!loading && filesFilterButton}
                             </div>
                         </TableHeaderCell>
                         <TableHeaderCell className="w-24">
                             <div className="flex items-center gap-1">
-                                <span>Chats</span>
+                                <span>{t("Chats")}</span>
                                 {!loading && chatsFilterButton}
                             </div>
                         </TableHeaderCell>
                         <TableHeaderCell className="w-36">
                             <div className="flex items-center gap-1">
-                                <span>Tabular Reviews</span>
+                                <span>{t("Tabular Reviews")}</span>
                                 {!loading && reviewsFilterButton}
                             </div>
                         </TableHeaderCell>
                         <TableHeaderCell className="w-32">
                             <div className="flex items-center gap-1">
-                                <span>Created</span>
+                                <span>{t("Created")}</span>
                                 {!loading && createdFilterButton}
                             </div>
                         </TableHeaderCell>
@@ -673,7 +674,7 @@ export function ProjectsOverview() {
                     <TableEmptyState>
                         <EmptyState
                             icon={<OpenProjectSvgIcon />}
-                            title="Projects"
+                            title={t("Projects")}
                             description={loadError}
                             tone="error"
                             action={
@@ -682,7 +683,7 @@ export function ProjectsOverview() {
                                     size="sm"
                                     onClick={retry}
                                 >
-                                    Try again
+                                    {t("Try again")}
                                 </PillButtonUI>
                             }
                         />
@@ -691,20 +692,20 @@ export function ProjectsOverview() {
                     <TableEmptyState>
                         {activeFilter === "shared" ? (
                             <p className="text-sm text-gray-400">
-                                No shared projects
+                                {t("No shared projects")}
                             </p>
                         ) : (
                             <EmptyState
                                 icon={<OpenProjectSvgIcon />}
-                                title="Projects"
-                                description="Upload documents into projects and to commence chats and tabular reviews with them."
+                                title={t("Projects")}
+                                description={t("Upload documents into projects and to commence chats and tabular reviews with them.")}
                                 action={
                                     <PillButtonUI
                                         tone="black"
                                         size="sm"
                                         onClick={() => setModalOpen(true)}
                                     >
-                                        Create
+                                        {t("Create")}
                                     </PillButtonUI>
                                 }
                             />
@@ -844,7 +845,7 @@ export function ProjectsOverview() {
                                                     `/projects/${project.id}`,
                                                 )
                                             }
-                                            viewLabel="Open"
+                                            viewLabel={t("Open")}
                                             onEditDetails={
                                                 canManage
                                                     ? () => {
@@ -918,9 +919,13 @@ export function ProjectsOverview() {
             />
             <ConfirmPopup
                 open={confirmDeleteAllOpen && selectedIds.length > 0}
-                title="Delete all selected projects?"
-                message={`This will permanently delete every selected project you administer, including selected projects not currently shown. Every file within those projects will also be deleted. Projects you cannot delete will be skipped. ${selectedIds.length} projects are selected.`}
-                confirmLabel="Delete"
+                title={t("Delete all selected projects?")}
+                message={t.plural(
+                    selectedIds.length,
+                    "This will permanently delete every selected project you administer, including selected projects not currently shown. Every file within those projects will also be deleted. Projects you cannot delete will be skipped. {count} project is selected.",
+                    "This will permanently delete every selected project you administer, including selected projects not currently shown. Every file within those projects will also be deleted. Projects you cannot delete will be skipped. {count} projects are selected.",
+                )}
+                confirmLabel={t("Delete")}
                 confirmVariant="danger"
                 onCancel={() => setConfirmDeleteAllOpen(false)}
                 onConfirm={() => void handleDeleteSelected()}

@@ -29,6 +29,7 @@ import {
     LIQUID_GLASS_SELECTED_CLASS,
     LIQUID_GLASS_HOVER_CLASS,
 } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 // Hover slide for titles too long for the row: paced by distance so a long
 // title glides at the same unhurried speed as a short one.
@@ -83,14 +84,14 @@ export function SidebarChatItem({
     const canDelete = can(role, "container.delete");
     // One label for the row's tooltip and its accessible name, so the
     // "Shared" marker rendered beside the title is part of both.
-    const chatTitle = chat.title ?? "Untitled chat";
+    const chatTitle = chat.title ?? t("Untitled chat");
     const rowLabel = [
         projectName ? `${projectName}: ${chatTitle}` : chatTitle,
         chat.is_owner === false ? "(Shared)" : null,
         responseStatus === "loading"
-            ? "(Response loading)"
+            ? t("(Response loading)")
             : responseStatus === "complete"
-              ? "(Response complete)"
+              ? t("(Response complete)")
               : null,
     ]
         .filter(Boolean)
@@ -114,7 +115,7 @@ export function SidebarChatItem({
             setRenameError(
                 userFacingApiError(
                     error,
-                    "The chat could not be renamed. Please try again.",
+                    t("The chat could not be renamed. Please try again."),
                 ),
             );
         } finally {
@@ -223,7 +224,7 @@ export function SidebarChatItem({
                         {projectName && (
                             <span className="text-gray-400 font-normal">{projectName}: </span>
                         )}
-                        {chat.title ?? "Untitled chat"}
+                        {chat.title ?? t("Untitled chat")}
                     </span>
                 </button>
 
@@ -244,7 +245,7 @@ export function SidebarChatItem({
                     // on the one word in the row that says whose work this
                     // is. text-xs on the muted gray that does meet it.
                     <span className="mr-1 shrink-0 text-xs text-gray-500">
-                        Shared
+                        {t("Shared")}
                     </span>
                 )}
 
@@ -252,7 +253,7 @@ export function SidebarChatItem({
                     <DropdownTrigger asChild>
                         <button
                             type="button"
-                            aria-label={`Actions for ${chat.title ?? "Untitled chat"}`}
+                            aria-label={t("Actions for {chat}", { chat: chat.title ?? t("Untitled chat") })}
                             className={`flex h-6 w-0 shrink-0 items-center justify-center overflow-hidden rounded-md bg-transparent text-gray-500 opacity-0 transition-opacity hover:text-gray-900 ${
                                 actionsRevealed
                                     ? "w-6 opacity-100"
@@ -270,7 +271,7 @@ export function SidebarChatItem({
                                 className="max-md:hidden"
                             >
                                 <Columns2 className="mr-2 h-4 w-4" />
-                                Open in side chat
+                                {t("Open in side chat")}
                             </DropdownItem>
                         )}
                         <DropdownItem
@@ -286,7 +287,7 @@ export function SidebarChatItem({
                             }}
                         >
                             <Users className="mr-2 h-4 w-4" />
-                            Share
+                            {t("Share")}
                         </DropdownItem>
                         <DropdownItem
                             onSelect={() => {
@@ -301,7 +302,7 @@ export function SidebarChatItem({
                             }}
                         >
                             <Pencil className="mr-2 h-4 w-4" />
-                            Rename
+                            {t("Rename")}
                         </DropdownItem>
                         <DropdownItem
                             onSelect={() => {
@@ -316,7 +317,7 @@ export function SidebarChatItem({
                                     setDeleteError(
                                         userFacingApiError(
                                             error,
-                                            "The chat could not be deleted. Please try again.",
+                                            t("The chat could not be deleted. Please try again."),
                                         ),
                                     );
                                 });
@@ -324,7 +325,7 @@ export function SidebarChatItem({
                             className="text-red-600 focus:text-red-600"
                         >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            {t("Delete")}
                         </DropdownItem>
                     </DropdownContent>
                 </Dropdown>
@@ -342,9 +343,9 @@ export function SidebarChatItem({
             />
             <RenameModal
                 open={renameOpen}
-                breadcrumbs={["Assistant", "Rename Chat"]}
-                label="Chat title"
-                initialValue={chat.title?.trim() || "Untitled chat"}
+                breadcrumbs={[t("Assistant"), t("Rename Chat")]}
+                label={t("Chat title")}
+                initialValue={chat.title?.trim() || t("Untitled chat")}
                 saving={renaming}
                 onClose={() => {
                     if (!renaming) setRenameOpen(false);
@@ -353,13 +354,13 @@ export function SidebarChatItem({
             />
             <WarningPopup
                 open={!!deleteError}
-                title="Chat not deleted"
+                title={t("Chat not deleted")}
                 message={deleteError}
                 onClose={() => setDeleteError(null)}
             />
             <WarningPopup
                 open={!!renameError}
-                title="Chat not renamed"
+                title={t("Chat not renamed")}
                 message={renameError}
                 onClose={() => setRenameError(null)}
             />

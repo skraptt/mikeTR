@@ -123,6 +123,8 @@ import {
     type TableFilterOption,
     type TableSortDirection,
 } from "@/app/components/shared/TablePrimitive";
+import { t } from "@/shared/i18n";
+import { withNodes } from "@/shared/i18n/react";
 
 // Above this many documents the zip is built by a background export job
 // instead of inside the request: a small selection zips in well under a second
@@ -311,19 +313,19 @@ function ProjectTableLoadingHeader() {
                 <span className="mr-1">Name</span>
             </TableStickyCell>
             <TableHeaderCell className="ml-auto flex w-20 items-center gap-1">
-                <span>Type</span>
+                <span>{t("Type")}</span>
             </TableHeaderCell>
             <TableHeaderCell className="flex w-24 items-center gap-1">
-                <span>Size</span>
+                <span>{t("Size")}</span>
             </TableHeaderCell>
             <TableHeaderCell className="flex w-20 items-center gap-1">
-                <span>Version</span>
+                <span>{t("Version")}</span>
             </TableHeaderCell>
             <TableHeaderCell className="flex w-32 items-center gap-1">
-                <span>Created</span>
+                <span>{t("Created")}</span>
             </TableHeaderCell>
             <TableHeaderCell className="flex w-32 items-center gap-1">
-                <span>Updated</span>
+                <span>{t("Updated")}</span>
             </TableHeaderCell>
             <TableHeaderCell className="w-8" />
         </TableHeaderRow>
@@ -369,8 +371,8 @@ function ProjectTableLoading() {
 
 function UploadingTrailingLabel() {
     return (
-        <span role="status" aria-label="Uploading">
-            <span aria-hidden="true">Uploading</span>
+        <span role="status" aria-label={t("Uploading")}>
+            <span aria-hidden="true">{t("Uploading")}</span>
             <span aria-hidden="true" className="uploading-ellipsis">
                 <span className="uploading-ellipsis-one">.</span>
                 <span className="uploading-ellipsis-two">..</span>
@@ -609,9 +611,9 @@ export function DocTable({
             // find is one we know nothing about, and the one thing we must
             // not do with an unknown is wave it through.
             setOwnerOnlyAction({
-                title: "Document unavailable",
+                title: t("Document unavailable"),
                 message:
-                    "That document is not loaded, so its versions cannot be changed. Reload and try again.",
+                    t("That document is not loaded, so its versions cannot be changed. Reload and try again."),
             });
             return false;
         }
@@ -629,8 +631,10 @@ export function DocTable({
             // account exists, so naming that tier sent people to somebody who
             // could not help. And no "ask …" line, for the same reason.
             setOwnerOnlyAction({
-                title: "Uploader only",
-                message: `Only the person who uploaded this document can ${action}.`,
+                title: t("Uploader only"),
+                message: t("Only the person who uploaded this document can {action}.", {
+                    action: t(action),
+                }),
             });
             return false;
         }
@@ -650,7 +654,7 @@ export function DocTable({
             await refreshDocumentVersionState(doc.id);
         } catch (e) {
             console.error("uploadDocumentVersion failed", e);
-            setDocumentUploadWarning("Version upload failed. Please try again.");
+            setDocumentUploadWarning(t("Version upload failed. Please try again."));
         }
     }
 
@@ -741,7 +745,7 @@ export function DocTable({
             );
         } catch (e) {
             console.error("deleteDocumentVersion failed", e);
-            setDocumentRenameWarning("Could not delete this version.");
+            setDocumentRenameWarning(t("Could not delete this version."));
         }
     }
 
@@ -1205,7 +1209,7 @@ export function DocTable({
                 ),
             );
             setPendingDeleteFolderStatus("idle");
-            setCollectionActionWarning("Folder could not be deleted. Please try again.");
+            setCollectionActionWarning(t("Folder could not be deleted. Please try again."));
         }
     }
 
@@ -1315,7 +1319,7 @@ export function DocTable({
             );
         } catch {
             setCollectionActionWarning(
-                "The document could not be removed from its folder. Please try again.",
+                t("The document could not be removed from its folder. Please try again."),
             );
             await operations.refreshCollection().catch(() => undefined);
         }
@@ -1367,10 +1371,10 @@ export function DocTable({
             // silently. Anything else gets the generic fallback.
             setCollectionActionWarning(
                 e instanceof MikeApiError && e.status === 404
-                    ? "This document has no file yet, so it can't be renamed."
+                    ? t("This document has no file yet, so it can't be renamed.")
                     : userFacingApiError(
                           e,
-                          "This document could not be renamed. Please try again.",
+                          t("This document could not be renamed. Please try again."),
                       ),
             );
         }
@@ -1421,7 +1425,7 @@ export function DocTable({
                 setCollectionActionWarning(
                     userFacingApiError(
                         error,
-                        "This file could not be deleted. Please try again.",
+                        t("This file could not be deleted. Please try again."),
                     ),
                 );
             });
@@ -1516,8 +1520,10 @@ export function DocTable({
     /** The refusal for a delete: the uploader rule, and nobody to ask. */
     function refuseDocumentDelete(action: string) {
         setOwnerOnlyAction({
-            title: "Uploader only",
-            message: `Only the person who uploaded this document can ${action}.`,
+            title: t("Uploader only"),
+            message: t("Only the person who uploaded this document can {action}.", {
+                action: t(action),
+            }),
         });
     }
 
@@ -1568,7 +1574,9 @@ export function DocTable({
             supportedEntries.length > MAX_DOCUMENTS_PER_DIRECTORY_UPLOAD
         ) {
             setCollectionActionWarning(
-                `You can upload up to ${MAX_DOCUMENTS_PER_DIRECTORY_UPLOAD} supported documents at a time. Nothing was uploaded.`,
+                t("You can upload up to {max} supported documents at a time. Nothing was uploaded.", {
+                    max: MAX_DOCUMENTS_PER_DIRECTORY_UPLOAD,
+                }),
             );
             return;
         }
@@ -1780,7 +1788,7 @@ export function DocTable({
                     ? failedUploadMessage(err.outcomes)
                     : userFacingApiError(
                           err,
-                          "This folder could not be uploaded. Please try again.",
+                          t("This folder could not be uploaded. Please try again."),
                       ),
             );
         } finally {
@@ -1811,7 +1819,7 @@ export function DocTable({
         } catch (error) {
             console.error("Folder drop traversal failed", error);
             setCollectionActionWarning(
-                "This folder could not be read. Please try selecting it with Upload folder.",
+                t("This folder could not be read. Please try selecting it with Upload folder."),
             );
         }
     }
@@ -1885,7 +1893,7 @@ export function DocTable({
             await refreshDocumentVersionState(doc.id);
         } catch (err) {
             console.error("Document version drop upload failed", err);
-            setDocumentUploadWarning("Version upload failed. Please try again.");
+            setDocumentUploadWarning(t("Version upload failed. Please try again."));
         } finally {
             setUploadingVersionDocIds((prev) => {
                 const next = new Set(prev);
@@ -1920,7 +1928,7 @@ export function DocTable({
             setCollectionActionWarning(
                 userFacingApiError(
                     err,
-                    "Could not save this document as a new version.",
+                    t("Could not save this document as a new version."),
                 ),
             );
         } finally {
@@ -2030,7 +2038,11 @@ export function DocTable({
             if (failedCount > 0) {
                 await operations.refreshCollection();
                 setCollectionActionWarning(
-                    `${failedCount} ${failedCount === 1 ? "document" : "documents"} could not be moved. Please try again.`,
+                    t.plural(
+                        failedCount,
+                        "{count} document could not be moved. Please try again.",
+                        "{count} documents could not be moved. Please try again.",
+                    ),
                 );
             }
         } else if (subFolderId && subFolderId !== targetFolderId) {
@@ -2085,7 +2097,7 @@ export function DocTable({
                         <input
                             type="checkbox"
                             disabled
-                            aria-label="Select files in new folder"
+                            aria-label={t("Select files in new folder")}
                             className={`${TABLE_CHECKBOX_CLASS} cursor-default opacity-40`}
                         />
                         <span className="mr-2 flex h-4 w-4 shrink-0 items-center justify-center">
@@ -2095,7 +2107,7 @@ export function DocTable({
                         <input
                             autoFocus
                             className="flex-1 min-w-0 text-xs text-gray-800 bg-transparent outline-none border-b border-gray-300"
-                            placeholder="Folder name"
+                            placeholder={t("Folder name")}
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             onKeyDown={(e) => {
@@ -2802,7 +2814,7 @@ export function DocTable({
                                                                 setRenameDocumentValue(docName);
                                                                 setRenamingDocumentId(doc.id);
                                                             }}
-                                                            renameLabel="Rename document"
+                                                            renameLabel={t("Rename document")}
                                                             onDownload={() => downloadDoc(doc.id)}
                                                             onShowAllVersions={
                                                                 hasVersions && !isVersionsOpen
@@ -3041,8 +3053,8 @@ export function DocTable({
                                                 event.stopPropagation()
                                             }
                                             className={TABLE_CHECKBOX_CLASS}
-                                            aria-label={`Select files in ${folder.name}`}
-                                            title={`Select files in ${folder.name}`}
+                                            aria-label={t("Select files in {folder}", { folder: folder.name })}
+                                            title={t("Select files in {folder}", { folder: folder.name })}
                                         />
                                         <button
                                             type="button"
@@ -3213,7 +3225,7 @@ export function DocTable({
             setCollectionActionWarning(
                 userFacingApiError(
                     error,
-                    "The selected files and folders could not be downloaded.",
+                    t("The selected files and folders could not be downloaded."),
                 ),
             );
         }
@@ -3257,8 +3269,10 @@ export function DocTable({
         if (failedCount > 0) {
             setCollectionActionWarning(
                 failedCount === 1
-                    ? "A document could not be removed from its folder. Please try again."
-                    : `${failedCount} documents could not be removed from their folders. Please try again.`,
+                    ? t("A document could not be removed from its folder. Please try again.")
+                    : t("{count} documents could not be removed from their folders. Please try again.", {
+                          count: failedCount,
+                      }),
             );
             await operations.refreshCollection().catch(() => undefined);
         }
@@ -3341,7 +3355,11 @@ export function DocTable({
             setCollectionActionWarning((current) =>
                 [
                     current,
-                    `${failedCount} ${failedCount === 1 ? "document" : "documents"} could not be deleted. Please try again.`,
+                    t.plural(
+                        failedCount,
+                        "{count} document could not be deleted. Please try again.",
+                        "{count} documents could not be deleted. Please try again.",
+                    ),
                 ]
                     .filter(Boolean)
                     .join(" "),
@@ -3429,7 +3447,11 @@ export function DocTable({
             );
             setSelectedFolderIds(new Set(failedFolderRootIds));
             setCollectionActionWarning(
-                `${failedFolderRootIds.length} ${failedFolderRootIds.length === 1 ? "folder" : "folders"} could not be deleted. Please try again.`,
+                t.plural(
+                    failedFolderRootIds.length,
+                    "{count} folder could not be deleted. Please try again.",
+                    "{count} folders could not be deleted. Please try again.",
+                ),
             );
         }
 
@@ -3621,11 +3643,11 @@ export function DocTable({
     const createdSortDirection = effectiveSort?.key === "created" ? effectiveSort.direction : null;
     const updatedSortDirection = effectiveSort?.key === "updated" ? effectiveSort.direction : null;
     const resetSortLabel = defaultSort
-        ? `Default (${SORT_KEY_LABELS[defaultSort.key]})`
-        : "Default Order";
+        ? t("Default ({column})", { column: t(SORT_KEY_LABELS[defaultSort.key]) })
+        : t("Default Order");
     const nameFilterButton = enableHeaderFilters ? (
         <TableSortFilter
-            label="Sort by name"
+            label={t("Sort by name")}
             value={nameSortDirection}
             allLabel={resetSortLabel}
             align="right"
@@ -3634,9 +3656,9 @@ export function DocTable({
     ) : null;
     const typeFilterButton = enableHeaderFilters ? (
         <TableFilters
-            label="Filter by file type"
+            label={t("Filter by file type")}
             value={typeFilter}
-            allLabel="All Types"
+            allLabel={t("All Types")}
             widthClassName="w-40"
             options={typeOptions}
             onChange={handleTypeFilterChange}
@@ -3644,7 +3666,7 @@ export function DocTable({
     ) : null;
     const sizeFilterButton = enableHeaderFilters ? (
         <TableSortFilter
-            label="Sort by size"
+            label={t("Sort by size")}
             value={sizeSortDirection}
             allLabel={resetSortLabel}
             onChange={(direction) => handleSortChange("size", direction)}
@@ -3652,7 +3674,7 @@ export function DocTable({
     ) : null;
     const versionFilterButton = enableHeaderFilters ? (
         <TableSortFilter
-            label="Sort by version"
+            label={t("Sort by version")}
             value={versionSortDirection}
             allLabel={resetSortLabel}
             onChange={(direction) => handleSortChange("version", direction)}
@@ -3660,7 +3682,7 @@ export function DocTable({
     ) : null;
     const createdFilterButton = enableHeaderFilters ? (
         <TableSortFilter
-            label="Sort by created date"
+            label={t("Sort by created date")}
             value={createdSortDirection}
             allLabel={resetSortLabel}
             onChange={(direction) => handleSortChange("created", direction)}
@@ -3668,7 +3690,7 @@ export function DocTable({
     ) : null;
     const updatedFilterButton = enableHeaderFilters ? (
         <TableSortFilter
-            label="Sort by updated date"
+            label={t("Sort by updated date")}
             value={updatedSortDirection}
             allLabel={resetSortLabel}
             onChange={(direction) => handleSortChange("updated", direction)}
@@ -3808,7 +3830,7 @@ export function DocTable({
             setCollectionActionWarning(
                 userFacingApiError(
                     error,
-                    "All matching files could not be selected. Please try again.",
+                    t("All matching files could not be selected. Please try again."),
                 ),
             );
         } finally {
@@ -3910,7 +3932,7 @@ export function DocTable({
                     setRenameDocumentValue(menuDoc.filename);
                     setRenamingDocumentId(menuDoc.id);
                 }}
-                renameLabel="Rename document"
+                renameLabel={t("Rename document")}
                 onDownload={() => downloadDoc(menuDoc.id)}
                 onShowAllVersions={
                     menuDocHasVersions && !menuDocVersionsOpen
@@ -3951,7 +3973,7 @@ export function DocTable({
                     }
                 }}
                 newSubfolderLabel={
-                    showFolderActions ? "New subfolder inside" : "New subfolder"
+                    showFolderActions ? t("New subfolder inside") : t("New subfolder")
                 }
                 onRename={
                     showFolderActions && folderId
@@ -3962,13 +3984,13 @@ export function DocTable({
                           }
                         : undefined
                 }
-                renameLabel="Rename folder"
+                renameLabel={t("Rename folder")}
                 onDelete={
                     showFolderActions && folderId
                         ? () => requestDeleteFolder(folderId!)
                         : undefined
                 }
-                deleteLabel="Delete folder"
+                deleteLabel={t("Delete folder")}
             />
         );
     };
@@ -4009,17 +4031,24 @@ export function DocTable({
     const pendingVersionDropMessage = pendingVersionDrop ? (
         <div className="space-y-2">
             <p>
-                You are about to save{" "}
-                <span className="font-medium text-gray-950">{pendingVersionDrop.sourceDoc.filename}</span> as a new
-                version of <span className="font-medium text-gray-950">{pendingVersionDrop.targetDoc.filename}</span>.
+                {withNodes(t("You are about to save {source} as a new version of {target}."), {
+                    source: <span className="font-medium text-gray-950">{pendingVersionDrop.sourceDoc.filename}</span>,
+                    target: <span className="font-medium text-gray-950">{pendingVersionDrop.targetDoc.filename}</span>,
+                })}
             </p>
             <p>
-                <span className="font-medium text-gray-950">{pendingVersionDrop.sourceDoc.filename}</span> will no
-                longer exist as a separate document
-                {(currentVersionNumber(pendingVersionDrop.sourceDoc) ?? 1) > 1
-                    ? " and its older versions will be deleted"
-                    : ""}
-                .
+                {withNodes(
+                    (currentVersionNumber(pendingVersionDrop.sourceDoc) ?? 1) > 1
+                        ? t(
+                              "{source} will no longer exist as a separate document and its older versions will be deleted.",
+                          )
+                        : t("{source} will no longer exist as a separate document."),
+                    {
+                        source: (
+                            <span className="font-medium text-gray-950">{pendingVersionDrop.sourceDoc.filename}</span>
+                        ),
+                    },
+                )}
             </p>
         </div>
     ) : undefined;
@@ -4029,43 +4058,61 @@ export function DocTable({
     const pendingDeleteDocMessage = pendingDeleteDoc ? (
         <div className="space-y-2">
             <p>
-                <span className="font-medium text-gray-950">{pendingDeleteDoc.filename}</span> has{" "}
-                {pendingDeleteDocVersionCount} {pendingDeleteDocVersionCount === 1 ? "version" : "versions"}. Deleting
-                this document will delete all of its versions.
+                {withNodes(
+                    t.plural(
+                        pendingDeleteDocVersionCount,
+                        "{file} has {count} version. Deleting this document will delete all of its versions.",
+                        "{file} has {count} versions. Deleting this document will delete all of its versions.",
+                    ),
+                    { file: <span className="font-medium text-gray-950">{pendingDeleteDoc.filename}</span> },
+                )}
             </p>
         </div>
     ) : undefined;
     const pendingDeleteFolderMessage = pendingDeleteFolder ? (
         <div className="space-y-2">
             <p>
-                This will permanently delete{" "}
-                <span className="font-medium text-gray-950">
-                    {pendingDeleteFolder.folderIds.length}{" "}
-                    {pendingDeleteFolder.folderIds.length === 1 ? "folder" : "folders"}
-                </span>
-                , including <span className="font-medium text-gray-950">{pendingDeleteFolder.folder.name}</span>
-                {pendingDeleteFolder.folderIds.length > 1 ? " and its nested subfolders" : ""}.
+                {withNodes(
+                    pendingDeleteFolder.folderIds.length > 1
+                        ? t("This will permanently delete {folders}, including {folder} and its nested subfolders.")
+                        : t("This will permanently delete {folders}, including {folder}."),
+                    {
+                        folders: (
+                            <span className="font-medium text-gray-950">
+                                {t.plural(pendingDeleteFolder.folderIds.length, "{count} folder", "{count} folders")}
+                            </span>
+                        ),
+                        folder: <span className="font-medium text-gray-950">{pendingDeleteFolder.folder.name}</span>,
+                    },
+                )}
             </p>
             {pendingDeleteFolder.documentCount > 0 && (
                 <p>
-                    {pendingDeleteFolder.documentCount}{" "}
-                    {pendingDeleteFolder.documentCount === 1 ? "document" : "documents"} in the deleted{" "}
-                    {pendingDeleteFolder.folderIds.length === 1 ? "folder" : "folders"} will also be permanently
-                    deleted.
+                    {pendingDeleteFolder.folderIds.length === 1
+                        ? t.plural(
+                              pendingDeleteFolder.documentCount,
+                              "{count} document in the deleted folder will also be permanently deleted.",
+                              "{count} documents in the deleted folder will also be permanently deleted.",
+                          )
+                        : t.plural(
+                              pendingDeleteFolder.documentCount,
+                              "{count} document in the deleted folders will also be permanently deleted.",
+                              "{count} documents in the deleted folders will also be permanently deleted.",
+                          )}
                 </p>
             )}
         </div>
     ) : undefined;
-    const selectedDeleteSummary = [
-        selectedFolderIds.size > 0
-            ? `${selectedFolderIds.size} ${selectedFolderIds.size === 1 ? "folder" : "folders"}`
-            : null,
-        selectedStandaloneDocIds.length > 0
-            ? `${selectedStandaloneDocIds.length} ${selectedStandaloneDocIds.length === 1 ? "file" : "files"}`
-            : null,
-    ]
-        .filter(Boolean)
-        .join(" and ");
+    const selectedFolderLabel = t.plural(selectedFolderIds.size, "{count} folder", "{count} folders");
+    const selectedFileLabel = t.plural(selectedStandaloneDocIds.length, "{count} file", "{count} files");
+    const selectedDeleteSummary =
+        selectedFolderIds.size > 0 && selectedStandaloneDocIds.length > 0
+            ? t("{folders} and {files}", { folders: selectedFolderLabel, files: selectedFileLabel })
+            : selectedFolderIds.size > 0
+              ? selectedFolderLabel
+              : selectedStandaloneDocIds.length > 0
+                ? selectedFileLabel
+                : "";
 
     return (
         <div
@@ -4108,7 +4155,7 @@ export function DocTable({
             />
             <UploadOverlay
                 open={isDraggingCollectionFiles}
-                label="Drop files or folders here to upload"
+                label={t("Drop files or folders here to upload")}
                 warning={documentUploadWarning}
                 onWarningClose={() => setDocumentUploadWarning(null)}
             />
@@ -4124,53 +4171,59 @@ export function DocTable({
             />
             <ConfirmPopup
                 open={!!folderUploadConflict}
-                title="Folder already exists"
+                title={t("Folder already exists")}
                 message={
                     folderUploadConflict
-                        ? `A folder named “${folderUploadConflict.folderName}” already exists. This folder will be uploaded as “${folderUploadConflict.suggestedName}”.`
+                        ? t(
+                              "A folder named “{folderName}” already exists. This folder will be uploaded as “{suggestedName}”.",
+                              {
+                                  folderName: folderUploadConflict.folderName,
+                                  suggestedName: folderUploadConflict.suggestedName,
+                              },
+                          )
                         : undefined
                 }
-                confirmLabel="Continue"
-                cancelLabel="Cancel"
+                confirmLabel={t("Continue")}
+                cancelLabel={t("Cancel")}
                 onCancel={() => finishFolderUploadConflict("cancel")}
                 onConfirm={() => finishFolderUploadConflict("rename")}
             />
             <ConfirmPopup
                 open={confirmDeleteAllOpen && !!selectionActions}
-                title="Delete selected items?"
+                title={t("Delete selected items?")}
                 message={
                     <div className="space-y-2">
                         <p>
-                            This will permanently delete{" "}
-                            <span className="font-medium text-gray-950">
-                                {selectedDeleteSummary}
-                            </span>
-                            .
+                            {withNodes(t("This will permanently delete {items}."), {
+                                items: (
+                                    <span className="font-medium text-gray-950">
+                                        {selectedDeleteSummary}
+                                    </span>
+                                ),
+                            })}
                         </p>
                         {selectedFolderIds.size > 0 && (
                             <p>
-                                All nested folders and files contained in the
-                                selected folders will also be deleted.
+                                {t(
+                                    "All nested folders and files contained in the selected folders will also be deleted.",
+                                )}
                             </p>
                         )}
-                        <p>
-                            Files owned by others will be skipped. This action
-                            cannot be undone.
-                        </p>
+                        <p>{t("Files owned by others will be skipped. This action cannot be undone.")}</p>
                     </div>
                 }
-                confirmLabel="Delete"
+                confirmLabel={t("Delete")}
                 confirmVariant="danger"
-                cancelLabel="Cancel"
+                cancelLabel={t("Cancel")}
                 onCancel={() => setConfirmDeleteAllOpen(false)}
                 onConfirm={() => void handleDeleteSelectedItems()}
             />
             <ConfirmPopup
                 open={!!pendingVersionDrop}
-                title="Save as new version?"
+                title={t("Save as new version?")}
                 message={pendingVersionDropMessage}
-                confirmLabel="Confirm"
-                cancelLabel="Cancel"
+                confirmLabel={t("Confirm")}
+                cancelLabel={t("Cancel")}
                 onCancel={() => setPendingVersionDrop(null)}
                 onConfirm={() => {
                     const pending = pendingVersionDrop;
@@ -4181,9 +4234,9 @@ export function DocTable({
             />
             <ConfirmPopup
                 open={!!pendingDeleteDoc}
-                title="Delete document?"
+                title={t("Delete document?")}
                 message={pendingDeleteDocMessage}
-                confirmLabel="Delete"
+                confirmLabel={t("Delete")}
                 confirmVariant="danger"
                 confirmStatus={
                     pendingDeleteStatus === "deleting"
@@ -4192,7 +4245,7 @@ export function DocTable({
                           ? "complete"
                           : "idle"
                 }
-                cancelLabel="Cancel"
+                cancelLabel={t("Cancel")}
                 onCancel={() => {
                     if (pendingDeleteStatus === "deleting") return;
                     setPendingDeleteDoc(null);
@@ -4202,9 +4255,9 @@ export function DocTable({
             />
             <ConfirmPopup
                 open={!!pendingDeleteFolder}
-                title="Delete folder?"
+                title={t("Delete folder?")}
                 message={pendingDeleteFolderMessage}
-                confirmLabel="Delete"
+                confirmLabel={t("Delete")}
                 confirmVariant="danger"
                 confirmStatus={
                     pendingDeleteFolderStatus === "deleting"
@@ -4213,7 +4266,7 @@ export function DocTable({
                           ? "complete"
                           : "idle"
                 }
-                cancelLabel="Cancel"
+                cancelLabel={t("Cancel")}
                 onCancel={() => {
                     if (pendingDeleteFolderStatus === "deleting") return;
                     setPendingDeleteFolder(null);
@@ -4256,29 +4309,29 @@ export function DocTable({
                                     }}
                                     onChange={() => void handleToggleAllDocuments()}
                                     className={TABLE_CHECKBOX_CLASS}
-                                    aria-label="Select all files and folders"
+                                    aria-label={t("Select all files and folders")}
                                 />
                                 <span className="mr-1">Name</span>
                                 {nameFilterButton}
                             </TableStickyCell>
                             <TableHeaderCell className="ml-auto flex w-20 items-center gap-1">
-                                <span>Type</span>
+                                <span>{t("Type")}</span>
                                 {typeFilterButton}
                             </TableHeaderCell>
                             <TableHeaderCell className="flex w-24 items-center gap-1">
-                                <span>Size</span>
+                                <span>{t("Size")}</span>
                                 {sizeFilterButton}
                             </TableHeaderCell>
                             <TableHeaderCell className="flex w-20 items-center gap-1">
-                                <span>Version</span>
+                                <span>{t("Version")}</span>
                                 {versionFilterButton}
                             </TableHeaderCell>
                             <TableHeaderCell className="flex w-32 items-center gap-1">
-                                <span>Created</span>
+                                <span>{t("Created")}</span>
                                 {createdFilterButton}
                             </TableHeaderCell>
                             <TableHeaderCell className="flex w-32 items-center gap-1">
-                                <span>Updated</span>
+                                <span>{t("Updated")}</span>
                                 {updatedFilterButton}
                             </TableHeaderCell>
                             <TableHeaderCell className="w-8" />
@@ -4323,7 +4376,7 @@ export function DocTable({
                             {viewedFolderIsEmpty ? (
                                 <div className="flex flex-1 items-center justify-center py-24 text-center">
                                     <p className="text-sm text-gray-400">
-                                        Empty folder
+                                        {t("Empty folder")}
                                     </p>
                                 </div>
                             ) : docs.length === 0 &&
@@ -4343,7 +4396,7 @@ export function DocTable({
                                             <EmptyState
                                                 icon={<LibrarySkeuoIcon />}
                                                 title={emptyStateTitle}
-                                                description="Upload documents or drop files and folders here"
+                                                description={t("Upload documents or drop files and folders here")}
                                                 action={
                                                     <div className="flex flex-wrap items-center gap-2">
                                                         <PillButtonUI
@@ -4370,14 +4423,14 @@ export function DocTable({
                                                                     "content.edit",
                                                                 )
                                                                     ? undefined
-                                                                    : "Only an editor can add documents"
+                                                                    : t("Only an editor can add documents")
                                                             }
                                                             onClick={(event) => {
                                                                 event.stopPropagation();
                                                                 openAddDocuments();
                                                             }}
                                                         >
-                                                            Upload
+                                                            {t("Upload")}
                                                         </PillButtonUI>
                                                         {emptyStateSecondaryAction && (
                                                             <PillButtonUI
@@ -4636,7 +4689,7 @@ export function DocTable({
                                                                                 setRenameDocumentValue(docName);
                                                                                 setRenamingDocumentId(doc.id);
                                                                             }}
-                                                                            renameLabel="Rename document"
+                                                                            renameLabel={t("Rename document")}
                                                                             onDownload={() => downloadDoc(doc.id)}
                                                                             onShowAllVersions={
                                                                                 hasVersions && !isVersionsOpen
@@ -4795,6 +4848,8 @@ function hasFilenameExtensionChange(previous: string, next: string) {
 function extensionChangeWarning(filename: string) {
     const extension = filenameExtension(filename);
     return extension
-        ? `File extensions cannot be changed here. Keep ${extension} at the end of the name.`
-        : "File extensions cannot be changed here.";
+        ? t("File extensions cannot be changed here. Keep {extension} at the end of the name.", {
+              extension,
+          })
+        : t("File extensions cannot be changed here.");
 }

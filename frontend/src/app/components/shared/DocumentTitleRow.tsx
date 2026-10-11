@@ -15,6 +15,7 @@ import { VersionChip } from "./VersionChip";
 import type { PanelDocument } from "./types";
 import type { DocxSaveState } from "./views/DocxRenderer.types";
 import { DocxSaveErrorPopup } from "./views/DocxSaveErrorPopup";
+import { t } from "@/shared/i18n";
 
 type ExternalSourceLink = {
     href: string;
@@ -116,12 +117,12 @@ export function DocumentTitleRow({
                             className={toolbarVisible ? "text-foreground" : undefined}
                             title={
                                 toolbarVisible
-                                    ? "Stop editing"
-                                    : "Enable editing"
+                                    ? t("Stop editing")
+                                    : t("Enable editing")
                             }
                             onClick={onToggleToolbar}
                         >
-                            Edit
+                            {t("Edit")}
                         </TextButtonUI>
                     )}
                     {isFile && (
@@ -184,11 +185,11 @@ function DocxSaveStatus({ state }: { state: DocxSaveState }) {
         return () => clearTimeout(timer);
     }, [saved, state]);
     const label = state.error
-        ? "Not saved"
+        ? t("Not saved")
         : state.dirty || state.status === "saving"
-          ? "Saving…"
+          ? t("Saving…")
           : saved && expired !== state
-            ? "Saved"
+            ? t("Saved")
             : null;
     return (
         <span
@@ -231,8 +232,8 @@ function UrlDownloadButton({
             target="_blank"
             rel="noopener noreferrer"
             download
-            aria-label="Download"
-            title="Download"
+            aria-label={t("Download")}
+            title={t("Download")}
             className={textButtonUIClassName({
                 size: "icon-xs",
             })}
@@ -299,7 +300,7 @@ function DownloadButton({
             setError(
                 userFacingApiError(
                     cause,
-                    "This file could not be downloaded. Please try again.",
+                    t("This file could not be downloaded. Please try again."),
                 ),
             );
         } finally {
@@ -312,14 +313,14 @@ function DownloadButton({
         <>
             <WarningPopup
                 open={!!error}
-                title="Download failed"
+                title={t("Download failed")}
                 message={error}
                 onClose={() => setError(null)}
             />
             <TextButtonUI
                 size="icon-xs"
-                aria-label="Download"
-                title="Download"
+                aria-label={t("Download")}
+                title={t("Download")}
                 onClick={handleClick}
                 loading={!!spinning}
             >
