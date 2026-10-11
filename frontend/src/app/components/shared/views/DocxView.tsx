@@ -11,9 +11,10 @@ import type { DocxCloseGuard, DocxMode, DocxSaveState, DocxSurface } from "./Doc
 import type { CitationQuote } from "../types";
 import { WarningPopup } from "@/app/components/popups/WarningPopup";
 import { viewRoundingClass, type ViewRounding } from "./viewRounding";
+import { t } from "@/shared/i18n";
 
 const DocxRenderer = lazy(() => import("./EigenpalDocxRenderer"));
-const RENDER_ERROR = "This document could not be displayed. Please download it to view it.";
+const RENDER_ERROR = t("This document could not be displayed. Please download it to view it.");
 const bufferIds = new WeakMap<ArrayBuffer, number>();
 let nextBufferId = 0;
 
@@ -179,7 +180,7 @@ function DocxViewContent(props: Props) {
                 type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             }), /\.docx$/i.test(name) ? name : `${name}.docx`);
         } catch {
-            setDownloadError("This document could not be downloaded. Your edits are still open; please try again.");
+            setDownloadError(t("This document could not be downloaded. Your edits are still open; please try again."));
         } finally {
             setDownloading(false);
         }
@@ -201,7 +202,7 @@ function DocxViewContent(props: Props) {
     const pending = !message && (loading && !bytes || bytes && readyKey !== renderKey);
     return (
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <WarningPopup open={!!downloadError} title="Download failed" message={downloadError} onClose={() => setDownloadError(null)} />
+            <WarningPopup open={!!downloadError} title={t("Download failed")} message={downloadError} onClose={() => setDownloadError(null)} />
             <div
                 className={`document-canvas relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden ${viewRoundingClass(rounded)}`}
                 data-document-id={documentId}
@@ -219,7 +220,7 @@ function DocxViewContent(props: Props) {
                 {warning && (
                     <div className="absolute left-2 top-2 z-20 flex items-center gap-2 rounded-md bg-app-floating px-2 py-1 text-xs text-foreground shadow-sm">
                         <span>{warning}</span>
-                        <button type="button" onClick={onWarningDismiss} aria-label="Dismiss warning"
+                        <button type="button" onClick={onWarningDismiss} aria-label={t("Dismiss warning")}
                             className="rounded px-1 focus-visible:outline-2 focus-visible:outline-blue-500/40">×</button>
                     </div>
                 )}

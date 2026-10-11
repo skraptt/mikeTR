@@ -12,6 +12,7 @@ import type { Project } from "@/app/components/shared/types";
 import { listOrgs, type Org } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { ProjectPracticeField } from "./ProjectPracticeField";
+import { t } from "@/shared/i18n";
 
 const PERSONAL_WORKSPACE = "__personal__";
 
@@ -95,7 +96,7 @@ export function ProjectDetailsModal({
     // UUID. The row already carries the name — use it.
     const orgOptions = useMemo(() => {
         const options = [
-            { value: PERSONAL_WORKSPACE, label: "No organization" },
+            { value: PERSONAL_WORKSPACE, label: t("No organization") },
             ...orgs.map((org) => ({ value: org.id, label: org.name })),
         ];
         if (
@@ -131,7 +132,7 @@ export function ProjectDetailsModal({
             // An intentional 4xx (a name conflict, a refusal) says something
             // the generic line cannot; anything else still falls back to it.
             setError(
-                userFacingApiError(err, "Could not update project details."),
+                userFacingApiError(err, t("Could not update project details.")),
             );
         } finally {
             setSaving(false);
@@ -146,7 +147,7 @@ export function ProjectDetailsModal({
             secondaryAction={
                 onShareProject
                     ? {
-                          label: "Share",
+                          label: t("Share"),
                           icon: <Users className="h-4 w-4" />,
                           onClick: onShareProject,
                       }
@@ -156,7 +157,7 @@ export function ProjectDetailsModal({
                 error ? (
                     <span className="text-sm text-red-600">{error}</span>
                 ) : saved ? (
-                    <span className="text-sm text-gray-400">Updated</span>
+                    <span className="text-sm text-gray-400">{t("Updated")}</span>
                 ) : null
             }
             primaryAction={
@@ -173,7 +174,7 @@ export function ProjectDetailsModal({
             <div className="flex min-h-0 flex-1 flex-col gap-6 py-1">
                 <div>
                     <FieldLabel htmlFor="project-details-name">
-                        Project name
+                        {t("Project name")}
                     </FieldLabel>
                     <FormTextInput
                         id="project-details-name"
@@ -184,14 +185,14 @@ export function ProjectDetailsModal({
                             setError(null);
                         }}
                         disabled={!canEdit || saving}
-                        placeholder="Add project name"
+                        placeholder={t("Add project name")}
                         variant="minimal"
                     />
                 </div>
 
                 <div>
                     <FieldLabel htmlFor="project-details-cm">
-                        CM number
+                        {t("CM number")}
                     </FieldLabel>
                     <FormTextInput
                         id="project-details-cm"
@@ -202,7 +203,7 @@ export function ProjectDetailsModal({
                             setError(null);
                         }}
                         disabled={!canEdit || saving}
-                        placeholder="Add a CM number..."
+                        placeholder={t("Add a CM number...")}
                         variant="minimal"
                         className="text-xl text-gray-600"
                     />
@@ -210,7 +211,7 @@ export function ProjectDetailsModal({
 
                 <div>
                     <FieldLabel htmlFor="project-details-practice">
-                        Practice
+                        {t("Practice")}
                     </FieldLabel>
                     <ProjectPracticeField
                         id="project-details-practice"
@@ -226,7 +227,7 @@ export function ProjectDetailsModal({
 
                 <div>
                     <FieldLabel htmlFor="project-details-org">
-                        Organisation
+                        {t("Organisation")}
                     </FieldLabel>
                     <ModalSelect
                         id="project-details-org"

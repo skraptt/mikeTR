@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Modal } from "./Modal";
 import { FieldLabel, FormTextInput } from "../ui/form-field";
+import { t } from "@/shared/i18n";
 
 interface RenameModalProps {
     open: boolean;
@@ -41,7 +42,7 @@ function RenameModalForm({
             size="sm"
             className="h-auto"
             breadcrumbs={breadcrumbs}
-            cancelAction={{ label: "Cancel", onClick: onClose, disabled: saving }}
+            cancelAction={{ label: t("Cancel"), onClick: onClose, disabled: saving }}
             primaryAction={{
                 label: saving ? "Saving..." : "Save",
                 type: "submit",

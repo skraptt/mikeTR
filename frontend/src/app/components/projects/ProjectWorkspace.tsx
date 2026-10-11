@@ -53,6 +53,7 @@ import {
     ProjectPageHeader,
     type ProjectWorkspaceSection,
 } from "./ProjectPageParts";
+import { t } from "@/shared/i18n";
 
 /**
  * A denied action: the sentence for the popup plus which role the action is
@@ -612,9 +613,9 @@ export function ProjectWorkspaceProvider({
 
                 <ConfirmPopup
                     open={deleteProjectConfirmOpen}
-                    title="Delete project?"
-                    message="This will permanently delete the project and its related documents, chats, and tabular reviews."
-                    confirmLabel="Delete"
+                    title={t("Delete project?")}
+                    message={t("This will permanently delete the project and its related documents, chats, and tabular reviews.")}
+                    confirmLabel={t("Delete")}
                     confirmVariant="danger"
                     confirmStatus={
                         deleteProjectStatus === "deleting"
@@ -623,7 +624,7 @@ export function ProjectWorkspaceProvider({
                               ? "complete"
                               : "idle"
                     }
-                    cancelLabel="Cancel"
+                    cancelLabel={t("Cancel")}
                     onCancel={() => {
                         if (deleteProjectStatus === "deleting") return;
                         setDeleteProjectConfirmOpen(false);
@@ -654,7 +655,7 @@ export function ProjectWorkspaceProvider({
                         access={{
                             grants: grants ?? [],
                             orgId: project.org_id ?? null,
-                            ownerLabel: "Project owners",
+                            ownerLabel: t("Project owners"),
                             canManage: canDo("access.manage"),
                             onGrant: async (email, role) => {
                                 await grantProjectAccess(
@@ -692,9 +693,9 @@ export function ProjectSectionToolbar({
                 backAction
                     ? []
                     : [
-                          { id: "documents", label: "Documents" },
-                          { id: "assistant", label: "Chats" },
-                          { id: "reviews", label: "Tabular Reviews" },
+                          { id: "documents", label: t("Documents") },
+                          { id: "assistant", label: t("Chats") },
+                          { id: "reviews", label: t("Tabular Reviews") },
                       ]
             }
             active={activeSection}
@@ -711,7 +712,7 @@ export function ProjectSectionToolbar({
                 backAction ? (
                     <TabPillButtonUI onClick={backAction} className="pl-2">
                         <ChevronLeft className="h-3.5 w-3.5" />
-                        Back
+                        {t("Back")}
                     </TabPillButtonUI>
                 ) : undefined
             }

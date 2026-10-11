@@ -25,6 +25,7 @@ import {
     HeaderButtonsUI,
     headerButtonClassName,
 } from "@/shared/ui/HeaderButtonsUI";
+import { t } from "@/shared/i18n";
 
 export interface PageHeaderBreadcrumb {
     label?: ReactNode;
@@ -338,7 +339,7 @@ function PageHeaderSearchActionControl({
                                 setOpen(false);
                             }}
                             disabled={disabled}
-                            aria-label="Clear search"
+                            aria-label={t("Clear search")}
                             className="shrink-0 rounded-full p-0.5 text-gray-400 transition-colors hover:bg-black/5 hover:text-gray-600"
                         >
                             <X className="h-3.5 w-3.5" />
@@ -586,8 +587,8 @@ function CollapsedBreadcrumbGroup({
                     <button
                         type="button"
                         className="text-gray-500 transition-colors hover:text-gray-700"
-                        aria-label="Show collapsed breadcrumbs"
-                        title="Show path"
+                        aria-label={t("Show collapsed breadcrumbs")}
+                        title={t("Show path")}
                     >
                         …
                     </button>

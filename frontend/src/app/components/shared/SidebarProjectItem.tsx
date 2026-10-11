@@ -19,6 +19,7 @@ import {
     LIQUID_GLASS_HOVER_CLASS,
     LIQUID_GLASS_SELECTED_CLASS,
 } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 /** How many more of a project's chats and reviews each "See more" shows. */
 export const PROJECT_RECENT_ITEM_PAGE_SIZE = 5;
@@ -49,7 +50,7 @@ export function mergeProjectRecentItems(
             (chat): ProjectRecentItem => ({
                 kind: "chat",
                 id: chat.id,
-                title: chat.title?.trim() || "Untitled chat",
+                title: chat.title?.trim() || t("Untitled chat"),
                 href: `/projects/${projectId}/assistant/chat/${chat.id}`,
                 activityAt: chat.updated_at ?? chat.created_at,
             }),
@@ -58,7 +59,7 @@ export function mergeProjectRecentItems(
             (review): ProjectRecentItem => ({
                 kind: "review",
                 id: review.id,
-                title: review.title?.trim() || "Untitled review",
+                title: review.title?.trim() || t("Untitled review"),
                 href: `/projects/${projectId}/tabular-reviews/${review.id}`,
                 activityAt: review.updated_at ?? review.created_at,
             }),
@@ -233,7 +234,7 @@ export function SidebarProjectItem({
                 }}
                 className="font-medium text-gray-700 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
-                Retry
+                {t("Retry")}
             </button>
         </li>
     );
@@ -328,12 +329,12 @@ export function SidebarProjectItem({
                         // request failed and the other came back empty.
                         retryRow(
                             loadError && data !== null
-                                ? "Could not refresh items."
-                                : "Could not load items.",
+                                ? t("Could not refresh items.")
+                                : t("Could not load items."),
                         )
                     ) : items && items.length === 0 ? (
                         <li className="flex min-h-7 items-center pl-2 pr-2 text-xs text-gray-500">
-                            No chats or reviews yet
+                            {t("No chats or reviews yet")}
                         </li>
                     ) : (
                         <>
@@ -350,7 +351,7 @@ export function SidebarProjectItem({
                                         <Link
                                             href={item.href}
                                             title={item.title}
-                                            aria-label={`${item.kind === "chat" ? "Chat" : "Tabular review"}: ${item.title}`}
+                                            aria-label={`${item.kind === "chat" ? t("Chat") : t("Tabular review")}: ${item.title}`}
                                             aria-current={
                                                 itemActive ? "page" : undefined
                                             }
@@ -379,9 +380,9 @@ export function SidebarProjectItem({
                             {/* A refresh that failed keeps the items it
                                 had; a partial load shows what did load. */}
                             {loadError
-                                ? retryRow("Could not refresh items.")
+                                ? retryRow(t("Could not refresh items."))
                                 : data?.incomplete &&
-                                  retryRow("Some items could not be loaded.")}
+                                  retryRow(t("Some items could not be loaded."))}
                             {canSeeMore && (
                                 <li>
                                     <button
@@ -391,7 +392,7 @@ export function SidebarProjectItem({
                                         aria-controls={listId}
                                         className="flex h-7 w-full items-center rounded-md pl-2 pr-2 text-left text-xs text-gray-500 transition-colors hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/40 disabled:cursor-default"
                                     >
-                                        {loadingMore ? "Loading..." : "See more"}
+                                        {loadingMore ? t("Loading...") : t("See more")}
                                     </button>
                                 </li>
                             )}

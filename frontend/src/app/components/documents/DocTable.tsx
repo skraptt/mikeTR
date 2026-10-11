@@ -310,7 +310,7 @@ function ProjectTableLoadingHeader() {
                 widthClassName={DOC_NAME_COL_W}
             >
                 <div className="mr-3 h-2.5 w-2.5 rounded bg-gray-100 animate-pulse" />
-                <span className="mr-1">Name</span>
+                <span className="mr-1">{t("Name")}</span>
             </TableStickyCell>
             <TableHeaderCell className="ml-auto flex w-20 items-center gap-1">
                 <span>{t("Type")}</span>
@@ -2514,7 +2514,7 @@ export function DocTable({
         );
         return {
             onView: () => openFolderView(folderId),
-            viewLabel: "Open",
+            viewLabel: t("Open"),
             ...catalogAddActions(addable),
         };
     }
@@ -3117,7 +3117,7 @@ export function DocTable({
                                     ) : (
                                         <RowActions
                                             onView={() => openFolderView(folder.id)}
-                                            viewLabel="Open"
+                                            viewLabel={t("Open")}
                                             onRename={() => {
                                                 setRenameFolderValue(folder.name);
                                                 setRenamingFolderId(folder.id);
@@ -3959,7 +3959,7 @@ export function DocTable({
                         ? () => openFolderView(folderId!)
                         : undefined
                 }
-                viewLabel="Open"
+                viewLabel={t("Open")}
                 newSubfolderDisabled={!allowed("docs.organize")}
                 onNewSubfolder={() => {
                     // Gate the prompt as well as submission in handleCreateFolder.
@@ -4311,7 +4311,7 @@ export function DocTable({
                                     className={TABLE_CHECKBOX_CLASS}
                                     aria-label={t("Select all files and folders")}
                                 />
-                                <span className="mr-1">Name</span>
+                                <span className="mr-1">{t("Name")}</span>
                                 {nameFilterButton}
                             </TableStickyCell>
                             <TableHeaderCell className="ml-auto flex w-20 items-center gap-1">
@@ -4385,7 +4385,7 @@ export function DocTable({
                             !hasVisibleCollectionUpload ? (
                                 serverQueryActive ? (
                                     <div className="flex-1 flex flex-col items-center justify-center py-24 text-center">
-                                        <p className="text-sm text-gray-400">No matches found</p>
+                                        <p className="text-sm text-gray-400">{t("No matches found")}</p>
                                     </div>
                                 ) : (
                                     <div

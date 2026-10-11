@@ -21,6 +21,7 @@ import { RowActions } from "@/app/components/shared/RowActions";
 import { HeaderActionsMenu } from "@/app/components/shared/HeaderActionsMenu";
 import { DocumentUploadMenu } from "@/app/components/shared/DocumentUploadMenu";
 import { tableTreeCellStyle } from "@/app/components/shared/TablePrimitive";
+import { t } from "@/shared/i18n";
 
 export type ProjectWorkspaceSection =
     | "documents"
@@ -194,7 +195,7 @@ export function DocVersionHistory({
                     className={`sticky left-0 z-[60] ${DOC_NAME_COL_W} bg-gray-50/80 py-2 pl-3 pr-2`}
                     style={treeNameCellStyle(depth)}
                 >
-                    <div>No version history.</div>
+                    <div>{t("No version history.")}</div>
                 </div>
             </div>
         );
@@ -361,7 +362,7 @@ export function DocVersionHistory({
                                               }
                                             : undefined
                                     }
-                                    renameLabel="Rename version"
+                                    renameLabel={t("Rename version")}
                                     onDownload={() =>
                                         onDownloadVersion(
                                             docId,
@@ -446,8 +447,8 @@ export function ProjectPageHeader({
                     onClick: onNewChat,
                     disabled: !roleKnown,
                     icon: <Plus className="h-4 w-4" />,
-                    label: <span className="hidden sm:inline">Chat</span>,
-                    title: "Create chat",
+                    label: <span className="hidden sm:inline">{t("Chat")}</span>,
+                    title: t("Create chat"),
                 }
               : activeSection === "reviews"
                 ? {
@@ -458,8 +459,8 @@ export function ProjectPageHeader({
                     ) : (
                         <Plus className="h-4 w-4" />
                     ),
-                    label: <span className="hidden sm:inline">Review</span>,
-                    title: "Create review",
+                    label: <span className="hidden sm:inline">{t("Review")}</span>,
+                    title: t("Create review"),
                   }
                 : null;
 
@@ -467,16 +468,16 @@ export function ProjectPageHeader({
         <PageHeader
             breadcrumbs={[
                 {
-                    label: "Projects",
+                    label: t("Projects"),
                     onClick: onBackToProjects,
-                    title: "Back to Projects",
+                    title: t("Back to Projects"),
                 },
                 {
                     ...(project
                         ? {
                               label: project.name,
                               onClick: onProjectRoot,
-                              title: "Back to project documents",
+                              title: t("Back to project documents"),
                           }
                         : {
                               loading: true,
@@ -484,9 +485,9 @@ export function ProjectPageHeader({
                           }),
                 },
                 ...(activeSection === "assistant"
-                    ? [{ label: "Chats" }]
+                    ? [{ label: t("Chats") }]
                     : activeSection === "reviews"
-                      ? [{ label: "Tabular Reviews" }]
+                      ? [{ label: t("Tabular Reviews") }]
                       : (documentFolderBreadcrumbs ?? [])),
             ]}
             actionGroups={[
@@ -495,12 +496,12 @@ export function ProjectPageHeader({
                         type: "search",
                         value: search,
                         onChange: onSearchChange,
-                        placeholder: "Search…",
+                        placeholder: t("Search…"),
                     },
                     {
                         onClick: onOpenAccess,
                         iconOnly: true,
-                        title: "Access",
+                        title: t("Access"),
                         icon: <Users className="h-4 w-4" />,
                     },
                     {
@@ -510,14 +511,14 @@ export function ProjectPageHeader({
                                 items={[
                                     {
                                         label: canManageProject
-                                            ? "Edit details"
-                                            : "View details",
+                                            ? t("Edit details")
+                                            : t("View details"),
                                         icon: Pencil,
                                         onSelect: onOpenDetails,
                                         disabled: !roleKnown,
                                     },
                                     {
-                                        label: "Memory",
+                                        label: t("Memory"),
                                         icon: Brain,
                                         onSelect: onOpenMemory,
                                         disabled: !roleKnown,
@@ -527,7 +528,7 @@ export function ProjectPageHeader({
                                         // refusal can name someone who can
                                         // lift it; disabled only while the
                                         // role itself is still unknown.
-                                        label: "Delete",
+                                        label: t("Delete"),
                                         icon: Trash2,
                                         onSelect: onDeleteProject,
                                         variant: "danger",

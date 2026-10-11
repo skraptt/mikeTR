@@ -16,6 +16,7 @@ import {
 import { orderTextItemLines, type TextItemGeometry } from "./pdfTextOrder";
 import { LIQUID_GLASS_TRANSLUCENT_CLASS } from "@/shared/ui/LiquidGlassUI";
 import { viewRoundingClass, type ViewRounding } from "./viewRounding";
+import { t } from "@/shared/i18n";
 
 interface Props {
     doc: { document_id: string; version_id?: string | null } | null;
@@ -711,7 +712,7 @@ export function PdfView({
             await renderPDF(pdfDoc, list);
         })().catch(() => {
             if (!cancelled)
-                setPdfLoadError({ result, message: "Failed to load document." });
+                setPdfLoadError({ result, message: t("Failed to load document.") });
         });
         return () => {
             cancelled = true;

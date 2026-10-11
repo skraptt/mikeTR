@@ -8,6 +8,7 @@ import {
     DropdownTrigger,
 } from "@/shared/ui/dropdown";
 import { HeaderButtonUI } from "@/shared/ui/HeaderButtonsUI";
+import { t } from "@/shared/i18n";
 
 interface DocumentUploadMenuProps {
     onSavedFiles?: (() => void) | null;
@@ -30,8 +31,8 @@ export function DocumentUploadMenu({
             <DropdownTrigger asChild>
                 <HeaderButtonUI
                     disabled={triggerDisabled}
-                    title="Upload"
-                    aria-label="Upload"
+                    title={t("Upload")}
+                    aria-label={t("Upload")}
                     iconOnly
                 >
                     <Upload className="h-3.5 w-3.5" />
@@ -48,7 +49,7 @@ export function DocumentUploadMenu({
                         className="flex items-center px-3 py-2"
                     >
                         <Files className="mr-2 h-3.5 w-3.5" />
-                        Saved Documents
+                        {t("Saved Documents")}
                     </DropdownItem>
                 )}
                 <DropdownItem
@@ -57,7 +58,7 @@ export function DocumentUploadMenu({
                     className="flex items-center px-3 py-2"
                 >
                     <Upload className="mr-2 h-3.5 w-3.5" />
-                    Upload Documents
+                    {t("Upload Documents")}
                 </DropdownItem>
                 {onUploadFolder !== undefined && (
                     <DropdownItem
@@ -66,7 +67,7 @@ export function DocumentUploadMenu({
                         className="flex items-center px-3 py-2"
                     >
                         <FolderUp className="mr-2 h-3.5 w-3.5" />
-                        Upload folder
+                        {t("Upload folder")}
                     </DropdownItem>
                 )}
             </DropdownContent>

@@ -25,6 +25,7 @@ import {
   presetDirectory,
   presetTemplateUrl,
 } from "./presetTemplates";
+import { t } from "@/shared/i18n";
 
 const PRESETS_BY_ID = new Map(
   PRESET_TEMPLATES.map((preset) => [preset.id, preset]),
@@ -119,7 +120,7 @@ export function PresetTemplatesPage({
         setError(
           userFacingApiError(
             caught,
-            "Could not add this preset. Please try again.",
+            t("Could not add this preset. Please try again."),
           ),
         );
       } finally {
@@ -174,12 +175,12 @@ export function PresetTemplatesPage({
     <div className="flex h-full min-h-0 flex-col">
       <PageHeader
         breadcrumbs={[
-          { label: "Library", onClick: () => router.push("/library") },
+          { label: t("Library"), onClick: () => router.push("/library") },
           {
-            label: "Templates",
+            label: t("Templates"),
             onClick: () => router.push("/library/templates"),
           },
-          { label: "Presets" },
+          { label: t("Presets") },
           ...folderBreadcrumbs,
         ]}
         actions={[
@@ -187,7 +188,7 @@ export function PresetTemplatesPage({
             type: "search",
             value: search,
             onChange: setSearch,
-            placeholder: "Search presets...",
+            placeholder: t("Search presets..."),
           },
         ]}
       />
@@ -200,7 +201,7 @@ export function PresetTemplatesPage({
               className="pl-2"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
-              Back
+              {t("Back")}
             </TabPillButtonUI>
           }
           actions={

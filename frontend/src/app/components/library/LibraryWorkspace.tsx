@@ -50,6 +50,7 @@ import {
 } from "@/app/lib/mikeApi";
 import type { Document } from "@/app/components/shared/types";
 import { useDebouncedValue } from "@/app/hooks/useDebouncedValue";
+import { t } from "@/shared/i18n";
 
 type LibraryViewCollection = {
     documents: Document[];
@@ -84,8 +85,8 @@ type LibraryWorkspaceContextValue = {
 };
 
 const LIBRARY_TABS: { id: LibraryKind; label: string }[] = [
-    { id: "files", label: "Documents" },
-    { id: "templates", label: "Templates" },
+    { id: "files", label: t("Documents") },
+    { id: "templates", label: t("Templates") },
 ];
 
 const EMPTY_COLLECTION: LibraryViewCollection = {
@@ -524,7 +525,7 @@ export function LibraryCollectionPage({
     const search = searchByKind[kind];
     const collectionRootPath = kind === "files" ? "/library" : "/library/templates";
   const debouncedSearch = useDebouncedValue(search, 250);
-    const title = kind === "files" ? "Documents" : "Templates";
+    const title = kind === "files" ? t("Documents") : t("Templates");
     const [selectionActions, setSelectionActions] = useState<DocTableSelectionActions | null>(null);
   const [documentTypeOptions, setDocumentTypeOptions] = useState<string[]>([]);
   const [tableQuery, setTableQuery] = useState<DocTableQuery>({
@@ -637,7 +638,7 @@ export function LibraryCollectionPage({
         );
     }, [collectionRootPath, folderId, router]);
     const presetsEmptyStateAction = useMemo(
-        () => ({ label: "Presets", onClick: openPresets }),
+        () => ({ label: t("Presets"), onClick: openPresets }),
         [openPresets],
     );
 
@@ -918,7 +919,7 @@ export function LibraryCollectionPage({
             <PageHeader
                 breadcrumbs={[
                     {
-                        label: "Library",
+                        label: t("Library"),
                         onClick: () => router.push("/library"),
                     },
                     {
@@ -934,16 +935,16 @@ export function LibraryCollectionPage({
                                 type: "search",
                                 value: search,
                 onChange: (value) => setSearchForKind(kind, value),
-                                placeholder: `Search ${title.toLowerCase()}...`,
+                                placeholder: kind === "files" ? t("Search documents...") : t("Search templates..."),
                             },
                             kind === "templates" && {
                                 type: "custom",
                                 render: (
                                     <HeaderActionsMenu
-                                        title="More actions"
+                                        title={t("More actions")}
                                         items={[
                                             {
-                                                label: "Add preset templates",
+                                                label: t("Add preset templates"),
                                                 icon: BookOpen,
                                                 onSelect: openPresets,
                                             },
@@ -983,7 +984,7 @@ export function LibraryCollectionPage({
                         folderBackAction ? (
                             <TabPillButtonUI onClick={folderBackAction} className="pl-2">
                                 <ChevronLeft className="h-3.5 w-3.5" />
-                                Back
+                                {t("Back")}
                             </TabPillButtonUI>
                         ) : undefined
                     }
@@ -997,7 +998,7 @@ export function LibraryCollectionPage({
                                 disabled={!createFolderAction || loading}
                             >
                                 <Plus className="h-3.5 w-3.5" />
-                                <span className="hidden sm:inline">Folder</span>
+                                <span className="hidden sm:inline">{t("Folder")}</span>
                             </TabPillButtonUI>
                         </>
                     }

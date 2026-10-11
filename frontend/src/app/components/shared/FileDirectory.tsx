@@ -41,9 +41,9 @@ const DIRECTORY_CHECKBOX_CLASS =
     "h-2.5 w-2.5 shrink-0 justify-self-center cursor-pointer rounded border-gray-200 accent-black disabled:cursor-not-allowed";
 
 const DIRECTORY_TABS: { value: DirectoryTab; label: string }[] = [
-    { value: "files", label: "Documents" },
-    { value: "templates", label: "Templates" },
-    { value: "projects", label: "Projects" },
+    { value: "files", label: t("Documents") },
+    { value: "templates", label: t("Templates") },
+    { value: "projects", label: t("Projects") },
 ];
 const ALL_DIRECTORY_TAB_VALUES = DIRECTORY_TABS.map((tab) => tab.value);
 
@@ -1278,10 +1278,10 @@ function FileDirectoryHeader() {
         <div
             className={`${DIRECTORY_GRID_CLASS} px-2 pb-1 pt-0.5 text-[11px] font-medium text-gray-400`}
         >
-            <span className="col-span-3">Name</span>
+            <span className="col-span-3">{t("Name")}</span>
             <span>{t("Version")}</span>
             <span>{t("Created")}</span>
-            <span className="text-right">Size</span>
+            <span className="text-right">{t("Size")}</span>
         </div>
     );
 }

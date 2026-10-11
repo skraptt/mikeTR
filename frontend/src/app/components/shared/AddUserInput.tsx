@@ -10,6 +10,7 @@ import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { cn } from "@/app/lib/utils";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { LIQUID_GLASS_SUBTLE_CLASS } from "@/shared/ui/LiquidGlassUI";
+import { t } from "@/shared/i18n";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -44,9 +45,9 @@ export function AddUserInput({
     onAdd,
     validateEmail,
     busy = false,
-    placeholder = "Add by email...",
+    placeholder = t("Add by email..."),
     autoFocus = false,
-    submitLabel = "Add user",
+    submitLabel = t("Add user"),
     submitVariant = "pill",
     inputEndControl,
     className,
@@ -64,7 +65,7 @@ export function AddUserInput({
         const email = trimmedEmail;
         if (!email || busy || checking) return;
         if (!EMAIL_RE.test(email)) {
-            setError("Enter a valid email.");
+            setError(t("Enter a valid email."));
             return;
         }
 
@@ -81,7 +82,7 @@ export function AddUserInput({
                 ? await lookupUserByEmail(email)
                 : { exists: false, email, display_name: null };
             if (requireExistingUser && !user.exists) {
-                setError(`${email} does not belong to a Mike user.`);
+                setError(t("{email} does not belong to a Mike user.", { email }));
                 return;
             }
 
@@ -91,7 +92,7 @@ export function AddUserInput({
             setError(
                 userFacingApiError(
                     err,
-                    "Could not add this user. Try again.",
+                    t("Could not add this user. Try again."),
                 ),
             );
         } finally {
@@ -156,7 +157,7 @@ export function AddUserInput({
                         {(busy || checking) && (
                             <Loader2 className="h-3 w-3 animate-spin" />
                         )}
-                        Add
+                        {t("Add")}
                     </button>
                 ) : showAddButton ? (
                     <PillButtonUI
@@ -170,7 +171,7 @@ export function AddUserInput({
                         title={submitLabel}
                         className="shrink-0"
                     >
-                        Add
+                        {t("Add")}
                     </PillButtonUI>
                 ) : null}
             </div>

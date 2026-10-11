@@ -15,6 +15,7 @@ import {
     type OrganizationAccessAssignment,
     type AccessRow,
 } from "./AccessEditor";
+import { t } from "@/shared/i18n";
 
 export interface PendingDirectGrant {
     email: string;
@@ -39,7 +40,7 @@ export function CreateAccessStep({
     onOrgOverridesChange,
     inheritedFromProject = false,
     inheritedProjectId = null,
-    ownerLabel = "Project owners",
+    ownerLabel = t("Project owners"),
 }: {
     orgId: string | null;
     organizationName?: string | null;
@@ -76,7 +77,7 @@ export function CreateAccessStep({
                     setMemberState({
                         orgId,
                         members: [],
-                        error: "Could not load organization members.",
+                        error: t("Could not load organization members."),
                     });
                 }
             });
@@ -130,7 +131,7 @@ export function CreateAccessStep({
                     setProjectPeopleState({
                         projectId: inheritedProjectId,
                         rows: [],
-                        error: "Could not load the project's members.",
+                        error: t("Could not load the project's members."),
                     });
                 }
             });
@@ -219,7 +220,7 @@ export function CreateAccessStep({
 
     function validateDirectEmail(email: string) {
         if (currentEmail && email === currentEmail)
-            return "You are already the owner.";
+            return t("You are already the owner.");
         if (directGrants.some((grant) => grant.email === email))
             return `${email} already has access.`;
         return null;

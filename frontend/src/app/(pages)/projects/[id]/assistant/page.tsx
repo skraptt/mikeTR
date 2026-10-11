@@ -15,6 +15,7 @@ import { can, roleFrom } from "@/app/lib/permissions";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { ConfirmPopup } from "@/app/components/popups/ConfirmPopup";
 import { WarningPopup } from "@/app/components/popups/WarningPopup";
+import { t } from "@/shared/i18n";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -68,10 +69,10 @@ export default function ProjectAssistantPage({ params }: Props) {
             await renameChat(chatId, trimmed);
         } catch (error) {
             setActionNotice({
-                title: "The chat was not renamed",
+                title: t("The chat was not renamed"),
                 message: userFacingApiError(
                     error,
-                    "The chat could not be renamed. Please try again.",
+                    t("The chat could not be renamed. Please try again."),
                 ),
             });
             return;
@@ -101,10 +102,10 @@ export default function ProjectAssistantPage({ params }: Props) {
             await deleteChat(chat.id);
         } catch (error) {
             setActionNotice({
-                title: "The chat was not deleted",
+                title: t("The chat was not deleted"),
                 message: userFacingApiError(
                     error,
-                    "The chat could not be deleted. Please try again.",
+                    t("The chat could not be deleted. Please try again."),
                 ),
             });
             return;
@@ -151,15 +152,23 @@ export default function ProjectAssistantPage({ params }: Props) {
         setSelectedChatIds(failedIds);
         const notices = [
             blocked > 0
-                ? `${blocked} selected chat${blocked === 1 ? " was" : "s were"} skipped because only a project owner can delete them.`
+                ? t.plural(
+                      blocked,
+                      "{count} selected chat was skipped because only a project owner can delete them.",
+                      "{count} selected chats were skipped because only a project owner can delete them.",
+                  )
                 : null,
             failedIds.length > 0
-                ? `${failedIds.length} chat${failedIds.length === 1 ? " was" : "s were"} not deleted because the request failed. ${failedIds.length === 1 ? "It remains" : "They remain"} selected so you can try again.`
+                ? t.plural(
+                      failedIds.length,
+                      "{count} chat was not deleted because the request failed. It remains selected so you can try again.",
+                      "{count} chats were not deleted because the request failed. They remain selected so you can try again.",
+                  )
                 : null,
         ].filter((notice): notice is string => notice !== null);
         if (notices.length > 0)
             setActionNotice({
-                title: "Some chats were not deleted",
+                title: t("Some chats were not deleted"),
                 message: notices.join(" "),
             });
     }, [chats, selectedChatIds, setProjectChats]);
@@ -194,11 +203,11 @@ export default function ProjectAssistantPage({ params }: Props) {
                 open={confirmDeleteSelectedOpen && selectedChatIds.length > 0}
                 title={
                     selectedChatIds.length === 1
-                        ? "Delete chat?"
-                        : `Delete ${selectedChatIds.length} chats?`
+                        ? t("Delete chat?")
+                        : t("Delete {count} chats?", { count: selectedChatIds.length })
                 }
-                message="This cannot be undone."
-                confirmLabel="Delete"
+                message={t("This cannot be undone.")}
+                confirmLabel={t("Delete")}
                 confirmVariant="danger"
                 onCancel={() => setConfirmDeleteSelectedOpen(false)}
                 onConfirm={() => void handleDeleteSelectedChats()}

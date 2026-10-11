@@ -21,6 +21,7 @@ import {
     docxHighlightedComment,
     docxReviewTarget,
 } from "./docxReviewTarget";
+import { t } from "@/shared/i18n";
 
 export function DocxReviewActions({
     editor,
@@ -147,9 +148,9 @@ export function DocxReviewActions({
                       ? editor.acceptReviewItem(item.key)
                       : editor.rejectReviewItem(item.key);
             if (!result.ok)
-                setError("This action could not be applied. Please try again.");
+                setError(t("This action could not be applied. Please try again."));
         } catch {
-            setError("This action could not be applied. Please try again.");
+            setError(t("This action could not be applied. Please try again."));
         }
     };
     return (
@@ -203,7 +204,7 @@ export function DocxReviewActions({
                                 }}
                             >
                                 <MessageSquare className="h-3.5 w-3.5" />
-                                View comment
+                                {t("View comment")}
                             </DropdownItem>
                             <DropdownItem
                                 disabled={disabled}
@@ -211,7 +212,7 @@ export function DocxReviewActions({
                                 onSelect={() => run("delete")}
                             >
                                 <Trash2 className="h-3.5 w-3.5" />
-                                Delete comment
+                                {t("Delete comment")}
                             </DropdownItem>
                         </>
                     ) : item?.kind === "comment" ? (
@@ -227,7 +228,7 @@ export function DocxReviewActions({
                                 }}
                             >
                                 <Reply className="h-3.5 w-3.5" />
-                                Reply to comment
+                                {t("Reply to comment")}
                             </DropdownItem>
                             {onEdit && (
                                 <DropdownItem
@@ -248,7 +249,7 @@ export function DocxReviewActions({
                                     }}
                                 >
                                     <Pencil className="h-3.5 w-3.5" />
-                                    Edit comment
+                                    {t("Edit comment")}
                                 </DropdownItem>
                             )}
                             <DropdownItem
@@ -257,7 +258,7 @@ export function DocxReviewActions({
                                 onSelect={() => run("delete")}
                             >
                                 <Trash2 className="h-3.5 w-3.5" />
-                                Delete comment
+                                {t("Delete comment")}
                             </DropdownItem>
                         </>
                     ) : (
@@ -267,14 +268,14 @@ export function DocxReviewActions({
                                 onSelect={() => run("accept")}
                             >
                                 <Check className="h-3.5 w-3.5" />
-                                Accept tracked change
+                                {t("Accept tracked change")}
                             </DropdownItem>
                             <DropdownItem
                                 disabled={disabled}
                                 onSelect={() => run("reject")}
                             >
                                 <X className="h-3.5 w-3.5" />
-                                Reject tracked change
+                                {t("Reject tracked change")}
                             </DropdownItem>
                         </>
                     )}
@@ -282,7 +283,7 @@ export function DocxReviewActions({
             </Dropdown>
             <WarningPopup
                 open={!!error}
-                title="Unable to update document"
+                title={t("Unable to update document")}
                 message={error}
                 onClose={() => setError(null)}
             />

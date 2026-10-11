@@ -212,7 +212,7 @@ export function ProjectMemoryModal({
                 ) : null
             }
             primaryAction={{
-                label: "Done",
+                label: t("Done"),
                 type: "button",
                 onClick: () => void requestClose(),
                 disabled: closing || settingsMutation !== null,

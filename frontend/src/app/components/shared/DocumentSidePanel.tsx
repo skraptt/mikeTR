@@ -1074,12 +1074,10 @@ export function DocumentSidePanel({
             <ConfirmPopup
                 open={confirmDeleteDocumentOpen}
                 title={t("Delete document?")}
-                message={t.plural(
-                    versions.length,
-                    "{file} has {count} version. Deleting this document will delete all of its versions.",
-                    "{file} has {count} versions. Deleting this document will delete all of its versions.",
-                    { file: selectedFilename },
-                )}
+                message={t("{file} has {count} versions. Deleting this document will delete all of its versions.", {
+                    file: selectedFilename,
+                    count: versions.length,
+                })}
                 confirmLabel={t("Delete")}
                 confirmVariant="danger"
                 confirmStatus={

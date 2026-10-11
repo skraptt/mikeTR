@@ -22,6 +22,7 @@ import {
 } from "@/app/lib/documentUploadValidation";
 import { useRemountPersistentState } from "@/app/hooks/useRemountPersistentState";
 import { userFacingApiError } from "@/app/lib/userFacingError";
+import { t } from "@/shared/i18n";
 
 interface Props {
     open: boolean;
@@ -324,7 +325,7 @@ export function AddDocumentsModal({
                     ? failedUploadMessage(err.outcomes)
                     : userFacingApiError(
                           err,
-                          "Documents could not be uploaded. Please try again.",
+                          t("Documents could not be uploaded. Please try again."),
                       ),
             );
         } finally {
@@ -415,7 +416,7 @@ export function AddDocumentsModal({
                         type="button"
                         onClick={() => setUploadWarning(null)}
                         className="shrink-0 rounded p-0.5 text-black hover:bg-gray-100"
-                        aria-label="Dismiss warning"
+                        aria-label={t("Dismiss warning")}
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>

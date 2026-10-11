@@ -25,6 +25,7 @@ import { DocxCommentComposer } from "./DocxCommentComposer";
 import { DocxReviewActions } from "./DocxReviewActions";
 import { DocxCommentCard } from "./DocxCommentCard";
 import { openReviewPane, useRequestedReviewPane } from "./docxReviewPane";
+import { t } from "@/shared/i18n";
 
 /** Host-owned comment column, docked beside the editor viewport like its navigation pane. */
 export function DocxReviewPanel({
@@ -214,7 +215,7 @@ function CommentColumn({
     return (
         <aside
             ref={ref}
-            aria-label="Document comments"
+            aria-label={t("Document comments")}
             className="flex min-h-0 w-[calc(var(--mike-docx-comment-width)+24px)] flex-none flex-col text-xs text-foreground"
             onKeyDown={(event) => {
                 event.stopPropagation();
@@ -227,11 +228,11 @@ function CommentColumn({
             }}
         >
             <div className="flex flex-none items-center justify-between py-3 pr-2 pl-3">
-                <h2 className="text-sm font-medium">Comments</h2>
+                <h2 className="text-sm font-medium">{t("Comments")}</h2>
                 <TextButtonUI
                     size="icon-xs"
-                    aria-label="Close comments"
-                    title="Close comments"
+                    aria-label={t("Close comments")}
+                    title={t("Close comments")}
                     onClick={() => editor.exec({ type: "toggleReviewPane" })}
                 >
                     <X aria-hidden="true" className="h-4 w-4" />
@@ -242,7 +243,7 @@ function CommentColumn({
                 className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-3"
             >
                 {items.length === 0 && (
-                    <p className="py-3 text-muted-foreground">No comments.</p>
+                    <p className="py-3 text-muted-foreground">{t("No comments.")}</p>
                 )}
                 {threads.map((item) => (
                     <DocxCommentCard

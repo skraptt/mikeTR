@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { t } from "@/shared/i18n";
 
 /** Shared panel header above the viewer toolbar. The annotation (citation
  * quotes or a tracked change) is never clipped here: its quoted or changed
@@ -24,7 +25,7 @@ export function DocumentAnnotationLayer({
             >
                 {title}
                 {annotation && (
-                    <div role="region" aria-label="Document annotation">
+                    <div role="region" aria-label={t("Document annotation")}>
                         {annotation}
                     </div>
                 )}

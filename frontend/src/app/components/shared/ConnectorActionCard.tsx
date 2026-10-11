@@ -2,6 +2,7 @@
 
 import type { ConnectorApprovalItem } from "@mike/contracts";
 import { ChevronRight } from "lucide-react";
+import { t } from "@/shared/i18n";
 
 // Readable labels for the argument names Mike's built-in connectors use.
 // Anything else (for example an MCP server's own parameters) shows its key.
@@ -41,25 +42,25 @@ function display(value: unknown): string {
   if (value && typeof value === "object")
     return Object.entries(value)
       .filter(([, nested]) => nested !== undefined && nested !== null)
-      .map(([key, nested]) => `${labels[key] ?? key}: ${display(nested)}`)
+      .map(([key, nested]) => `${labels[key] ? t(labels[key]) : key}: ${display(nested)}`)
       .join("\n");
   return String(value ?? "");
 }
 
 function consequenceNote(item: ConnectorApprovalItem): string | null {
   if (item.tool_name === "google_drive_replace_file_content")
-    return "This replaces all file contents with the text shown below. Existing Google Doc formatting is replaced.";
+    return t("This replaces all file contents with the text shown below. Existing Google Doc formatting is replaced.");
   if (item.tool_name === "google_drive_trash_file")
-    return "This moves the item to Google Drive Trash. Trashing a folder affects its contents.";
+    return t("This moves the item to Google Drive Trash. Trashing a folder affects its contents.");
   if (item.tool_name === "google_drive_move_file")
-    return "Moving this item may change access inherited from its folder.";
+    return t("Moving this item may change access inherited from its folder.");
   if (
     item.binding.type === "google" &&
     item.binding.provider === "google-calendar"
   )
-    return "Google will notify attendees of this change. Deleting an event sends cancellation notices.";
+    return t("Google will notify attendees of this change. Deleting an event sends cancellation notices.");
   if (item.tool_name === "gmail_delete_draft")
-    return "This deletes the draft. Review its contents before approving.";
+    return t("This deletes the draft. Review its contents before approving.");
   return null;
 }
 
@@ -90,7 +91,7 @@ export function ConnectorActionCard({ item }: { item: ConnectorApprovalItem }) {
         <dl className="space-y-2 text-sm">
           {args.map(([key, value]) => (
             <div key={key}>
-              <dt className="text-xs text-gray-500">{labels[key] ?? key}</dt>
+              <dt className="text-xs text-gray-500">{labels[key] ? t(labels[key]) : key}</dt>
               <dd className="whitespace-pre-wrap text-gray-800 [overflow-wrap:anywhere]">
                 {display(value)}
               </dd>
@@ -98,7 +99,7 @@ export function ConnectorActionCard({ item }: { item: ConnectorApprovalItem }) {
           ))}
         </dl>
       ) : (
-        <p className="text-sm text-gray-500">This action takes no details.</p>
+        <p className="text-sm text-gray-500">{t("This action takes no details.")}</p>
       )}
       {item.before !== undefined && (
         <details className="group/approval-details">
@@ -107,7 +108,7 @@ export function ConnectorActionCard({ item }: { item: ConnectorApprovalItem }) {
               aria-hidden="true"
               className="size-3 shrink-0 group-open/approval-details:rotate-90"
             />
-            Current item before this change
+            {t("Current item before this change")}
           </summary>
           <pre className="mt-2 max-h-60 overflow-auto whitespace-pre-wrap font-sans text-xs text-gray-700 [overflow-wrap:anywhere]">
             {display(item.before)}

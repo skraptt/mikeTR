@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { t } from "@/shared/i18n";
 
 const PROJECT_WORKSPACE_TIPS = [
-    "You can drag and drop a document from the Explorer to the Chat.",
-    "Ask the Chat to explain a difficult passage or summarise a project document.",
-    "Ask the Chat to edit a project document and save the changes as a new version.",
-    "The Chat can create a new project document using your instructions and project context.",
-    "Ask the Chat to replicate an existing document when you want a new draft based on it.",
+    t("You can drag and drop a document from the Explorer to the Chat."),
+    t("Ask the Chat to explain a difficult passage or summarise a project document."),
+    t("Ask the Chat to edit a project document and save the changes as a new version."),
+    t("The Chat can create a new project document using your instructions and project context."),
+    t("Ask the Chat to replicate an existing document when you want a new draft based on it."),
 ];
 
 export function ProjectWorkspaceTips() {
@@ -38,7 +39,7 @@ export function ProjectWorkspaceTips() {
             <div className="flex items-center gap-1">
                 <button
                     type="button"
-                    aria-label="Previous tip"
+                    aria-label={t("Previous tip")}
                     onClick={() => rotateTip(-1)}
                     className="flex h-6 w-5 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-app-surface-active/50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                 >
@@ -52,7 +53,7 @@ export function ProjectWorkspaceTips() {
                 </span>
                 <button
                     type="button"
-                    aria-label="Next tip"
+                    aria-label={t("Next tip")}
                     onClick={() => rotateTip(1)}
                     className="flex h-6 w-5 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-app-surface-active/50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                 >

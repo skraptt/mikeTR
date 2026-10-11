@@ -15,6 +15,7 @@ import { findDocxQuote } from "./docxQuoteSelection";
 import "@docx-editor.dev/core/styles/editor.css";
 import styles from "./EigenpalDocxRenderer.module.css";
 import type { DocxRendererProps } from "./DocxRenderer.types";
+import { t } from "@/shared/i18n";
 
 // Use packaged, metric-compatible fonts; document text never goes to a conversion service.
 const fonts = packagedFonts();
@@ -64,8 +65,8 @@ export default function DocxRenderer({ bytes, mode, toolbarVisible = true, filen
             }}>
             {fontWarning && (
                 <div role="status" className="flex shrink-0 items-start gap-2 px-3 py-2 text-xs text-muted-foreground">
-                    <span className="min-w-0 flex-1">Some document fonts could not be loaded. Text may look different.</span>
-                    <TextButtonUI onClick={() => setFontWarning(false)}>Dismiss</TextButtonUI>
+                    <span className="min-w-0 flex-1">{t("Some document fonts could not be loaded. Text may look different.")}</span>
+                    <TextButtonUI onClick={() => setFontWarning(false)}>{t("Dismiss")}</TextButtonUI>
                 </div>
             )}
             <DocxEditor

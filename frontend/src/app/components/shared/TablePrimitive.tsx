@@ -26,6 +26,7 @@ import {
     LIQUID_GLASS_HOVER_CLASS,
     TABLE_SURFACE_CLASS,
 } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 export const CLOSE_ROW_ACTIONS_EVENT = "mike:close-row-actions";
 
@@ -218,13 +219,13 @@ export function TableFilters<T extends string>({
 }
 
 const SORT_OPTIONS: TableFilterOption<TableSortDirection>[] = [
-    { value: "asc", label: "Ascending" },
-    { value: "desc", label: "Descending" },
+    { value: "asc", label: t("Ascending") },
+    { value: "desc", label: t("Descending") },
 ];
 
 /** Ascending/descending sort menu for a column header. */
 export function TableSortFilter({
-    allLabel = "Default Order",
+    allLabel = t("Default Order"),
     widthClassName = "w-40",
     ...props
 }: {

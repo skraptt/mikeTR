@@ -266,7 +266,7 @@ export function ProjectAssistantTable({
                                 className={TABLE_CHECKBOX_CLASS}
                             />
                         )}
-                        <span className="mr-1">Chats</span>
+                        <span className="mr-1">{t("Chats")}</span>
                         {!loading && nameFilterButton}
                     </TableStickyCell>
                     <TableHeaderCell className="ml-auto w-32">

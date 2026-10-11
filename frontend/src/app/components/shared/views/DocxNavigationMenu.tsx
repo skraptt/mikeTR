@@ -11,6 +11,7 @@ import {
     DropdownContent,
     DropdownTrigger,
 } from "@/shared/ui/dropdown";
+import { t } from "@/shared/i18n";
 
 /** Extend EigenPal's overflow panel; keep navigation available when nothing overflows. */
 export function DocxNavigationMenu({ toolbar, open, onToggle }: {
@@ -45,7 +46,7 @@ export function DocxNavigationMenu({ toolbar, open, onToggle }: {
             }}
         >
             <ListTree aria-hidden="true" className="h-4 w-4" />
-            Navigation pane
+            {t("Navigation pane")}
             {open && <Check aria-hidden="true" className="ml-auto h-4 w-4" />}
         </DropdownButton>,
         menu.panel,
@@ -55,14 +56,14 @@ export function DocxNavigationMenu({ toolbar, open, onToggle }: {
         <span data-toolbar-fixed="" className="ml-auto flex flex-none items-center">
             <Dropdown>
                 <DropdownTrigger asChild>
-                    <TextButtonUI size="icon-xs" aria-label="More" title="More" className="h-6">
+                    <TextButtonUI size="icon-xs" aria-label={t("More")} title={t("More")} className="h-6">
                         <Ellipsis aria-hidden="true" className="h-4 w-4" />
                     </TextButtonUI>
                 </DropdownTrigger>
                 <DropdownContent align="end">
                     <DropdownCheckboxItem checked={open} onCheckedChange={onToggle}>
                         <ListTree aria-hidden="true" className="h-4 w-4" />
-                        Navigation pane
+                        {t("Navigation pane")}
                     </DropdownCheckboxItem>
                 </DropdownContent>
             </Dropdown>

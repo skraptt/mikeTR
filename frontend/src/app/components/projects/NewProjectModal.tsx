@@ -464,7 +464,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
             open={open}
             onClose={handleClose}
             breadcrumbs={[
-                "Projects",
+                t("Projects"),
                 t("New project"),
                 step === "details"
                     ? t("Details")
@@ -484,7 +484,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                       }
                     : step === "access"
                       ? {
-                            label: "Back",
+                            label: t("Back"),
                             type: "button",
                             onClick: () => setStep("details"),
                             disabled: loading,
@@ -494,7 +494,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
             cancelAction={
                 step === "documents"
                     ? {
-                          label: "Back",
+                          label: t("Back"),
                           onClick: () => setStep("access"),
                           // Back stays open once the project exists: a retry
                           // persists a changed memory choice before anything
@@ -506,7 +506,7 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
                       }
                     : step === "access"
                       ? {
-                            label: "Skip",
+                            label: t("Skip"),
                             type: "button",
                             onClick: () => {
                                 setSharedUsers([]);
@@ -520,14 +520,14 @@ export function NewProjectModal({ open, onClose, onCreated }: Props) {
             primaryAction={
                 step === "details"
                     ? {
-                          label: "Next",
+                          label: t("Next"),
                           type: "button",
                           onClick: () => setStep("access"),
                           disabled: !name.trim() || loading,
                       }
                     : step === "access"
                       ? {
-                            label: "Next",
+                            label: t("Next"),
                             type: "button",
                             onClick: () => setStep("documents"),
                             disabled: loading,

@@ -18,6 +18,7 @@ import type { TabDropPosition } from "@/app/lib/reorderTabs";
 import { cn } from "@/app/lib/utils";
 import { CloseButton } from "@/shared/ui/CloseButton";
 import { LIQUID_GLASS_HOVER_CLASS } from "@/app/components/ui/liquid-surface";
+import { t } from "@/shared/i18n";
 
 export interface DocumentTabItem {
     id: string;
@@ -53,7 +54,7 @@ export function DocumentTabBar({
     activeTabId,
     label,
     idPrefix,
-    emptyLabel = "Document Viewer",
+    emptyLabel = t("Document Viewer"),
     className,
     onActivate,
     onClose,
@@ -378,7 +379,7 @@ export function DocumentTabBar({
             {onClosePanel && (
                 <CloseButton
                     onClick={onClosePanel}
-                    label="Close panel"
+                    label={t("Close panel")}
                     className="mt-2 ml-2 mr-2 self-start"
                 />
             )}

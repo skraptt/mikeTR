@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
+import { t } from "@/shared/i18n";
 
 // The "Load more" row at the foot of a paginated table. Renders nothing
 // while loading, once there's nothing more to load, or once the list is
@@ -74,8 +75,8 @@ export function TableLoadMoreRow({
                 {loadingMore
                     ? "Loading…"
                     : hasError
-                      ? "Retry loading"
-                      : "Load more"}
+                      ? t("Retry loading")
+                      : t("Load more")}
             </button>
         </div>
     );

@@ -9,6 +9,7 @@ import { TextButtonUI } from "@/shared/ui/TextButtonUI";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { FORM_CONTROL_GLASS_CLASS } from "@/app/components/ui/form-field";
 import { cn } from "@/app/lib/utils";
+import { t } from "@/shared/i18n";
 
 export function DocxCommentReply({
     editor,
@@ -46,11 +47,11 @@ export function DocxCommentReply({
             if (result.ok) onClose();
             else
                 setError(
-                    "Your reply could not be added. Your draft is kept; please try again.",
+                    t("Your reply could not be added. Your draft is kept; please try again."),
                 );
         } catch {
             setError(
-                "Your reply could not be added. Your draft is kept; please try again.",
+                t("Your reply could not be added. Your draft is kept; please try again."),
             );
         }
     };
@@ -74,7 +75,7 @@ export function DocxCommentReply({
             }}
         >
             <label htmlFor={id} className="block font-medium">
-                Reply to comment
+                {t("Reply to comment")}
             </label>
             <textarea
                 id={id}
@@ -86,7 +87,7 @@ export function DocxCommentReply({
                     FORM_CONTROL_GLASS_CLASS,
                     "keyboard-focus-ring min-h-24 resize-y py-2 text-xs",
                 )}
-                placeholder="Write a reply…"
+                placeholder={t("Write a reply…")}
             />
             {error && (
                 <p role="alert" className="text-destructive">
@@ -94,14 +95,14 @@ export function DocxCommentReply({
                 </p>
             )}
             <div className="flex justify-end gap-2">
-                <TextButtonUI onClick={onClose}>Cancel</TextButtonUI>
+                <TextButtonUI onClick={onClose}>{t("Cancel")}</TextButtonUI>
                 <PillButtonUI
                     type="submit"
                     size="xs"
                     tone="black"
                     disabled={disabled}
                 >
-                    Reply
+                    {t("Reply")}
                 </PillButtonUI>
             </div>
         </form>

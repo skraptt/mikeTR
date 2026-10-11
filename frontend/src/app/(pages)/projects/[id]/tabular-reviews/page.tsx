@@ -21,6 +21,7 @@ import {
 } from "@/app/hooks/usePaginatedTabularReviews";
 import { deleteTabularReviewsWithConcurrency } from "@/app/lib/deleteTabularReviewsWithConcurrency";
 import { restoreOptimisticallyDeletedRows } from "@/app/lib/optimisticRows";
+import { t } from "@/shared/i18n";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -183,10 +184,18 @@ export default function ProjectTabularReviewsPage({ params }: Props) {
         }
         const notices = [
             blocked > 0
-                ? `${blocked} selected review${blocked === 1 ? " was" : "s were"} skipped because only a review owner can delete them.`
+                ? t.plural(
+                      blocked,
+                      "{count} selected review was skipped because only a review owner can delete them.",
+                      "{count} selected reviews were skipped because only a review owner can delete them.",
+                  )
                 : null,
             failedIds.length > 0
-                ? `${failedIds.length} review${failedIds.length === 1 ? " was" : "s were"} not deleted because the request failed. ${failedIds.length === 1 ? "It remains" : "They remain"} selected so you can try again.`
+                ? t.plural(
+                      failedIds.length,
+                      "{count} review was not deleted because the request failed. It remains selected so you can try again.",
+                      "{count} reviews were not deleted because the request failed. They remain selected so you can try again.",
+                  )
                 : null,
         ].filter((notice): notice is string => notice !== null);
         if (notices.length > 0) setBulkDeleteNotice(notices.join(" "));
@@ -207,7 +216,7 @@ export default function ProjectTabularReviewsPage({ params }: Props) {
                 reviews={visibleReviews}
                 selectedReviewIds={selectedReviewIds}
                 createDisabled={workspace.creatingReview || docs.length === 0}
-                emptyDescription="Extract data from project documents into tables using AI."
+                emptyDescription={t("Extract data from project documents into tables using AI.")}
                 loading={effectiveLoading}
                 loadingMore={loadingMore}
                 hasMore={hasMore}
@@ -250,7 +259,7 @@ export default function ProjectTabularReviewsPage({ params }: Props) {
             />
             <WarningPopup
                 open={!!bulkDeleteNotice}
-                title="Some reviews were not deleted"
+                title={t("Some reviews were not deleted")}
                 message={bulkDeleteNotice}
                 onClose={() => setBulkDeleteNotice(null)}
             />

@@ -59,6 +59,7 @@ import { LIQUID_GLASS_FLAT_CLASS } from "@/app/components/ui/liquid-surface";
 import { cn } from "@/app/lib/utils";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import type { MessageExcerpt } from "@/shared/lib/messageExcerpts";
+import { t } from "@/shared/i18n";
 
 const ICON_SIZE = 28;
 const GAP = 14;
@@ -81,8 +82,8 @@ function AssistantGreeting({ username }: { username: string }) {
 
     useEffect(() => {
         if (!iconOffset) return;
-        const t = setTimeout(() => setLoaded(true), 100);
-        return () => clearTimeout(t);
+        const timer = setTimeout(() => setLoaded(true), 100);
+        return () => clearTimeout(timer);
     }, [iconOffset]);
 
     return (
@@ -606,10 +607,10 @@ export function ProjectChatPanel({
             // Without this the refusal was an unhandled rejection and the
             // panel just sat there, indistinguishable from a slow delete.
             onActionError({
-                title: "Chat not deleted",
+                title: t("Chat not deleted"),
                 message: userFacingApiError(
                     error,
-                    "The chat could not be deleted. Please try again.",
+                    t("The chat could not be deleted. Please try again."),
                 ),
             });
         } finally {
@@ -626,7 +627,7 @@ export function ProjectChatPanel({
         if (nextTitle === undefined) {
             setChatTitleEdit({
                 chatId: activeChatId,
-                title: chatTitle ?? "New Chat",
+                title: chatTitle ?? t("New Chat"),
             });
             return;
         }
@@ -674,10 +675,10 @@ export function ProjectChatPanel({
                 ),
             );
             onActionError({
-                title: "Chat not renamed",
+                title: t("Chat not renamed"),
                 message: userFacingApiError(
                     error,
-                    "The chat could not be renamed. Please try again.",
+                    t("The chat could not be renamed. Please try again."),
                 ),
             });
         }
@@ -725,7 +726,7 @@ export function ProjectChatPanel({
                 {chatDragOver && (
                     <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-md">
                         <p className="font-serif text-xl text-gray-900">
-                            Drop files here to add to chat
+                            {t("Drop files here to add to chat")}
                         </p>
                     </div>
                 )}
@@ -772,14 +773,14 @@ export function ProjectChatPanel({
                                     ...(onOpenSideChat
                                         ? [
                                               {
-                                                  label: "Open side chat",
+                                                  label: t("Open side chat"),
                                                   icon: Columns2,
                                                   onSelect: onOpenSideChat,
                                               },
                                           ]
                                         : []),
                                     {
-                                        label: "Rename",
+                                        label: t("Rename"),
                                         icon: Pencil,
                                         onSelect: () => void handleRenameChat(),
                                         disabled:
@@ -788,15 +789,15 @@ export function ProjectChatPanel({
                                             !roleKnown,
                                     },
                                     {
-                                        label: "Memory",
+                                        label: t("Memory"),
                                         icon: Brain,
                                         onSelect: onOpenMemory,
                                         disabled: !project,
                                     },
                                     {
                                         label: deletingChat
-                                            ? "Deleting..."
-                                            : "Delete",
+                                            ? t("Deleting...")
+                                            : t("Delete"),
                                         icon: Trash2,
                                         onSelect: () => void handleDeleteChat(),
                                         disabled:
@@ -809,8 +810,8 @@ export function ProjectChatPanel({
                                 ].filter((item) =>
                                     activeChatId
                                         ? true
-                                        : item.label === "Memory" ||
-                                          item.label === "Open side chat",
+                                        : item.label === t("Memory") ||
+                                          item.label === t("Open side chat"),
                                 )}
                             />
                         }
@@ -995,12 +996,17 @@ export function ProjectChatPanel({
             </div>
             <ApiKeyMissingPopup
                 open={rejectedApiKey !== null}
-                title="API key rejected"
-                message={`${
+                title={t("API key rejected")}
+                message={
                     rejectedKeyProvider
-                        ? `The ${providerLabel(rejectedKeyProvider)} API key`
-                        : "That API key"
-                } was rejected. If it is your own key, check it in Settings; otherwise contact your administrator.`}
+                        ? t(
+                              "The {provider} API key was rejected. If it is your own key, check it in Settings; otherwise contact your administrator.",
+                              { provider: providerLabel(rejectedKeyProvider) },
+                          )
+                        : t(
+                              "That API key was rejected. If it is your own key, check it in Settings; otherwise contact your administrator.",
+                          )
+                }
                 onClose={dismissInvalidApiKey}
             />
         </>

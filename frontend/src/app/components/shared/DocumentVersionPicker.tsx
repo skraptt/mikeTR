@@ -12,6 +12,7 @@ import {
 } from "@/shared/ui/dropdown";
 import { TextButtonUI } from "@/shared/ui/TextButtonUI";
 import { VersionChip } from "./VersionChip";
+import { t } from "@/shared/i18n";
 
 export function DocumentVersionPicker({
     documentId,
@@ -58,15 +59,15 @@ export function DocumentVersionPicker({
     const label = displayedNumber ? (
         <VersionChip n={displayedNumber} />
     ) : (
-        <span className="text-[10px]">Version</span>
+        <span className="text-[10px]">{t("Version")}</span>
     );
     if (error)
         return (
             <TextButtonUI
                 size="xs"
                 className="h-auto p-0.5"
-                aria-label="Retry loading document versions"
-                title="Could not load versions. Click to retry."
+                aria-label={t("Retry loading document versions")}
+                title={t("Could not load versions. Click to retry.")}
                 onClick={() => setRetry((value) => value + 1)}
             >
                 {label}
@@ -89,13 +90,13 @@ export function DocumentVersionPicker({
                     className="h-auto gap-0.5 p-0.5"
                     aria-label={
                         displayedNumber
-                            ? `Choose document version, currently V${displayedNumber}`
-                            : "Choose document version"
+                            ? t("Choose document version, currently V{number}", { number: displayedNumber })
+                            : t("Choose document version")
                     }
                     title={
                         disabled
-                            ? "Save changes before switching versions"
-                            : "Choose document version"
+                            ? t("Save changes before switching versions")
+                            : t("Choose document version")
                     }
                 >
                     {label}
@@ -127,7 +128,7 @@ export function DocumentVersionPicker({
                             )}
                             {version.id === result?.current_version_id && (
                                 <span className="text-muted-foreground">
-                                    Current
+                                    {t("Current")}
                                 </span>
                             )}
                         </DropdownRadioItem>

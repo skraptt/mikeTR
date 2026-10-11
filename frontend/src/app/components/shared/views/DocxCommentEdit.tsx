@@ -13,6 +13,7 @@ import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { FORM_CONTROL_GLASS_CLASS } from "@/app/components/ui/form-field";
 import { cn } from "@/app/lib/utils";
 import { docxEditComment } from "./docxCommentEditing";
+import { t } from "@/shared/i18n";
 
 export function DocxCommentEdit({
     editor,
@@ -45,7 +46,7 @@ export function DocxCommentEdit({
     const submit = () => {
         if (disabled || !author) return;
         const failure =
-            "Your edit could not be saved. Your draft is kept; please try again.";
+            t("Your edit could not be saved. Your draft is kept; please try again.");
         try {
             if (docxEditComment(editor, comment, draft.trim(), author))
                 onClose();
@@ -74,7 +75,7 @@ export function DocxCommentEdit({
             }}
         >
             <label htmlFor={id} className="sr-only">
-                Edit comment
+                {t("Edit comment")}
             </label>
             <textarea
                 id={id}
@@ -93,14 +94,14 @@ export function DocxCommentEdit({
                 </p>
             )}
             <div className="flex justify-end gap-2">
-                <TextButtonUI onClick={onClose}>Cancel</TextButtonUI>
+                <TextButtonUI onClick={onClose}>{t("Cancel")}</TextButtonUI>
                 <PillButtonUI
                     type="submit"
                     size="xs"
                     tone="black"
                     disabled={disabled}
                 >
-                    Save
+                    {t("Save")}
                 </PillButtonUI>
             </div>
         </form>

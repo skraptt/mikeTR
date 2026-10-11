@@ -16,6 +16,7 @@ import {
     type OrganizationAccessAssignment,
     type AccessRow,
 } from "./AccessEditor";
+import { t } from "@/shared/i18n";
 
 export interface SharedResource {
     id: string;
@@ -118,7 +119,7 @@ export function AccessModal({
                     setError(
                         userFacingApiError(
                             cause,
-                            "Could not load access details.",
+                            t("Could not load access details."),
                         ),
                     );
                     setLoadedRosterKey(rosterKey);
@@ -210,7 +211,7 @@ export function AccessModal({
         if (ownerEmail && email === ownerEmail)
             return `${email} created this and is already an owner.`;
         if (currentEmail && email === currentEmail)
-            return "You cannot share this with yourself.";
+            return t("You cannot share this with yourself.");
         return null;
     }
 
@@ -227,7 +228,7 @@ export function AccessModal({
             // A refused grant used to escape as an unhandled rejection with no
             // message; the sibling changeRole/remove paths already report.
             setError(
-                userFacingApiError(cause, "Could not add this user. Try again."),
+                userFacingApiError(cause, t("Could not add this user. Try again.")),
             );
         } finally {
             setBusy(false);
@@ -245,7 +246,7 @@ export function AccessModal({
         try {
             await access.onGrant(row.email, role);
         } catch (cause) {
-            setError(userFacingApiError(cause, "Could not change that role."));
+            setError(userFacingApiError(cause, t("Could not change that role.")));
         } finally {
             setBusy(false);
             setPendingEmail(null);
@@ -260,7 +261,7 @@ export function AccessModal({
         try {
             await access.onRevoke(row.email);
         } catch (cause) {
-            setError(userFacingApiError(cause, "Could not remove access."));
+            setError(userFacingApiError(cause, t("Could not remove access.")));
         } finally {
             setBusy(false);
             setPendingEmail(null);
@@ -330,7 +331,7 @@ export function AccessModal({
                 onClose={onClose}
                 breadcrumbs={[
                     ...breadcrumb.slice(0, -1),
-                    "Organisational Access",
+                    t("Organisational Access"),
                 ]}
             >
                 <div className="flex min-h-0 flex-1 flex-col pb-5">

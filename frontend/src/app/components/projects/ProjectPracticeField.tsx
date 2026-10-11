@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { PRACTICE_OPTIONS } from "../workflows/practices";
 import { ModalSelect, type ModalSelectOption } from "../modals/ModalSelect";
 import { FormTextInput } from "../ui/form-field";
+import { t } from "@/shared/i18n";
 
 const OPTION_NONE = "__none__";
 const OPTION_OTHER = "Other";
@@ -31,8 +32,9 @@ export function ProjectPracticeField({
         selectedOption === OPTION_OTHER && value !== OPTION_OTHER ? value : "";
     const options = useMemo<ModalSelectOption[]>(
         () => [
-            { value: OPTION_NONE, label: "None" },
-            ...PRACTICE_OPTIONS,
+            { value: OPTION_NONE, label: t("None") },
+            // Stored values stay English; only the shown label is translated.
+            ...PRACTICE_OPTIONS.map((area) => ({ value: area, label: t(area) })),
         ],
         [],
     );
@@ -56,7 +58,7 @@ export function ProjectPracticeField({
                 value={selectedOption}
                 options={options}
                 onChange={handleSelect}
-                placeholder="Select practice"
+                placeholder={t("Select practice")}
                 disabled={disabled}
             />
             {selectedOption === OPTION_OTHER && (
@@ -64,7 +66,7 @@ export function ProjectPracticeField({
                     type="text"
                     value={customValue}
                     onChange={(event) => onChange(event.target.value)}
-                    placeholder="Enter practice..."
+                    placeholder={t("Enter practice...")}
                     disabled={disabled}
                 />
             )}

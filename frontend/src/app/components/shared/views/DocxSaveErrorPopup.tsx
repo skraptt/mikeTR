@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { WarningPopup } from "@/app/components/popups/WarningPopup";
+import { t } from "@/shared/i18n";
 
 /**
  * Autosave failure warning. Dismissing it hides this failure only: a retry
@@ -17,7 +18,7 @@ export function DocxSaveErrorPopup({ error }: { error: string | null }) {
     return (
         <WarningPopup
             open={!!error && !dismissed}
-            title="Changes not saved"
+            title={t("Changes not saved")}
             message={error}
             onClose={() => setDismissed(true)}
         />

@@ -292,7 +292,7 @@ export function ProjectsOverview() {
             allLabel={t("All Practices")}
             options={practices.map((practice) => ({
                 value: practice,
-                label: practice,
+                label: t(practice),
             }))}
             onChange={handlePracticeFilterChange}
         />
@@ -586,7 +586,7 @@ export function ProjectsOverview() {
                         </TableHeaderCell>
                         <TableHeaderCell className="w-32">
                             <div className="flex items-center gap-1">
-                                <span>CM</span>
+                                <span>{t("CM")}</span>
                                 {!loading && cmFilterButton}
                             </div>
                         </TableHeaderCell>
@@ -810,7 +810,7 @@ export function ProjectsOverview() {
                                         )}
                                     </TableCell>
                                     <TableCell className="w-36">
-                                        {project.practice ?? (
+                                        {(project.practice && t(project.practice)) ?? (
                                             <span className="text-gray-300">
                                                 —
                                             </span>
@@ -920,10 +920,9 @@ export function ProjectsOverview() {
             <ConfirmPopup
                 open={confirmDeleteAllOpen && selectedIds.length > 0}
                 title={t("Delete all selected projects?")}
-                message={t.plural(
-                    selectedIds.length,
-                    "This will permanently delete every selected project you administer, including selected projects not currently shown. Every file within those projects will also be deleted. Projects you cannot delete will be skipped. {count} project is selected.",
+                message={t(
                     "This will permanently delete every selected project you administer, including selected projects not currently shown. Every file within those projects will also be deleted. Projects you cannot delete will be skipped. {count} projects are selected.",
+                    { count: selectedIds.length },
                 )}
                 confirmLabel={t("Delete")}
                 confirmVariant="danger"
