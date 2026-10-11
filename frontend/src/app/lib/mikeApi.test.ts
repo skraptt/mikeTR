@@ -203,6 +203,11 @@ import {
     updateUserMemory,
     importWorkflowAddon,
     listQuickActions,
+    searchStatutes,
+    getStatuteStatus,
+    listStatuteUpdates,
+    startStatuteCheck,
+    decideStatuteUpdate,
 } from "./mikeApi";
 
 const fetchMock = vi.fn();
@@ -2914,6 +2919,42 @@ describe("thin endpoint wrappers", () => {
             name: "listQuickActions",
             call: () => listQuickActions(),
             url: "/quick-actions?surface=app",
+        },
+        {
+            name: "searchStatutes",
+            call: () => searchStatutes("kira temerrüt", 5),
+            url: "/kanun/search",
+            method: "POST",
+            body: { query: "kira temerrüt", limit: 5 },
+        },
+        {
+            name: "searchStatutes (default limit)",
+            call: () => searchStatutes("kira"),
+            url: "/kanun/search",
+            method: "POST",
+            body: { query: "kira", limit: 10 },
+        },
+        {
+            name: "getStatuteStatus",
+            call: () => getStatuteStatus(),
+            url: "/kanun/status",
+        },
+        {
+            name: "listStatuteUpdates",
+            call: () => listStatuteUpdates(),
+            url: "/kanun/updates",
+        },
+        {
+            name: "startStatuteCheck",
+            call: () => startStatuteCheck(),
+            url: "/kanun/updates/check",
+            method: "POST",
+        },
+        {
+            name: "decideStatuteUpdate",
+            call: () => decideStatuteUpdate("c 1", "approve"),
+            url: "/kanun/updates/c%201/approve",
+            method: "POST",
         },
         {
             name: "createQuickAction",

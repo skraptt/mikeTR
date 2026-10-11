@@ -17,7 +17,8 @@ type Tables = Record<string, Row[]>;
 
 function fakeDb(tables: Tables): Db {
   let nextId = 1;
-  class Query implements PromiseLike<{ data: unknown; error: null; count?: number }> {
+  type Result = { data: unknown; error: null; count?: number };
+  class Query implements PromiseLike<Result> {
     private filters: ((row: Row) => boolean)[] = [];
     private op: "select" | "update" | "delete" | "insert" | "upsert" = "select";
     private payload: Row | Row[] = {};
@@ -73,7 +74,7 @@ function fakeDb(tables: Tables): Db {
       this.one = "maybe";
       return this;
     }
-    private run() {
+    private run(): Result {
       const rows = tables[this.table];
       const matches = rows.filter((row) => this.filters.every((f) => f(row)));
       if (this.op === "insert") {
@@ -101,10 +102,10 @@ function fakeDb(tables: Tables): Db {
       if (this.one) return { data: matches[0] ?? null, error: null };
       return { data: matches.map((row) => ({ ...row })), error: null };
     }
-    then<T1, T2>(
-      resolve?: ((value: { data: unknown; error: null; count?: number }) => T1) | null,
-      reject?: ((reason: unknown) => T2) | null,
-    ) {
+    then<T1 = Result, T2 = never>(
+      resolve?: ((value: Result) => T1 | PromiseLike<T1>) | null,
+      reject?: ((reason: unknown) => T2 | PromiseLike<T2>) | null,
+    ): PromiseLike<T1 | T2> {
       return Promise.resolve(this.run()).then(resolve, reject);
     }
   }

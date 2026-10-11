@@ -17,5 +17,9 @@ declare const process: {
     readonly REACT_APP_GIT_SHA: string | undefined;
     readonly REACT_APP_SENTRY_TRACES_SAMPLE_RATE: string | undefined;
     readonly NODE_ENV: string;
+    // Read by the shared i18n module (frontend/src/shared/i18n). Webpack does
+    // not substitute it and `process` does not exist at runtime, so the
+    // add-in always uses the module's English default.
+    readonly NEXT_PUBLIC_DEFAULT_LOCALE?: string;
   };
 };

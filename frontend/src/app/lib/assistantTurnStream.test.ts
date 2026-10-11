@@ -721,6 +721,41 @@ describe("CourtListener frames", () => {
     ]);
   });
 
+  it("resolves a statute search into its results", async () => {
+    const hit = { kanun_no: "6098", kanun_adi: "Türk Borçlar Kanunu", madde_no: "315", baslik: "Ödememe", similarity: 0.71 };
+    expect(
+      await eventsOf([
+        { type: "kanun_search_start", query: "kira" },
+        { type: "kanun_search", query: "kira", results: [hit] },
+      ]),
+    ).toEqual([
+      { type: "kanun_search", query: "kira", results: [hit], error: undefined, isStreaming: false },
+      thinking,
+    ]);
+  });
+
+  it("reports a failed statute search without results", async () => {
+    expect(
+      await eventsOf([
+        { type: "kanun_search_start" },
+        { type: "kanun_search", query: "", results: "nope", error: "ollama down" },
+      ]),
+    ).toEqual([
+      { type: "kanun_search", query: "", results: [], error: "ollama down", isStreaming: false },
+      thinking,
+    ]);
+  });
+
+  it("adds the statute citation check, and ignores a malformed one", async () => {
+    const citation = { label: "TBK md. 315", kanun_no: "6098", madde_no: "315", status: "dogrulandi" };
+    expect(
+      await eventsOf([
+        { type: "kanun_citations", citations: [citation] },
+        { type: "kanun_citations", citations: "nope" },
+      ]),
+    ).toEqual([{ type: "kanun_citations", citations: [citation] }]);
+  });
+
   it("keeps only numeric cluster ids and well formed cases when fetching cases", async () => {
     expect(
       await eventsOf([
