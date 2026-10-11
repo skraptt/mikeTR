@@ -40,6 +40,7 @@ import {
   type UserFacingError,
 } from "@/app/lib/userFacingError";
 import { authMessages } from "@/app/lib/authMessages";
+import { t } from "@/shared/i18n";
 
 /** The shared auth table with this page's deltas, keyed by the `code` the
  *  `/api/auth/mfa/*` routes return. */
@@ -47,10 +48,10 @@ const MFA_ERROR_MESSAGES = authMessages({
   // On this page a one-time code is always an authenticator code, and a
   // step-up is about the setting being changed, not about signing in.
   otp_expired:
-    "That code expired. Enter the current six-digit code from your authenticator app.",
-  insufficient_aal: "Verify your identity again before changing this setting.",
+    t("That code expired. Enter the current six-digit code from your authenticator app."),
+  insufficient_aal: t("Verify your identity again before changing this setting."),
   reauthentication_needed:
-    "Verify your identity again before changing this setting.",
+    t("Verify your identity again before changing this setting."),
 });
 
 type MfaFactor = {
@@ -144,7 +145,7 @@ function VerificationCodeInput({
     <div
       className="flex justify-center gap-2"
       role="group"
-      aria-label="Six digit verification code"
+      aria-label={t("Six digit verification code")}
     >
       {digits.map((digit, index) => (
         <input
@@ -161,7 +162,7 @@ function VerificationCodeInput({
           onPaste={handlePaste}
           onKeyDown={(event) => handleKeyDown(event, index)}
           className="h-11 w-10 rounded-lg border border-transparent bg-gray-100 text-center text-lg font-medium text-gray-950 shadow-none outline-none transition-colors focus:border-gray-200 focus:ring-2 focus:ring-gray-300/45 disabled:cursor-not-allowed disabled:opacity-45"
-          aria-label={`Verification code digit ${index + 1}`}
+          aria-label={t("Verification code digit {number}", { number: index + 1 })}
           maxLength={1}
         />
       ))}
@@ -460,7 +461,7 @@ export default function SecurityPage() {
       if (!success) {
         // The profile context classified the failure and raised the toast
         // (message, Retry, support); this line is only the row's status.
-        setStatus("Not saved.");
+        setStatus(t("Not saved."));
       }
     } catch (error) {
       if (isMfaRequiredError(error)) {
@@ -480,7 +481,7 @@ export default function SecurityPage() {
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <SettingsHeading>Multi-Factor Authentication</SettingsHeading>
+        <SettingsHeading>{t("Multi-Factor Authentication")}</SettingsHeading>
         <GlassCardUI>
           {loading ? (
             <MfaSettingsSkeleton />
@@ -488,18 +489,18 @@ export default function SecurityPage() {
             <>
               <SettingsRow>
                 <div className="min-w-0 space-y-1">
-                  <SettingsLabel>Verification method</SettingsLabel>
+                  <SettingsLabel>{t("Verification method")}</SettingsLabel>
                   <SettingsDescription>
                     {hasVerifiedFactor
                       ? sessionVerified
-                        ? "Authenticator app is saved on your account. Sensitive actions are unlocked for this session."
-                        : "Authenticator app is saved on your account. Sensitive actions require a verification code."
-                      : "Add an authenticator app to protect sensitive actions such as exporting data, deleting data, deleting your account, and changing API keys."}
+                        ? t("Authenticator app is saved on your account. Sensitive actions are unlocked for this session.")
+                        : t("Authenticator app is saved on your account. Sensitive actions require a verification code.")
+                      : t("Add an authenticator app to protect sensitive actions such as exporting data, deleting data, deleting your account, and changing API keys.")}
                   </SettingsDescription>
                 </div>
                 {hasVerifiedFactor ? (
                   <span className="shrink-0 text-xs font-medium text-green-700">
-                    Enabled
+                    {t("Enabled")}
                   </span>
                 ) : !enrollment ? (
                   <PillButtonUI
@@ -510,7 +511,7 @@ export default function SecurityPage() {
                     loading={busy}
                     className="shrink-0"
                   >
-                    {busy ? "Starting..." : "Set up"}
+                    {busy ? t("Starting...") : t("Set up")}
                   </PillButtonUI>
                 ) : null}
               </SettingsRow>
@@ -519,7 +520,7 @@ export default function SecurityPage() {
                 <>
                   <SettingsRow>
                     <div className="space-y-1">
-                      <SettingsLabel>Login verification</SettingsLabel>
+                      <SettingsLabel>{t("Login verification")}</SettingsLabel>
                       <SettingsDescription>
                         Ask for an authenticator code after each new login,
                         instead of only before sensitive actions.
@@ -529,7 +530,7 @@ export default function SecurityPage() {
                       checked={loginMfaEnabled}
                       disabled={savingLoginPreference}
                       aria-busy={savingLoginPreference}
-                      aria-label="Login verification"
+                      aria-label={t("Login verification")}
                       onCheckedChange={() => void handleLoginPreferenceToggle()}
                     />
                   </SettingsRow>
@@ -540,7 +541,7 @@ export default function SecurityPage() {
                       disabled={busy || !factors[0]?.id}
                       className="text-xs font-medium text-red-600 transition-colors hover:text-red-700 disabled:cursor-not-allowed disabled:text-red-300"
                     >
-                      Remove authenticator app
+                      {t("Remove authenticator app")}
                     </button>
                   </div>
                 </>
@@ -555,11 +556,11 @@ export default function SecurityPage() {
                 <a
                   href={supportMailtoFor(
                     statusError,
-                    "Failed to change a security setting.",
+                    t("Failed to change a security setting."),
                   )}
                   className="ml-2 underline underline-offset-2"
                 >
-                  Contact support
+                  {t("Contact support")}
                 </a>
               )}
             </p>
@@ -570,7 +571,7 @@ export default function SecurityPage() {
       <Modal
         open={setupModalOpen}
         onClose={() => void closeSetupModal()}
-        breadcrumbs={["Security", "Set up authenticator app"]}
+        breadcrumbs={[t("Security"), t("Set up authenticator app")]}
         cancelAction={{
           label: enrollment ? "Back" : "Cancel",
           onClick: enrollment
@@ -586,7 +587,7 @@ export default function SecurityPage() {
                 disabled: busy || verificationCode.trim().length !== 6,
               }
             : {
-                label: busy ? "Starting..." : "Continue",
+                label: busy ? t("Starting...") : t("Continue"),
                 onClick: () => void startEnrollment(),
                 disabled: busy,
               }
@@ -606,17 +607,15 @@ export default function SecurityPage() {
               </p>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-gray-700">
-                  Before you start
+                  {t("Before you start")}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Download an authenticator app such as Google Authenticator,
-                  Microsoft Authenticator, Authy, 1Password, or iCloud
-                  Passwords.
+                  {t("Download an authenticator app such as Google Authenticator, Microsoft Authenticator, Authy, 1Password, or iCloud Passwords.")}
                 </p>
               </div>
               <ol className="list-decimal space-y-1 pl-4 text-sm text-gray-500">
-                <li>Download and open your authenticator app.</li>
-                <li>Choose the option to add a new account.</li>
+                <li>{t("Download and open your authenticator app.")}</li>
+                <li>{t("Choose the option to add a new account.")}</li>
               </ol>
             </>
           ) : (
@@ -626,7 +625,7 @@ export default function SecurityPage() {
               </p>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-gray-700">
-                  Scan this code
+                  {t("Scan this code")}
                 </p>
                 <p className="text-sm text-gray-500">
                   In your authenticator app, add a new account and scan the QR
@@ -636,7 +635,7 @@ export default function SecurityPage() {
               </div>
               <div className="min-w-0">
                 <div className="mb-1 flex items-center justify-between gap-3">
-                  <p className="text-xs font-medium text-gray-500">Setup key</p>
+                  <p className="text-xs font-medium text-gray-500">{t("Setup key")}</p>
                   <button
                     type="button"
                     onClick={() => void copySetupKey()}
@@ -654,7 +653,7 @@ export default function SecurityPage() {
                 <div className="flex h-48 w-48 items-center justify-center rounded-xl bg-white p-2">
                   <img
                     src={enrollment.qrCode}
-                    alt="MFA QR code"
+                    alt={t("MFA QR code")}
                     className="h-full w-full"
                   />
                 </div>
@@ -687,8 +686,8 @@ export default function SecurityPage() {
           setPendingLoginPreference(null);
           if (enabled !== null) void saveLoginPreference(enabled);
         }}
-        title="Authenticator required"
-        message="Enter a code from your authenticator app to change login verification."
+        title={t("Authenticator required")}
+        message={t("Enter a code from your authenticator app to change login verification.")}
       />
     </div>
   );

@@ -58,6 +58,7 @@ import { SettingsHeading } from "@/app/components/settings/SettingsHeading";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { LIQUID_GLASS_SUBTLE_CLASS } from "@/shared/ui/LiquidGlassUI";
 import { ToggleSwitchUI } from "@/shared/ui/ToggleSwitchUI";
+import { t } from "@/shared/i18n";
 
 type PendingMfaAction =
   | { type: "create"; draft: AddDraft; surface: CreateSurface }
@@ -412,7 +413,7 @@ export default function ConnectorsPage() {
     try {
       setConnectors(await listMcpConnectors());
     } catch (err) {
-      setError(userFacingApiError(err, "Failed to load connectors."));
+      setError(userFacingApiError(err, t("Failed to load connectors.")));
     } finally {
       setLoading(false);
     }
@@ -512,7 +513,7 @@ export default function ConnectorsPage() {
       );
     } catch (err) {
       setDetailError(
-        userFacingApiError(err, "Failed to load connector details."),
+        userFacingApiError(err, t("Failed to load connector details.")),
       );
     } finally {
       setLoadingConnectorId((current) =>
@@ -553,8 +554,8 @@ export default function ConnectorsPage() {
       const message = userFacingApiError(
         err,
         action.type === "google-add"
-          ? "Failed to add connector."
-          : "Action failed.",
+          ? t("Failed to add connector.")
+          : t("Action failed."),
       );
       if (action.type === "google-add") {
         setAddErrorGuideUrl(
@@ -591,16 +592,20 @@ export default function ConnectorsPage() {
     if (connector.loadFailed) {
       setAddErrorGuideUrl(null);
       setAddError(
-        `Could not load ${connector.name}. Reload this page and try again.`,
+        t("Could not load {connector}. Reload this page and try again.", { connector: connector.name }),
       );
       return;
     }
     if (connector.status?.schemaReady === false) {
       setAddErrorGuideUrl(googleSetupGuideUrl(provider));
       setAddError(
-        `An administrator needs to apply the ${
-          provider === "google-drive" ? "Google Drive" : "Gmail and Calendar"
-        } database migration and restart the server before you can add ${connector.name}.`,
+        t(
+          "An administrator needs to apply the {migration} database migration and restart the server before you can add {connector}.",
+          {
+            migration: provider === "google-drive" ? "Google Drive" : "Gmail and Calendar",
+            connector: connector.name,
+          },
+        ),
       );
       return;
     }
@@ -871,7 +876,7 @@ export default function ConnectorsPage() {
         if (needsAuthorization) {
           if (surface === "modal") {
             setAddAuthMessage(
-              "Complete authorization in the popup to finish connecting this MCP server.",
+              t("Complete authorization in the popup to finish connecting this MCP server."),
             );
             setAddStep("auth");
           }
@@ -895,7 +900,7 @@ export default function ConnectorsPage() {
           const discarded = await discardCreatedConnector();
           if (!discarded) {
             setAddError(
-              "Authorization was cancelled, but the incomplete connector could not be removed. Remove it from Installed before trying again.",
+              t("Authorization was cancelled, but the incomplete connector could not be removed. Remove it from Installed before trying again."),
             );
           }
           return;
@@ -913,7 +918,7 @@ export default function ConnectorsPage() {
           // the incomplete connector from Installed is immediately actionable.
           await loadConnectors();
         }
-        const message = userFacingApiError(err, "Failed to add connector.");
+        const message = userFacingApiError(err, t("Failed to add connector."));
         const discarded = await discardCreatedConnector();
         setAddErrorGuideUrl(
           isConnectorSetupError(err)
@@ -923,7 +928,7 @@ export default function ConnectorsPage() {
         setAddError(
           discarded
             ? message
-            : `${message} The incomplete connector could not be removed; remove it from Installed before trying again.`,
+            : `${message} ${t("The incomplete connector could not be removed; remove it from Installed before trying again.")}`,
         );
       } finally {
         setBusyKey(null);
@@ -1274,17 +1279,17 @@ export default function ConnectorsPage() {
       <section aria-labelledby="installed-connectors-heading">
         <div className="mb-4 flex items-center justify-between gap-3">
           <SettingsHeading id="installed-connectors-heading">
-            Installed
+            {t("Installed")}
           </SettingsHeading>
           <PillButtonUI
             tone="white"
             size="xs"
             onClick={() => setAddOpen(true)}
-            aria-label="Add custom connector"
+            aria-label={t("Add custom connector")}
             className={`h-7 ${LIQUID_GLASS_SUBTLE_CLASS}`}
           >
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-            Custom
+            {t("Custom")}
           </PillButtonUI>
         </div>
         {error && (
@@ -1341,7 +1346,7 @@ export default function ConnectorsPage() {
                 <GlassCardUI>
                   <div className="p-4">
                     <SettingsDescription>
-                      No connectors yet.
+                      {t("No connectors yet.")}
                     </SettingsDescription>
                   </div>
                 </GlassCardUI>
@@ -1352,12 +1357,12 @@ export default function ConnectorsPage() {
       <section className="mt-6" aria-labelledby="discover-connectors-heading">
         <div className="mb-4">
           <SettingsHeading id="discover-connectors-heading">
-            Discover
+            {t("Discover")}
           </SettingsHeading>
         </div>
         {discoverGoogle.length === 0 && discoverPresets.length === 0 && (
           <SettingsDescription>
-            Every available connector is installed.
+            {t("Every available connector is installed.")}
           </SettingsDescription>
         )}
         <div className="grid grid-cols-1 gap-3 @min-[32rem]:grid-cols-2">
@@ -1434,8 +1439,8 @@ export default function ConnectorsPage() {
               showToken={showDetailToken}
               tokenPlaceholder={
                 selectedConnector.hasAuthConfig
-                  ? "Saved token encrypted"
-                  : "Bearer token"
+                  ? t("Saved token encrypted")
+                  : t("Bearer token")
               }
               tokenAction={
                 selectedConnector.hasAuthConfig ||
@@ -1537,7 +1542,7 @@ export default function ConnectorsPage() {
       />
       <WarningPopup
         open={!!addError}
-        title="Could not add connector"
+        title={t("Could not add connector")}
         message={addError}
         onClose={() => {
           setAddError(null);
@@ -1550,13 +1555,13 @@ export default function ConnectorsPage() {
       </WarningPopup>
       <WarningPopup
         open={!!detailError}
-        title="Connector update failed"
+        title={t("Connector update failed")}
         message={detailError}
         onClose={() => setDetailError(null)}
       />
       <WarningPopup
         open={!!detailSetupNotice}
-        title="Administrator setup required"
+        title={t("Administrator setup required")}
         message={detailSetupNotice}
         onClose={() => setDetailSetupNotice(null)}
       >

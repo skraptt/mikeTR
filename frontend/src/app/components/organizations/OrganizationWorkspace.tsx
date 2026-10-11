@@ -68,6 +68,7 @@ import {
   InviteOrganizationMemberModal,
   OrganizationSettingsModal,
 } from "./OrganizationModals";
+import { t } from "@/shared/i18n";
 
 type OrganizationTab = "people" | "projects" | "workflows";
 
@@ -176,7 +177,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
     } catch (error) {
       console.error("Failed to load organization", error);
       setLoadError(
-        userFacingApiError(error, "Could not load this organization."),
+        userFacingApiError(error, t("Could not load this organization.")),
       );
     } finally {
       setLoading(false);
@@ -223,7 +224,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
     setActionError(
       userFacingApiError(
         failure.reason,
-        "This organization's people could not be refreshed. Reload to see the current list.",
+        t("This organization's people could not be refreshed. Reload to see the current list."),
       ),
     );
   }, [refreshInvitations, refreshMembers]);
@@ -268,7 +269,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
         if (role !== "admin") setInvitations([]);
       }
     } catch (error) {
-      setActionError(userFacingApiError(error, "Could not change that role."));
+      setActionError(userFacingApiError(error, t("Could not change that role.")));
     } finally {
       setBusyMemberId(null);
     }
@@ -294,7 +295,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
       setRemoveMember(null);
     } catch (error) {
       setActionError(
-        userFacingApiError(error, "Could not remove that member."),
+        userFacingApiError(error, t("Could not remove that member.")),
       );
       setRemoveMember(null);
     } finally {
@@ -308,7 +309,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
       selectedMemberIds.includes(member.id),
     );
     if (selectedMembers.some((member) => member.user_id === user?.id)) {
-      setActionError("Use Leave organization to remove yourself.");
+      setActionError(t("Use Leave organization to remove yourself."));
       return;
     }
     setRemoveSelectedOpen(true);
@@ -340,7 +341,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
       setActionError(
         userFacingApiError(
           firstFailure.reason,
-          "Could not remove all selected members.",
+          t("Could not remove all selected members."),
         ),
       );
     }
@@ -373,10 +374,10 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
       >
         <Trash2 className="h-3.5 w-3.5" />
         {appliesToSelection
-          ? "Remove all selected"
+          ? t("Remove all selected")
           : member?.user_id === user?.id
-            ? "Leave organization"
-            : "Remove member"}
+            ? t("Leave organization")
+            : t("Remove member")}
       </DropdownItem>
     );
   }
@@ -392,9 +393,9 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
         loading={loading}
         breadcrumbs={[
           {
-            label: "Organizations",
+            label: t("Organizations"),
             onClick: () => router.push("/organizations"),
-            title: "Back to Organizations",
+            title: t("Back to Organizations"),
           },
           org
             ? { label: org.name, cursor: "text" }
@@ -405,8 +406,8 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
             {
               type: "new",
               title: isAdmin
-                ? "Add member"
-                : "Only organization admins can add members",
+                ? t("Add member")
+                : t("Only organization admins can add members"),
               disabled: !isAdmin,
               onClick: () => {
                 setInviteOpen(true);
@@ -420,10 +421,10 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
                   type: "custom",
                   render: (
                     <HeaderActionsMenu
-                      title="Organization settings"
+                      title={t("Organization settings")}
                       items={[
                         {
-                          label: "Organization settings",
+                          label: t("Organization settings"),
                           icon: Pencil,
                           onSelect: () => setSettingsOpen(true),
                         },
@@ -469,7 +470,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
           kind="projects"
           rows={resources.projects.map((project) => ({
             id: project.id,
-            name: resourceName(project.name, "Untitled project"),
+            name: resourceName(project.name, t("Untitled project")),
             context: project.practice || "—",
             createdAt: project.created_at,
             href: `/projects/${project.id}`,
@@ -484,9 +485,9 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
           kind="workflows"
           rows={resources.workflows.map((workflow) => ({
             id: workflow.id,
-            name: resourceName(workflow.title, "Untitled workflow"),
+            name: resourceName(workflow.title, t("Untitled workflow")),
             context:
-              workflow.type === "tabular" ? "Tabular review" : "Assistant",
+              workflow.type === "tabular" ? t("Tabular review") : t("Assistant"),
             createdAt: workflow.created_at,
             href: `/workflows/${workflow.id}`,
           }))}
@@ -531,15 +532,17 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
         open={removeMember !== null}
         title={
           removeMember?.user_id === user?.id
-            ? "Leave organization?"
-            : "Remove member?"
+            ? t("Leave organization?")
+            : t("Remove member?")
         }
         message={
           removeMember?.user_id === user?.id
-            ? "You will lose access to this organization's shared resources."
-            : `${removeMember?.display_name || removeMember?.email || "This member"} will lose organization access.`
+            ? t("You will lose access to this organization's shared resources.")
+            : t("{member} will lose organization access.", {
+                member: removeMember?.display_name || removeMember?.email || t("This member"),
+              })
         }
-        confirmLabel={removeMember?.user_id === user?.id ? "Leave" : "Remove"}
+        confirmLabel={removeMember?.user_id === user?.id ? t("Leave") : t("Remove")}
         confirmVariant="danger"
         confirmStatus={busyMemberId ? "loading" : "idle"}
         onCancel={() => setRemoveMember(null)}
@@ -547,9 +550,9 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
       />
       <ConfirmPopup
         open={pendingSelfRoleChange !== null}
-        title="Give up admin access?"
-        message="You will lose admin access to this organization and can no longer manage its people, settings or invitations."
-        confirmLabel="Continue"
+        title={t("Give up admin access?")}
+        message={t("You will lose admin access to this organization and can no longer manage its people, settings or invitations.")}
+        confirmLabel={t("Continue")}
         confirmStatus={busyMemberId ? "loading" : "idle"}
         onCancel={() => {
           if (busyMemberId) return;
@@ -569,9 +572,13 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
       />
       <ConfirmPopup
         open={removeSelectedOpen}
-        title="Remove selected people?"
-        message={`${selectedMemberIds.length} selected ${selectedMemberIds.length === 1 ? "member" : "members"} will lose access to this organization.`}
-        confirmLabel="Remove"
+        title={t("Remove selected people?")}
+        message={t.plural(
+          selectedMemberIds.length,
+          "{count} selected member will lose access to this organization.",
+          "{count} selected members will lose access to this organization.",
+        )}
+        confirmLabel={t("Remove")}
         confirmVariant="danger"
         confirmStatus={removingSelected ? "loading" : "idle"}
         onCancel={() => setRemoveSelectedOpen(false)}
@@ -579,7 +586,7 @@ export function OrganizationWorkspace({ orgId }: { orgId: string }) {
       />
       <WarningPopup
         open={actionError !== null}
-        title="Organization action failed"
+        title={t("Organization action failed")}
         message={actionError}
         onClose={() => setActionError(null)}
       />
@@ -692,38 +699,38 @@ function PeopleTable({
                 }}
                 onChange={toggleAllVisible}
                 className={TABLE_CHECKBOX_CLASS}
-                aria-label="Select all people"
+                aria-label={t("Select all people")}
               />
             )}
-            <span className="mr-1">Username</span>
+            <span className="mr-1">{t("Username")}</span>
             {!loading ? (
               <TableSortFilter
-                label="Sort by username"
+                label={t("Sort by username")}
                 value={sort?.key === "name" ? sort.direction : null}
-                allLabel="Default order"
+                allLabel={t("Default order")}
                 align="right"
                 onChange={(direction) => setSortFor("name", direction)}
               />
             ) : null}
           </TableStickyCell>
           <TableHeaderCell className="ml-auto w-64">
-            <span className="mr-1">Email</span>
+            <span className="mr-1">{t("Email")}</span>
             {!loading ? (
               <TableSortFilter
-                label="Sort by email"
+                label={t("Sort by email")}
                 value={sort?.key === "email" ? sort.direction : null}
-                allLabel="Default order"
+                allLabel={t("Default order")}
                 onChange={(direction) => setSortFor("email", direction)}
               />
             ) : null}
           </TableHeaderCell>
           <TableHeaderCell className="w-32">
-            <span className="mr-1">Role</span>
+            <span className="mr-1">{t("Role")}</span>
             {!loading ? (
               <TableFilters
-                label="Filter by role"
+                label={t("Filter by role")}
                 value={roleFilter}
-                allLabel="All roles"
+                allLabel={t("All roles")}
                 options={ROLE_FILTER_OPTIONS}
                 widthClassName="w-36"
                 onChange={(role) => {
@@ -734,12 +741,12 @@ function PeopleTable({
             ) : null}
           </TableHeaderCell>
           <TableHeaderCell className="w-36">
-            <span className="mr-1">Added</span>
+            <span className="mr-1">{t("Added")}</span>
             {!loading ? (
               <TableSortFilter
-                label="Sort by date added"
+                label={t("Sort by date added")}
                 value={sort?.key === "added" ? sort.direction : null}
-                allLabel="Default order"
+                allLabel={t("Default order")}
                 onChange={(direction) => setSortFor("added", direction)}
               />
             ) : null}
@@ -756,13 +763,13 @@ function PeopleTable({
         <TableEmptyState>
           <EmptyState
             icon={<OrganizationSkeuoIcon />}
-            title="People"
-            description="This organization has no members."
+            title={t("People")}
+            description={t("This organization has no members.")}
           />
         </TableEmptyState>
       ) : visibleMembers.length === 0 ? (
         <TableEmptyState>
-          <p className="text-sm text-gray-400">No people match this filter.</p>
+          <p className="text-sm text-gray-400">{t("No people match this filter.")}</p>
         </TableEmptyState>
       ) : (
         <TableBody>
@@ -810,13 +817,13 @@ function PeopleTable({
                 <TableCell className="flex w-10 justify-end overflow-visible">
                   {canRemove ? (
                     <HeaderActionsMenu
-                      title={`Actions for ${label}`}
+                      title={t("Actions for {name}", { name: label })}
                       items={[
                         {
                           label:
                             member.user_id === currentUserId
-                              ? "Leave organization"
-                              : "Remove member",
+                              ? t("Leave organization")
+                              : t("Remove member"),
                           icon: Trash2,
                           variant: "danger",
                           onSelect: () => onRemove(member),
@@ -862,7 +869,7 @@ function OrganizationRoleTab({
       <DropdownTrigger asChild>
         <button
           type="button"
-          aria-label={`Change role for ${label}`}
+          aria-label={t("Change role for {name}", { name: label })}
           disabled={disabled}
           className={`${className} transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 disabled:cursor-wait disabled:opacity-50`}
         >
@@ -924,15 +931,15 @@ function ResourceTable({
   } | null>(null);
   const copy = {
     projects: {
-      title: "Projects",
-      context: "Practice",
-      empty: "No projects belong to this organization.",
+      title: t("Projects"),
+      context: t("Practice"),
+      empty: t("No projects belong to this organization."),
       icon: <ClosedProjectSvgIcon />,
     },
     workflows: {
-      title: "Workflows",
-      context: "Type",
-      empty: "No workflows belong to this organization.",
+      title: t("Workflows"),
+      context: t("Type"),
+      empty: t("No workflows belong to this organization."),
       icon: <WorkflowSkeuoIcon />,
     },
   }[kind];
@@ -1005,15 +1012,15 @@ function ResourceTable({
                 }}
                 onChange={toggleAllVisible}
                 className={TABLE_CHECKBOX_CLASS}
-                aria-label={`Select all ${kind}`}
+                aria-label={kind === "projects" ? t("Select all projects") : t("Select all workflows")}
               />
             )}
-            <span className="mr-1">Name</span>
+            <span className="mr-1">{t("Name")}</span>
             {!loading ? (
               <TableSortFilter
-                label={`Sort ${kind} by name`}
+                label={kind === "projects" ? t("Sort projects by name") : t("Sort workflows by name")}
                 value={sort?.key === "name" ? sort.direction : null}
-                allLabel="Default order"
+                allLabel={t("Default order")}
                 align="right"
                 onChange={(direction) => setSortFor("name", direction)}
               />
@@ -1023,9 +1030,9 @@ function ResourceTable({
             <span className="mr-1">{copy.context}</span>
             {!loading ? (
               <TableFilters
-                label={`Filter ${kind} by ${copy.context.toLowerCase()}`}
+                label={kind === "projects" ? t("Filter projects by practice") : t("Filter workflows by type")}
                 value={contextFilter}
-                allLabel={`All ${copy.context.toLowerCase()}s`}
+                allLabel={kind === "projects" ? t("All practices") : t("All types")}
                 options={contextOptions}
                 widthClassName="w-44"
                 onChange={(context) => {
@@ -1036,12 +1043,12 @@ function ResourceTable({
             ) : null}
           </TableHeaderCell>
           <TableHeaderCell className="w-36">
-            <span className="mr-1">Created</span>
+            <span className="mr-1">{t("Created")}</span>
             {!loading ? (
               <TableSortFilter
-                label={`Sort ${kind} by creation date`}
+                label={kind === "projects" ? t("Sort projects by creation date") : t("Sort workflows by creation date")}
                 value={sort?.key === "created" ? sort.direction : null}
-                allLabel="Default order"
+                allLabel={t("Default order")}
                 onChange={(direction) => setSortFor("created", direction)}
               />
             ) : null}
@@ -1063,7 +1070,9 @@ function ResourceTable({
         </TableEmptyState>
       ) : visibleRows.length === 0 ? (
         <TableEmptyState>
-          <p className="text-sm text-gray-400">No {kind} match this filter.</p>
+          <p className="text-sm text-gray-400">
+            {kind === "projects" ? t("No projects match this filter.") : t("No workflows match this filter.")}
+          </p>
         </TableEmptyState>
       ) : (
         <TableBody>
@@ -1139,7 +1148,7 @@ function ErrorState({
     <TableEmptyState>
       <EmptyState
         icon={<OrganizationSkeuoIcon />}
-        title="Organization"
+        title={t("Organization")}
         description={error}
         tone="error"
         action={
@@ -1149,7 +1158,7 @@ function ErrorState({
             className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
           >
             <Loader2 className="h-3.5 w-3.5" />
-            Try again
+            {t("Try again")}
           </button>
         }
       />

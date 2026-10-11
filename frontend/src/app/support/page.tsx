@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { FieldLabel } from "@/app/components/ui/form-field";
 import { authenticatedFetch } from "@/app/lib/authEvents";
+import { t } from "@/shared/i18n";
 
 type FeedbackType = "bug" | "feature" | "question" | "other";
 
@@ -33,23 +34,23 @@ export default function SupportPage() {
     }[] = [
         {
             value: "bug",
-            label: "Bug Report",
-            description: "Report something that isn't working",
+            label: t("Bug Report"),
+            description: t("Report something that isn't working"),
         },
         {
             value: "feature",
-            label: "Feature Request",
-            description: "Suggest a new feature or improvement",
+            label: t("Feature Request"),
+            description: t("Suggest a new feature or improvement"),
         },
         {
             value: "question",
-            label: "Question",
-            description: "Ask a question about using Mike",
+            label: t("Question"),
+            description: t("Ask a question about using Mike"),
         },
         {
             value: "other",
-            label: "Other",
-            description: "General feedback or other inquiries",
+            label: t("Other"),
+            description: t("General feedback or other inquiries"),
         },
     ];
 
@@ -78,7 +79,7 @@ export default function SupportPage() {
             setIsSubmitted(true);
         } catch (err) {
             console.error("Error submitting feedback:", err);
-            setError("Failed to submit your feedback. Please try again.");
+            setError(t("Failed to submit your feedback. Please try again."));
         } finally {
             setIsSubmitting(false);
         }
@@ -94,16 +95,16 @@ export default function SupportPage() {
                         </div>
                     </div>
                     <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                        Thank you for helping us improve.
+                        {t("Thank you for helping us improve.")}
                     </h2>
                     <p className="text-gray-600 mb-6">
-                        We will get in touch with you soon via email.
+                        {t("We will get in touch with you soon via email.")}
                     </p>
                     <button
                         onClick={() => router.push("/")}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
                     >
-                        Back to Home
+                        {t("Back to Home")}
                     </button>
                 </div>
             </div>
@@ -117,7 +118,7 @@ export default function SupportPage() {
                 <div className="flex-shrink-0 pt-6 md:pt-10 pb-0">
                     <div className="mb-5">
                         <h1 className="text-4xl font-medium font-eb-garamond text-gray-900 mb-3">
-                            Support
+                            {t("Support")}
                         </h1>
                     </div>
                 </div>
@@ -129,7 +130,7 @@ export default function SupportPage() {
                             {/* Feedback Type Selection */}
                             <div>
                                 <FieldLabel as="p">
-                                    What can we help you with?
+                                    {t("What can we help you with?")}
                                 </FieldLabel>
                                 <div className="grid grid-cols-2 gap-3">
                                     {feedbackTypes.map((type) => (
@@ -166,7 +167,7 @@ export default function SupportPage() {
                             {feedbackType === "bug" && (
                                 <div>
                                     <FieldLabel htmlFor="link">
-                                        Link to issue (optional)
+                                        {t("Link to issue (optional)")}
                                     </FieldLabel>
                                     <input
                                         type="url"
@@ -179,10 +180,7 @@ export default function SupportPage() {
                                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
-                                        If the bug is in a chat, mouseover the
-                                        chat in the sidebar, click the dots,
-                                        then click share and paste the link
-                                        here.
+                                        {t("If the bug is in a chat, mouseover the chat in the sidebar, click the dots, then click share and paste the link here.")}
                                     </p>
                                 </div>
                             )}
@@ -190,7 +188,7 @@ export default function SupportPage() {
                             {/* Subject */}
                             <div>
                                 <FieldLabel htmlFor="subject">
-                                    Subject
+                                    {t("Subject")}
                                 </FieldLabel>
                                 <input
                                     type="text"
@@ -205,13 +203,13 @@ export default function SupportPage() {
                             {/* Message */}
                             <div>
                                 <FieldLabel htmlFor="message">
-                                    Message
+                                    {t("Message")}
                                 </FieldLabel>
                                 <textarea
                                     id="message"
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Please describe your question, issue, or suggestion in detail..."
+                                    placeholder={t("Please describe your question, issue, or suggestion in detail...")}
                                     rows={5}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
                                     required
@@ -248,12 +246,12 @@ export default function SupportPage() {
                                 {isSubmitting ? (
                                     <>
                                         <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        <span>Sending...</span>
+                                        <span>{t("Sending...")}</span>
                                     </>
                                 ) : (
                                     <>
                                         <Send className="h-4 w-4" />
-                                        <span>Submit</span>
+                                        <span>{t("Submit")}</span>
                                     </>
                                 )}
                             </button>

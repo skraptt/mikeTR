@@ -34,6 +34,7 @@ import { SettingsRow } from "@/app/components/settings/SettingsRow";
 import { SETTINGS_CONTROL_CLASS } from "@/app/components/settings/SettingsTextInput";
 import { useOllamaModels } from "@/app/hooks/useOllamaModels";
 import { useConfiguredModels } from "@/app/hooks/useConfiguredModels";
+import { t } from "@/shared/i18n";
 
 type ModelPreferenceField =
   | "titleModel"
@@ -90,14 +91,13 @@ export default function ModelPreferencesPage() {
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <SettingsHeading>Model Preferences</SettingsHeading>
+        <SettingsHeading>{t("Model Preferences")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow layout="stacked">
             <div className="space-y-1">
-              <SettingsLabel>Chat title generation</SettingsLabel>
+              <SettingsLabel>{t("Chat title generation")}</SettingsLabel>
               <SettingsDescription>
-                By default, titles use a low cost model from the chat
-                provider. Choose a model here to override that.
+                {t("By default, titles use a low cost model from the chat provider. Choose a model here to override that.")}
               </SettingsDescription>
             </div>
             <ModelPreferenceDropdown
@@ -112,16 +112,15 @@ export default function ModelPreferencesPage() {
               apiKeys={profile?.apiKeys}
               isSaving={savingField === "titleModel"}
               isSaved={savedField === "titleModel"}
-              emptyOptionLabel="Automatic — same provider as chat"
+              emptyOptionLabel={t("Automatic — same provider as chat")}
               onChange={(id) => handleModelChange("titleModel", id)}
             />
           </SettingsRow>
           <SettingsRow layout="stacked">
             <div className="space-y-1">
-              <SettingsLabel>Tabular review model</SettingsLabel>
+              <SettingsLabel>{t("Tabular review model")}</SettingsLabel>
               <SettingsDescription>
-                Preselected when creating a review. Each review stores its own
-                model and can be changed separately.
+                {t("Preselected when creating a review. Each review stores its own model and can be changed separately.")}
               </SettingsDescription>
             </div>
             <ModelPreferenceDropdown
@@ -136,17 +135,15 @@ export default function ModelPreferencesPage() {
               apiKeys={profile?.apiKeys}
               isSaving={savingField === "tabularModel"}
               isSaved={savedField === "tabularModel"}
-              emptyOptionLabel="No default model"
+              emptyOptionLabel={t("No default model")}
               onChange={(id) => handleModelChange("tabularModel", id)}
             />
           </SettingsRow>
           <SettingsRow layout="stacked">
             <div className="space-y-1">
-              <SettingsLabel>Memory curation model</SettingsLabel>
+              <SettingsLabel>{t("Memory curation model")}</SettingsLabel>
               <SettingsDescription>
-                Used after conversations to identify durable information worth
-                keeping. By default, memory uses the model selected for the
-                chat.
+                {t("Used after conversations to identify durable information worth keeping. By default, memory uses the model selected for the chat.")}
               </SettingsDescription>
             </div>
             <ModelPreferenceDropdown
@@ -163,7 +160,7 @@ export default function ModelPreferencesPage() {
               apiKeys={profile?.apiKeys}
               isSaving={savingField === "memoryCuratorModel"}
               isSaved={savedField === "memoryCuratorModel"}
-              emptyOptionLabel="Automatic — use chat model"
+              emptyOptionLabel={t("Automatic — use chat model")}
               onChange={(id) => handleModelChange("memoryCuratorModel", id)}
             />
           </SettingsRow>
@@ -221,7 +218,7 @@ function ModelPreferenceDropdown({
             <span className="truncate text-gray-900">
               {!value
                 ? emptyOptionLabel
-                : (selected?.label ?? "Select a model")}
+                : (selected?.label ?? t("Select a model"))}
             </span>
           </span>
           {isSaving ? (

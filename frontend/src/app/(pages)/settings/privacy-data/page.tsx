@@ -28,6 +28,7 @@ import {
   startUserExport,
   type UserExportType,
 } from "@/app/lib/mikeApi";
+import { t } from "@/shared/i18n";
 
 type DeleteDataAction = "chats" | "tabular-reviews" | "projects" | "memory";
 type ExportDataAction =
@@ -50,24 +51,24 @@ const DELETE_DATA_COPY: Record<
   }
 > = {
   chats: {
-    title: "Delete all chats?",
+    title: t("Delete all chats?"),
     message:
-      "This will permanently delete your assistant and tabular review chat history. This action cannot be undone.",
+      t("This will permanently delete your assistant and tabular review chat history. This action cannot be undone."),
   },
   "tabular-reviews": {
-    title: "Delete all tabular reviews?",
+    title: t("Delete all tabular reviews?"),
     message:
-      "This will permanently delete all tabular reviews you own, including their cells and review chats. This action cannot be undone.",
+      t("This will permanently delete all tabular reviews you own, including their cells and review chats. This action cannot be undone."),
   },
   projects: {
-    title: "Delete all projects?",
+    title: t("Delete all projects?"),
     message:
-      "This will permanently delete all projects you own, including their documents, chats, and tabular reviews. This action cannot be undone.",
+      t("This will permanently delete all projects you own, including their documents, chats, and tabular reviews. This action cannot be undone."),
   },
   memory: {
-    title: "Delete all memory?",
+    title: t("Delete all memory?"),
     message:
-      "This permanently deletes your app memory and memories for private projects you created. Project collaborators will also lose those memories. Memory remains enabled and can be rebuilt from future conversations. This action cannot be undone.",
+      t("This permanently deletes your app memory and memories for private projects you created. Project collaborators will also lose those memories. Memory remains enabled and can be rebuilt from future conversations. This action cannot be undone."),
   },
 };
 
@@ -140,7 +141,7 @@ export default function PrivacyDataPage() {
         setPendingMfaAction("export-account");
         return;
       }
-      setWarningMessage("Failed to export account data. Please try again.");
+      setWarningMessage(t("Failed to export account data. Please try again."));
     } finally {
       setIsExportingAccount(false);
     }
@@ -164,7 +165,7 @@ export default function PrivacyDataPage() {
         setPendingMfaAction("export-chats");
         return;
       }
-      setWarningMessage("Failed to export chats. Please try again.");
+      setWarningMessage(t("Failed to export chats. Please try again."));
     } finally {
       setIsExportingChats(false);
     }
@@ -191,7 +192,7 @@ export default function PrivacyDataPage() {
         setPendingMfaAction("export-tabular-reviews");
         return;
       }
-      setWarningMessage("Failed to export tabular reviews. Please try again.");
+      setWarningMessage(t("Failed to export tabular reviews. Please try again."));
     } finally {
       setIsExportingTabularReviews(false);
     }
@@ -215,7 +216,7 @@ export default function PrivacyDataPage() {
         setPendingMfaAction("export-memory");
         return;
       }
-      setWarningMessage("Failed to export memory. Please try again.");
+      setWarningMessage(t("Failed to export memory. Please try again."));
     } finally {
       setIsExportingMemory(false);
     }
@@ -255,7 +256,7 @@ export default function PrivacyDataPage() {
         setPendingMfaAction(action);
         return;
       }
-      setWarningMessage("Failed to delete data. Please try again.");
+      setWarningMessage(t("Failed to delete data. Please try again."));
     } finally {
       setDeletingAction(null);
     }
@@ -287,13 +288,13 @@ export default function PrivacyDataPage() {
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <SettingsHeading>Export data</SettingsHeading>
+        <SettingsHeading>{t("Export data")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Export chats</SettingsLabel>
+              <SettingsLabel>{t("Export chats")}</SettingsLabel>
               <SettingsDescription>
-                Download assistant and tabular review chat history as JSON.
+                {t("Download assistant and tabular review chat history as JSON.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
@@ -310,10 +311,9 @@ export default function PrivacyDataPage() {
           </SettingsRow>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Export tabular reviews</SettingsLabel>
+              <SettingsLabel>{t("Export tabular reviews")}</SettingsLabel>
               <SettingsDescription>
-                Download all owned tabular reviews, cells, and review chat
-                records as JSON.
+                {t("Download all owned tabular reviews, cells, and review chat records as JSON.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
@@ -332,8 +332,7 @@ export default function PrivacyDataPage() {
             <div className="space-y-1">
               <SettingsLabel>Export account JSON</SettingsLabel>
               <SettingsDescription>
-                Download account metadata, projects, document metadata,
-                workflows, and review data as JSON.
+                {t("Download account metadata, projects, document metadata, workflows, and review data as JSON.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
@@ -350,16 +349,15 @@ export default function PrivacyDataPage() {
           </SettingsRow>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Export memory</SettingsLabel>
+              <SettingsLabel>{t("Export memory")}</SettingsLabel>
               <SettingsDescription>
-                Download your app memory and every project memory you can access
-                as Markdown files in a ZIP archive.
+                {t("Download your app memory and every project memory you can access as Markdown files in a ZIP archive.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
               tone="black"
               size="sm"
-              aria-label="Export memory"
+              aria-label={t("Export memory")}
               onClick={handleExportMemoryData}
               disabled={isExportingMemory}
               loading={isExportingMemory}
@@ -373,14 +371,13 @@ export default function PrivacyDataPage() {
       </section>
 
       <section className="space-y-3">
-        <SettingsHeading>Delete data</SettingsHeading>
+        <SettingsHeading>{t("Delete data")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Delete all chats</SettingsLabel>
+              <SettingsLabel>{t("Delete all chats")}</SettingsLabel>
               <SettingsDescription>
-                Permanently delete your assistant and tabular review chat
-                history.
+                {t("Permanently delete your assistant and tabular review chat history.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
@@ -392,15 +389,14 @@ export default function PrivacyDataPage() {
               className="w-full shrink-0 sm:w-auto"
             >
               <Trash2 className="h-4 w-4 shrink-0" />
-              Delete
+              {t("Delete")}
             </PillButtonUI>
           </SettingsRow>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Delete all tabular reviews</SettingsLabel>
+              <SettingsLabel>{t("Delete all tabular reviews")}</SettingsLabel>
               <SettingsDescription>
-                Permanently delete all tabular reviews you own, including cells
-                and review chats.
+                {t("Permanently delete all tabular reviews you own, including cells and review chats.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
@@ -412,15 +408,14 @@ export default function PrivacyDataPage() {
               className="w-full shrink-0 sm:w-auto"
             >
               <Trash2 className="h-4 w-4 shrink-0" />
-              Delete
+              {t("Delete")}
             </PillButtonUI>
           </SettingsRow>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Delete all projects</SettingsLabel>
+              <SettingsLabel>{t("Delete all projects")}</SettingsLabel>
               <SettingsDescription>
-                Permanently delete all projects you own, including documents,
-                chats, and tabular reviews.
+                {t("Permanently delete all projects you own, including documents, chats, and tabular reviews.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
@@ -432,28 +427,27 @@ export default function PrivacyDataPage() {
               className="w-full shrink-0 sm:w-auto"
             >
               <Trash2 className="h-4 w-4 shrink-0" />
-              Delete
+              {t("Delete")}
             </PillButtonUI>
           </SettingsRow>
           <SettingsRow>
             <div className="space-y-1">
-              <SettingsLabel>Delete all memory</SettingsLabel>
+              <SettingsLabel>{t("Delete all memory")}</SettingsLabel>
               <SettingsDescription>
-                Permanently delete your app memory and memories for private
-                projects you created.
+                {t("Permanently delete your app memory and memories for private projects you created.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
               tone="danger"
               size="sm"
-              aria-label="Delete all memory"
+              aria-label={t("Delete all memory")}
               onClick={() => setPendingDeleteAction("memory")}
               disabled={!!deletingAction}
               loading={deletingAction === "memory"}
               className="w-full shrink-0 sm:w-auto"
             >
               <Trash2 className="h-4 w-4 shrink-0" />
-              Delete
+              {t("Delete")}
             </PillButtonUI>
           </SettingsRow>
         </GlassCardUI>
@@ -462,10 +456,10 @@ export default function PrivacyDataPage() {
         open={!!pendingDeleteAction}
         title={pendingDeleteCopy?.title}
         message={pendingDeleteCopy?.message}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         confirmVariant="danger"
         confirmStatus={deletingAction ? "loading" : "idle"}
-        cancelLabel="Cancel"
+        cancelLabel={t("Cancel")}
         onCancel={() => {
           if (deletingAction) return;
           setPendingDeleteAction(null);
@@ -479,12 +473,12 @@ export default function PrivacyDataPage() {
         open={!!pendingMfaAction}
         onCancel={() => setPendingMfaAction(null)}
         onVerified={() => void handleMfaVerified()}
-        title="Two-factor verification required"
-        message="This action is sensitive. Enter a code from your authenticator app to continue."
+        title={t("Two-factor verification required")}
+        message={t("This action is sensitive. Enter a code from your authenticator app to continue.")}
       />
       <WarningPopup
         open={!!warningMessage}
-        title="Action failed"
+        title={t("Action failed")}
         message={warningMessage}
         onClose={() => setWarningMessage(null)}
       />

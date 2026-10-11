@@ -20,13 +20,14 @@ import {
     type UserFacingError,
 } from "@/app/lib/userFacingError";
 import { authMessages } from "@/app/lib/authMessages";
+import { t } from "@/shared/i18n";
 
 /** The shared auth table with this screen's deltas: the address asked for
  *  here is a work address, so "valid email" is not specific enough. */
 const SSO_ERROR_MESSAGES = authMessages({
-    invalid_request: "Enter a valid company email address.",
-    validation_failed: "Enter a valid company email address.",
-    email_address_invalid: "Enter a valid company email address.",
+    invalid_request: t("Enter a valid company email address."),
+    validation_failed: t("Enter a valid company email address."),
+    email_address_invalid: t("Enter a valid company email address."),
 });
 
 export default function SsoLoginPage() {
@@ -56,14 +57,14 @@ export default function SsoLoginPage() {
             const described = describeError(caught, {
                 action: "start single sign-on",
                 codeMessages: SSO_ERROR_MESSAGES,
-                fallback: "Unable to start single sign-on. Try again.",
+                fallback: t("Unable to start single sign-on. Try again."),
             });
             setError(
                 described.kind === "rate_limited"
                     ? {
                           ...described,
                           message:
-                              "Too many attempts. Wait a moment and try again.",
+                              t("Too many attempts. Wait a moment and try again."),
                       }
                     : described,
             );
@@ -85,14 +86,14 @@ export default function SsoLoginPage() {
                 <div className={authGlassCardUIClassName}>
                     <div className="mb-6">
                         <h1 className="font-serif text-2xl font-medium text-gray-950">
-                            SSO Login
+                            {t("SSO Login")}
                         </h1>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <FieldLabel htmlFor="sso-email">
-                                Email
+                                {t("Email")}
                             </FieldLabel>
                             <InputUI
                                 id="sso-email"
@@ -100,7 +101,7 @@ export default function SsoLoginPage() {
                                 autoComplete="email"
                                 autoCapitalize="none"
                                 spellCheck={false}
-                                placeholder="you@company.com"
+                                placeholder={t("you@company.com")}
                                 value={email}
                                 onChange={(event) =>
                                     setEmail(event.target.value)
@@ -124,18 +125,18 @@ export default function SsoLoginPage() {
                                         disabled={loading}
                                         className="ml-2 underline underline-offset-2 disabled:no-underline disabled:opacity-60"
                                     >
-                                        Retry
+                                        {t("Retry")}
                                     </button>
                                 )}
                                 {error.supportable && (
                                     <a
                                         href={supportMailtoFor(
                                             error,
-                                            "Failed to start single sign-on.",
+                                            t("Failed to start single sign-on."),
                                         )}
                                         className="ml-2 underline underline-offset-2"
                                     >
-                                        Contact support
+                                        {t("Contact support")}
                                     </a>
                                 )}
                             </div>
@@ -167,7 +168,7 @@ export default function SsoLoginPage() {
                         href="/login"
                         className="font-medium transition-colors hover:text-gray-950"
                     >
-                        Back to login
+                        {t("Back to login")}
                     </Link>
                 </div>
             </div>

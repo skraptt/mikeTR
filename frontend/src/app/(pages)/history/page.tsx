@@ -39,6 +39,7 @@ import {
 } from "@/shared/ui/dropdown";
 import { cn } from "@/app/lib/utils";
 import { WarningPopup } from "@/app/components/popups/WarningPopup";
+import { t } from "@/shared/i18n";
 
 const ACTION_LABELS: Record<string, string> = {
   "chat.message": "Chat",
@@ -78,18 +79,18 @@ const SURFACE_LABELS: Record<string, string> = {
 };
 
 const STATUS_OPTIONS = [
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "failed", label: "Failed" },
+  { value: "completed", label: t("Completed") },
+  { value: "cancelled", label: t("Cancelled") },
+  { value: "failed", label: t("Failed") },
 ];
 
 const ACTION_OPTIONS = Object.entries(ACTION_LABELS).map(([value, label]) => ({
   value,
-  label,
+  label: t(label),
 }));
 
 const SURFACE_OPTIONS = Object.entries(SURFACE_LABELS).map(
-  ([value, label]) => ({ value, label }),
+  ([value, label]) => ({ value, label: t(label) }),
 );
 
 type AuditSortKey = "created_at" | "user_email" | "title" | "model";
@@ -277,7 +278,7 @@ export default function HistoryPage() {
             type: "search",
             value: search,
             onChange: setSearch,
-            placeholder: "Search history…",
+            placeholder: t("Search history…"),
           },
           {
             icon: exporting ? (
@@ -286,14 +287,14 @@ export default function HistoryPage() {
               <Download className="h-4 w-4" />
             ),
             label: "Export",
-            title: "Export history",
+            title: t("Export history"),
             disabled: exporting,
             onClick: () => void handleExport(),
           },
         ]}
       >
         <h1 className="font-serif text-2xl font-medium text-gray-900">
-          History
+          {t("History")}
         </h1>
       </PageHeader>
 
@@ -303,13 +304,13 @@ export default function HistoryPage() {
         header={
           <TableHeaderRow>
             <TableStickyCell header widthClassName="w-52 shrink-0">
-              <span>Username</span>
+              <span>{t("Username")}</span>
             </TableStickyCell>
             <TableHeaderCell className="ml-auto w-52">
-              <span className="mr-1">Email</span>
+              <span className="mr-1">{t("Email")}</span>
               {!initialLoading && (
                 <TableSortFilter
-                  label="Sort by email"
+                  label={t("Sort by email")}
                   value={sortValue("user_email")}
                   align="right"
                   onChange={(direction) =>
@@ -319,10 +320,10 @@ export default function HistoryPage() {
               )}
             </TableHeaderCell>
             <TableHeaderCell className="w-40">
-              <span className="mr-1">Created</span>
+              <span className="mr-1">{t("Created")}</span>
               {!initialLoading && (
                 <TableSortFilter
-                  label="Sort by created date"
+                  label={t("Sort by created date")}
                   value={sortValue("created_at")}
                   onChange={(direction) =>
                     setSortDirection("created_at", direction)
@@ -332,10 +333,10 @@ export default function HistoryPage() {
               )}
             </TableHeaderCell>
             <TableHeaderCell className="w-72">
-              <span className="mr-1">Title</span>
+              <span className="mr-1">{t("Title")}</span>
               {!initialLoading && (
                 <TableSortFilter
-                  label="Sort by title"
+                  label={t("Sort by title")}
                   value={sortValue("title")}
                   onChange={(direction) => setSortDirection("title", direction)}
                   widthClassName="w-52"
@@ -343,46 +344,46 @@ export default function HistoryPage() {
               )}
             </TableHeaderCell>
             <TableHeaderCell className="w-28">
-              <span className="mr-1">Status</span>
+              <span className="mr-1">{t("Status")}</span>
               {!initialLoading && (
                 <TableFilters
-                  label="Filter by status"
+                  label={t("Filter by status")}
                   value={status}
-                  allLabel="All Statuses"
+                  allLabel={t("All Statuses")}
                   options={STATUS_OPTIONS}
                   onChange={setStatus}
                 />
               )}
             </TableHeaderCell>
             <TableHeaderCell className="w-44">
-              <span className="mr-1">Type</span>
+              <span className="mr-1">{t("Type")}</span>
               {!initialLoading && (
                 <TableFilters
-                  label="Filter by type"
+                  label={t("Filter by type")}
                   value={action}
-                  allLabel="All Types"
+                  allLabel={t("All Types")}
                   options={ACTION_OPTIONS}
                   onChange={setAction}
                 />
               )}
             </TableHeaderCell>
             <TableHeaderCell className="w-32">
-              <span className="mr-1">Application</span>
+              <span className="mr-1">{t("Application")}</span>
               {!initialLoading && (
                 <TableFilters
-                  label="Filter by application"
+                  label={t("Filter by application")}
                   value={surface}
-                  allLabel="All Applications"
+                  allLabel={t("All Applications")}
                   options={SURFACE_OPTIONS}
                   onChange={setSurface}
                 />
               )}
             </TableHeaderCell>
             <TableHeaderCell className="w-28">
-              <span className="mr-1">Model</span>
+              <span className="mr-1">{t("Model")}</span>
               {!initialLoading && (
                 <TableSortFilter
-                  label="Sort by model"
+                  label={t("Sort by model")}
                   value={sortValue("model")}
                   onChange={(direction) => setSortDirection("model", direction)}
                   widthClassName="w-52"
@@ -398,17 +399,17 @@ export default function HistoryPage() {
           <TableBody className="flex">
             <TableEmptyState>
               <p className="font-serif text-2xl font-medium text-gray-900">
-                History unavailable
+                {t("History unavailable")}
               </p>
               <p className="mt-1 text-xs text-gray-400">
-                Your activity could not be loaded.
+                {t("Your activity could not be loaded.")}
               </p>
               <PillButtonUI
                 tone="white"
                 className="mt-4"
                 onClick={() => void load(1, false)}
               >
-                Try again
+                {t("Try again")}
               </PillButtonUI>
             </TableEmptyState>
           </TableBody>
@@ -420,10 +421,10 @@ export default function HistoryPage() {
                 className="mb-4 h-14 w-14"
               />
               <p className="font-serif text-2xl font-medium text-gray-900">
-                No history yet
+                {t("No history yet")}
               </p>
               <p className="mt-1 text-xs text-gray-400">
-                Actions appear here as you use the app.
+                {t("Actions appear here as you use the app.")}
               </p>
             </TableEmptyState>
           </TableBody>
@@ -465,15 +466,15 @@ export default function HistoryPage() {
                         data-testid={`status-dot-${event.id}`}
                         className={`${GLASS_DOT} ${STATUS_DOT_STYLES[event.status] ?? "bg-gray-400/80"}`}
                       />
-                      {formatStatus(event.status)}
+                      {t(formatStatus(event.status))}
                     </span>
                   </TableCell>
                   <TableCell className="w-44 text-xs text-gray-700">
-                    {ACTION_LABELS[event.action] ?? event.action}
+                    {ACTION_LABELS[event.action] ? t(ACTION_LABELS[event.action]) : event.action}
                   </TableCell>
                   <TableCell className="w-32 text-xs">
                     {event.surface
-                      ? (SURFACE_LABELS[event.surface] ?? event.surface)
+                      ? (SURFACE_LABELS[event.surface] ? t(SURFACE_LABELS[event.surface]) : event.surface)
                       : "—"}
                   </TableCell>
                   <TableCell className="w-28 pr-4 text-xs">
@@ -502,8 +503,8 @@ export default function HistoryPage() {
       </TableScrollArea>
       <WarningPopup
         open={exportWarningOpen}
-        title="Export failed"
-        message="Your history could not be exported. Please try again."
+        title={t("Export failed")}
+        message={t("Your history could not be exported. Please try again.")}
         onClose={() => setExportWarningOpen(false)}
       />
     </div>
@@ -537,7 +538,7 @@ function DateRangeDropdown({
   return (
     <Dropdown open={open} onOpenChange={handleOpenChange}>
       <DropdownTrigger asChild>
-        <TabPillButtonUI active aria-label="Select date range">
+        <TabPillButtonUI active aria-label={t("Select date range")}>
           <CalendarDays className="h-3.5 w-3.5" />
           {formatRangeDate(from)} – {formatRangeDate(to)}
         </TabPillButtonUI>
@@ -549,7 +550,7 @@ function DateRangeDropdown({
       >
         <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-[14rem_14rem]">
           <HistoryDatePicker
-            label="Start date"
+            label={t("Start date")}
             testId="start-date-picker"
             selected={dateFromLocalValue(draftRange.from)}
             disabled={{ after: dateFromLocalValue(draftRange.to) }}
@@ -561,7 +562,7 @@ function DateRangeDropdown({
             }
           />
           <HistoryDatePicker
-            label="End date"
+            label={t("End date")}
             testId="end-date-picker"
             selected={dateFromLocalValue(draftRange.to)}
             disabled={[
@@ -582,7 +583,7 @@ function DateRangeDropdown({
             disabled={!hasChanges}
             onClick={handleConfirm}
           >
-            Confirm
+            {t("Confirm")}
           </PillButtonUI>
         </div>
       </DropdownContent>

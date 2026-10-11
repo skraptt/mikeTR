@@ -25,6 +25,7 @@ import {
   type OrgRole,
 } from "@/app/lib/permissions";
 import { userFacingApiError } from "@/app/lib/userFacingError";
+import { t } from "@/shared/i18n";
 
 function friendlyError(error: unknown, fallback: string) {
   return userFacingApiError(error, fallback);
@@ -54,7 +55,7 @@ async function refreshQuietly(
 
 /** Appended to a success notice whose follow-up refresh did not land. */
 const STALE_LIST_NOTICE =
-  "The list below may be out of date — reload to see the current one.";
+  t("The list below may be out of date — reload to see the current one.");
 
 export function CreateOrganizationModal({
   open,
@@ -103,13 +104,13 @@ export function CreateOrganizationModal({
       if (results.some((result) => result.status === "rejected")) {
         setCreatedOrg(org);
         setError(
-          "Organization created, but some invitations could not be sent. You can add them later.",
+          t("Organization created, but some invitations could not be sent. You can add them later."),
         );
         return;
       }
       onCreated(org);
     } catch (err) {
-      setError(friendlyError(err, "Could not create the organization."));
+      setError(friendlyError(err, t("Could not create the organization.")));
     } finally {
       setCreating(false);
     }
@@ -126,10 +127,10 @@ export function CreateOrganizationModal({
           if (creating) return;
           onClose();
         }}
-        breadcrumbs={["Organizations", "New organization"]}
+        breadcrumbs={[t("Organizations"), t("New organization")]}
         primaryAction={{
           label: createdOrg
-            ? "Open organization"
+            ? t("Open organization")
             : creating
               ? "Creating..."
               : "Create",
@@ -143,13 +144,13 @@ export function CreateOrganizationModal({
         <div className="space-y-5 py-1">
           <div>
             <FieldLabel htmlFor="new-organization-name">
-              Organization name
+              {t("Organization name")}
             </FieldLabel>
             <FormTextInput
               id="new-organization-name"
               autoFocus
               value={name}
-              placeholder="e.g. Elite Law LLP"
+              placeholder={t("e.g. Elite Law LLP")}
               disabled={creating || createdOrg !== null}
               onChange={(event) => {
                 setName(event.target.value);
@@ -163,20 +164,20 @@ export function CreateOrganizationModal({
               }}
             />
             <p className="mt-2 text-xs text-gray-400">
-              You will become the first administrator.
+              {t("You will become the first administrator.")}
             </p>
           </div>
 
           <div>
-            <FieldLabel as="p">Invite members</FieldLabel>
+            <FieldLabel as="p">{t("Invite members")}</FieldLabel>
             <AddUserInput
               requireExistingUser={false}
               busy={creating || createdOrg !== null}
-              placeholder="Add member by email…"
-              submitLabel="Add member"
+              placeholder={t("Add member by email…")}
+              submitLabel={t("Add member")}
               validateEmail={(email) =>
                 memberEmails.includes(email)
-                  ? "This email has already been added."
+                  ? t("This email has already been added.")
                   : null
               }
               onAdd={(user) => {
@@ -211,8 +212,7 @@ export function CreateOrganizationModal({
               </div>
             ) : null}
             <p className="mt-2 text-xs text-gray-400">
-              Members receive an invitation. You can also add people later from
-              the organization page.
+              {t("Members receive an invitation. You can also add people later from the organization page.")}
             </p>
           </div>
         </div>
@@ -221,8 +221,8 @@ export function CreateOrganizationModal({
         open={open && error !== null}
         title={
           createdOrg
-            ? "Some invitations were not sent"
-            : "Organization not created"
+            ? t("Some invitations were not sent")
+            : t("Organization not created")
         }
         message={error}
         onClose={() => setError(null)}
@@ -266,15 +266,15 @@ export function InviteOrganizationMemberModal({
     try {
       await createOrgInvitation(org.id, email, role);
     } catch (err) {
-      setError(friendlyError(err, "Could not send the invitation."));
+      setError(friendlyError(err, t("Could not send the invitation.")));
       return false;
     }
-    setNotice(`Invitation sent to ${email}.`);
+    setNotice(t("Invitation sent to {email}.", { email }));
     // The invitation really was sent, so the notice stands — but if the list
     // behind this modal could not be re-read, say that rather than let the
     // unchanged list quietly contradict the notice.
     if (!(await refreshQuietly(onChanged)))
-      setNotice(`Invitation sent to ${email}. ${STALE_LIST_NOTICE}`);
+      setNotice(`${t("Invitation sent to {email}.", { email })} ${STALE_LIST_NOTICE}`);
     return true;
   }
 
@@ -290,15 +290,20 @@ export function InviteOrganizationMemberModal({
     try {
       if (action === "resend") {
         await resendOrgInvitation(org.id, invitation.id);
-        successNotice = `Invitation resent to ${invitation.email}.`;
+        successNotice = t("Invitation resent to {email}.", { email: invitation.email });
       } else {
         await cancelOrgInvitation(org.id, invitation.id);
-        successNotice = `Invitation to ${invitation.email} cancelled.`;
+        successNotice = t("Invitation to {email} cancelled.", { email: invitation.email });
       }
       setNotice(successNotice);
       changed = true;
     } catch (err) {
-      setError(friendlyError(err, `Could not ${action} the invitation.`));
+      setError(
+        friendlyError(
+          err,
+          action === "resend" ? t("Could not resend the invitation.") : t("Could not cancel the invitation."),
+        ),
+      );
     } finally {
       setBusyId(null);
     }
@@ -311,7 +316,7 @@ export function InviteOrganizationMemberModal({
       <Modal
         open={open}
         onClose={onClose}
-        breadcrumbs={["Organizations", org.name, "Add member"]}
+        breadcrumbs={[t("Organizations"), org.name, t("Add member")]}
         size="md"
         footerStatus={
           notice ? (
@@ -322,7 +327,7 @@ export function InviteOrganizationMemberModal({
       >
         <div className="flex min-h-0 flex-1 flex-col gap-5 py-1">
           <div>
-            <FieldLabel htmlFor="organization-invite-role">Role</FieldLabel>
+            <FieldLabel htmlFor="organization-invite-role">{t("Role")}</FieldLabel>
             <ModalSelect
               id="organization-invite-role"
               value={role}
@@ -338,12 +343,12 @@ export function InviteOrganizationMemberModal({
           </div>
 
           <div>
-            <FieldLabel as="p">Email address</FieldLabel>
+            <FieldLabel as="p">{t("Email address")}</FieldLabel>
             <AddUserInput
               autoFocus
               requireExistingUser={false}
-              placeholder="Invite by email…"
-              submitLabel="Send invitation"
+              placeholder={t("Invite by email…")}
+              submitLabel={t("Send invitation")}
               onAdd={(user) => invite(user.email)}
             />
           </div>
@@ -351,7 +356,7 @@ export function InviteOrganizationMemberModal({
           {pending.length > 0 ? (
             <div className="min-h-0 border-t border-white/60 pt-4">
               <p className="mb-2 text-xs font-medium text-gray-600">
-                Pending invitations
+                {t("Pending invitations")}
               </p>
               <div className="max-h-48 space-y-1 overflow-y-auto">
                 {pending.map((invitation) => (
@@ -372,7 +377,7 @@ export function InviteOrganizationMemberModal({
                     </div>
                     <button
                       type="button"
-                      aria-label={`Resend invitation to ${invitation.email}`}
+                      aria-label={t("Resend invitation to {email}", { email: invitation.email })}
                       disabled={busyId === invitation.id}
                       onClick={() =>
                         void runInvitationAction(invitation, "resend")
@@ -383,7 +388,7 @@ export function InviteOrganizationMemberModal({
                     </button>
                     <button
                       type="button"
-                      aria-label={`Cancel invitation to ${invitation.email}`}
+                      aria-label={t("Cancel invitation to {email}", { email: invitation.email })}
                       disabled={busyId === invitation.id}
                       onClick={() =>
                         void runInvitationAction(invitation, "cancel")
@@ -401,7 +406,7 @@ export function InviteOrganizationMemberModal({
       </Modal>
       <WarningPopup
         open={open && error !== null}
-        title="Invitation action failed"
+        title={t("Invitation action failed")}
         message={error}
         onClose={() => setError(null)}
       />
@@ -461,8 +466,8 @@ export function OrganizationSettingsModal({
       onUpdated(await updateOrg(org.id, trimmedName));
     } catch (err) {
       setError({
-        title: "Organization settings not saved",
-        message: friendlyError(err, "Could not update the organization."),
+        title: t("Organization settings not saved"),
+        message: friendlyError(err, t("Could not update the organization.")),
       });
     } finally {
       setSaving(false);
@@ -485,8 +490,8 @@ export function OrganizationSettingsModal({
       return;
     } catch (err) {
       setError({
-        title: "Organization not deleted",
-        message: friendlyError(err, "Could not delete the organization."),
+        title: t("Organization not deleted"),
+        message: friendlyError(err, t("Could not delete the organization.")),
       });
       setConfirmDelete(false);
     }
@@ -498,7 +503,7 @@ export function OrganizationSettingsModal({
       <Modal
         open={open}
         onClose={onClose}
-        breadcrumbs={["Organizations", org.name, "Settings"]}
+        breadcrumbs={[t("Organizations"), org.name, t("Settings")]}
         size="md"
         primaryAction={{
           label: saving ? "Saving..." : "Save",
@@ -512,7 +517,7 @@ export function OrganizationSettingsModal({
         <div className="flex flex-col gap-8 py-1">
           <div>
             <FieldLabel htmlFor="organization-settings-name">
-              Organization name
+              {t("Organization name")}
             </FieldLabel>
             <FormTextInput
               id="organization-settings-name"
@@ -526,11 +531,10 @@ export function OrganizationSettingsModal({
           </div>
           <div className="border-t border-white/60 pt-5">
             <p className="text-sm font-medium text-gray-700">
-              Delete organization
+              {t("Delete organization")}
             </p>
             <p className="mt-1 max-w-md text-xs text-gray-400">
-              Only an empty organization can be deleted. Move or delete its
-              projects, chats, reviews, documents and workflows first.
+              {t("Only an empty organization can be deleted. Move or delete its projects, chats, reviews, documents and workflows first.")}
             </p>
             <PillButtonUI
               tone="danger"
@@ -541,7 +545,7 @@ export function OrganizationSettingsModal({
               onClick={() => setConfirmDelete(true)}
             >
               <Trash2 className="h-3.5 w-3.5" />
-              Delete organization
+              {t("Delete organization")}
             </PillButtonUI>
           </div>
         </div>
@@ -549,8 +553,8 @@ export function OrganizationSettingsModal({
       <ConfirmPopup
         open={open && confirmDelete}
         title={`Delete ${org.name}?`}
-        message="This removes the empty organization, its memberships and invitations."
-        confirmLabel="Delete"
+        message={t("This removes the empty organization, its memberships and invitations.")}
+        confirmLabel={t("Delete")}
         confirmVariant="danger"
         confirmStatus={deleting ? "loading" : "idle"}
         onCancel={() => {
@@ -561,7 +565,7 @@ export function OrganizationSettingsModal({
       />
       <WarningPopup
         open={open && error !== null}
-        title={error?.title ?? "Organization settings not saved"}
+        title={error?.title ?? t("Organization settings not saved")}
         message={error?.message ?? null}
         onClose={() => setError(null)}
       />

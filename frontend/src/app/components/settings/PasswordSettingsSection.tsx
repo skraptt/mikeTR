@@ -29,13 +29,14 @@ import { SettingsHeading } from "./SettingsHeading";
 import { SettingsRow } from "./SettingsRow";
 import { SettingsDescription, SettingsLabel } from "./SettingsText";
 import { FieldLabel } from "@/app/components/ui/form-field";
+import { t } from "@/shared/i18n";
 
 /** The shared auth table with this section's deltas, keyed by the `code`
  *  GoTrue returns from `PATCH /api/auth/password`. */
 const PASSWORD_ERROR_MESSAGES = authMessages({
   validation_failed: PASSWORD_LENGTH_MESSAGE,
   invalid_request: PASSWORD_LENGTH_MESSAGE,
-  reauthentication_needed: "Log in again before setting a password.",
+  reauthentication_needed: t("Log in again before setting a password."),
 });
 
 export function PasswordSettingsSection() {
@@ -64,7 +65,7 @@ export function PasswordSettingsSection() {
       return;
     }
     if (password !== confirmPassword) {
-      setPasswordSetError(localPasswordError("The two passwords don't match."));
+      setPasswordSetError(localPasswordError(t("The two passwords don't match.")));
       return;
     }
 
@@ -74,13 +75,13 @@ export function PasswordSettingsSection() {
       const synced = await syncPasswordSet();
       if (!synced) {
         throw new UserVisibleError(
-          "Your password was set, but its account status could not be refreshed. Reload the page and try again.",
+          t("Your password was set, but its account status could not be refreshed. Reload the page and try again."),
         );
       }
       setPasswordValue("");
       setConfirmPassword("");
       setSetPasswordOpen(false);
-      setPasswordStatus("Password added to your account.");
+      setPasswordStatus(t("Password added to your account."));
     } catch (error) {
       // GoTrue's own wording ("Password should be at least 6 characters")
       // contradicts Mike's policy, so the code decides the text instead.
@@ -88,7 +89,7 @@ export function PasswordSettingsSection() {
         describeError(error, {
           action: "set your password",
           codeMessages: PASSWORD_ERROR_MESSAGES,
-          fallback: "Unable to set your password. Try again.",
+          fallback: t("Unable to set your password. Try again."),
         }),
       );
     } finally {
@@ -102,14 +103,14 @@ export function PasswordSettingsSection() {
     setPasswordStatus(null);
     try {
       await requestPasswordReset(user.email);
-      setPasswordStatus(`Password-reset instructions sent to ${user.email}.`);
+      setPasswordStatus(t("Password-reset instructions sent to {email}.", { email: user.email }));
     } catch (error) {
       setPasswordStatus(
         describeError(error, {
           action: "send the reset email",
           codeMessages: PASSWORD_ERROR_MESSAGES,
           fallback:
-            "Unable to send a password-reset email right now. Try again.",
+            t("Unable to send a password-reset email right now. Try again."),
         }).message,
       );
     } finally {
@@ -134,17 +135,17 @@ export function PasswordSettingsSection() {
 
   return (
     <section className="space-y-3">
-      <SettingsHeading>Password</SettingsHeading>
+      <SettingsHeading>{t("Password")}</SettingsHeading>
       <GlassCardUI>
         <SettingsRow>
           <div className="min-w-0 space-y-1">
             <SettingsLabel>
-              {needsInitialPassword ? "Set password" : "Reset password"}
+              {needsInitialPassword ? t("Set password") : t("Reset password")}
             </SettingsLabel>
             <SettingsDescription>
               {needsInitialPassword
-                ? "Add a password to sign in with your email and change your account email."
-                : `Send a secure password-reset link to ${user?.email}.`}
+                ? t("Add a password to sign in with your email and change your account email.")
+                : t("Send a secure password-reset link to {email}.", { email: user?.email ?? "" })}
             </SettingsDescription>
             {passwordStatus && (
               <p className="text-xs text-gray-500">{passwordStatus}</p>
@@ -162,10 +163,10 @@ export function PasswordSettingsSection() {
             className="shrink-0"
           >
             {needsInitialPassword
-              ? "Set password"
+              ? t("Set password")
               : passwordResetSending
                 ? "Sending..."
-                : "Send reset email"}
+                : t("Send reset email")}
           </PillButtonUI>
         </SettingsRow>
       </GlassCardUI>
@@ -173,7 +174,7 @@ export function PasswordSettingsSection() {
       <Modal
         open={setPasswordOpen}
         onClose={closeSetPassword}
-        breadcrumbs={["Security", "Set password"]}
+        breadcrumbs={[t("Security"), t("Set password")]}
         size="sm"
         className="h-auto"
         cancelAction={{
@@ -182,7 +183,7 @@ export function PasswordSettingsSection() {
           disabled: passwordSaving,
         }}
         primaryAction={{
-          label: passwordSaving ? "Setting..." : "Set password",
+          label: passwordSaving ? t("Setting...") : t("Set password"),
           onClick: () => void addPassword(),
           disabled: passwordSaving || !password || !confirmPassword,
         }}
@@ -192,7 +193,7 @@ export function PasswordSettingsSection() {
             Use at least {MIN_PASSWORD_LENGTH} characters.
           </p>
           <div>
-            <FieldLabel htmlFor="new-account-password">Password</FieldLabel>
+            <FieldLabel htmlFor="new-account-password">{t("Password")}</FieldLabel>
             <InputUI
               id="new-account-password"
               type="password"
@@ -204,7 +205,7 @@ export function PasswordSettingsSection() {
           </div>
           <div>
             <FieldLabel htmlFor="confirm-account-password">
-              Confirm password
+              {t("Confirm password")}
             </FieldLabel>
             <InputUI
               id="confirm-account-password"
@@ -222,11 +223,11 @@ export function PasswordSettingsSection() {
                 <a
                   href={supportMailtoFor(
                     passwordSetError,
-                    "Failed to set an account password.",
+                    t("Failed to set an account password."),
                   )}
                   className="ml-2 underline underline-offset-2"
                 >
-                  Contact support
+                  {t("Contact support")}
                 </a>
               )}
             </p>

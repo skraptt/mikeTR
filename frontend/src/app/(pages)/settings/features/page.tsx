@@ -11,6 +11,7 @@ import { SettingsHeading } from "@/app/components/settings/SettingsHeading";
 import { SettingsRow } from "@/app/components/settings/SettingsRow";
 import { ToggleSwitchUI } from "@/shared/ui/ToggleSwitchUI";
 import { useUserProfile } from "@/app/contexts/UserProfileContext";
+import { t } from "@/shared/i18n";
 
 export default function FeaturesPage() {
   const {
@@ -39,7 +40,7 @@ export default function FeaturesPage() {
     setSavingQuickActions(true);
     const ok = await updateQuickActionsVisible(visible);
     setSavingQuickActions(false);
-    if (!ok) setQuickActionsError("Could not update. Try again.");
+    if (!ok) setQuickActionsError(t("Could not update. Try again."));
   };
 
   const handleCourtListenerChange = async (enabled: boolean) => {
@@ -51,20 +52,20 @@ export default function FeaturesPage() {
     setSaving(false);
     setOptimisticLegalResearchUs(null);
     if (!ok) {
-      setSaveError("Could not update. Try again.");
+      setSaveError(t("Could not update. Try again."));
     }
   };
 
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <SettingsHeading>Assistant</SettingsHeading>
+        <SettingsHeading>{t("Assistant")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow>
             <div className="min-w-0 space-y-1">
-              <SettingsLabel>Quick actions</SettingsLabel>
+              <SettingsLabel>{t("Quick actions")}</SettingsLabel>
               <SettingsDescription>
-                Show the quick actions row on the assistant start screen.
+                {t("Show the quick actions row on the assistant start screen.")}
               </SettingsDescription>
               {quickActionsError && (
                 <p className="text-sm text-red-600" role="alert">
@@ -76,7 +77,7 @@ export default function FeaturesPage() {
               checked={quickActionsVisible}
               disabled={savingQuickActions}
               aria-busy={savingQuickActions}
-              aria-label="Quick actions"
+              aria-label={t("Quick actions")}
               onCheckedChange={(checked) => {
                 void setQuickActionsVisible(checked);
               }}
@@ -86,13 +87,13 @@ export default function FeaturesPage() {
       </section>
 
       <section className="space-y-3">
-        <SettingsHeading>Legal Research</SettingsHeading>
+        <SettingsHeading>{t("Legal Research")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow>
             <div className="min-w-0 space-y-1">
-              <SettingsLabel>Enable CourtListener</SettingsLabel>
+              <SettingsLabel>{t("Enable CourtListener")}</SettingsLabel>
               <SettingsDescription>
-                CourtListener provides access to US case law.
+                {t("CourtListener provides access to US case law.")}
               </SettingsDescription>
               {saveError && (
                 <p className="text-sm text-red-600" role="alert">
@@ -104,7 +105,7 @@ export default function FeaturesPage() {
               checked={courtListenerEnabled}
               disabled={saving}
               aria-busy={saving}
-              aria-label="Enable CourtListener"
+              aria-label={t("Enable CourtListener")}
               onCheckedChange={(enabled) =>
                 void handleCourtListenerChange(enabled)
               }
@@ -112,7 +113,7 @@ export default function FeaturesPage() {
           </SettingsRow>
           {courtListenerEnabled && (
             <ApiKeyField
-              label="CourtListener API Key"
+              label={t("CourtListener API Key")}
               hasSavedKey={profile?.apiKeys.courtlistener.source === "user"}
               onSave={(value) =>
                 updateApiKey("courtlistener", value.trim() || null)

@@ -11,6 +11,7 @@ import { GlassCardUI } from "@/shared/ui/GlassCardUI";
 import { SettingsHeading } from "@/app/components/settings/SettingsHeading";
 import { SettingsRow } from "@/app/components/settings/SettingsRow";
 import { ToggleSwitchUI } from "@/shared/ui/ToggleSwitchUI";
+import { t } from "@/shared/i18n";
 
 export default function AppearancePage() {
   const { profile, updateDarkMode } = useUserProfile();
@@ -29,7 +30,7 @@ export default function AppearancePage() {
       setDarkModeError(
         userFacingApiError(
           toggleError,
-          "Could not update the appearance setting.",
+          t("Could not update the appearance setting."),
         ),
       );
     } finally {
@@ -39,13 +40,13 @@ export default function AppearancePage() {
 
   return (
     <section className="space-y-3">
-      <SettingsHeading>Appearance</SettingsHeading>
+      <SettingsHeading>{t("Appearance")}</SettingsHeading>
       <GlassCardUI>
         <SettingsRow>
           <div className="min-w-0 space-y-1">
-            <SettingsLabel>Dark mode</SettingsLabel>
+            <SettingsLabel>{t("Dark mode")}</SettingsLabel>
             <SettingsDescription>
-              Use a darker color palette throughout Mike.
+              {t("Use a darker color palette throughout Mike.")}
             </SettingsDescription>
             {darkModeError && (
               <p role="alert" className="text-xs text-red-600">
@@ -57,7 +58,7 @@ export default function AppearancePage() {
             checked={profile.darkMode === true}
             disabled={savingDarkMode}
             aria-busy={savingDarkMode}
-            aria-label="Dark mode"
+            aria-label={t("Dark mode")}
             onCheckedChange={(checked) => void handleDarkModeToggle(checked)}
           />
         </SettingsRow>

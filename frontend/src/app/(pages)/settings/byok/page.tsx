@@ -14,6 +14,7 @@ import { SettingsHeading } from "@/app/components/settings/SettingsHeading";
 import { SettingsDescription } from "@/app/components/settings/SettingsText";
 import { useUserProfile } from "@/app/contexts/UserProfileContext";
 import { isMfaRequiredError, type ApiKeyProvider } from "@/app/lib/mikeApi";
+import { t } from "@/shared/i18n";
 type ModelApiKeyField = {
     provider: ApiKeyProvider;
     name: string;
@@ -115,14 +116,14 @@ const PROVIDER_SECTIONS = [
     {
         id: "active",
         active: true,
-        title: "Saved Providers",
-        empty: "No saved providers yet. Add an API key to one of the providers below.",
+        title: t("Saved Providers"),
+        empty: t("No saved providers yet. Add an API key to one of the providers below."),
     },
     {
         id: "available",
         active: false,
-        title: "Available Providers",
-        empty: "Every provider has a key saved.",
+        title: t("Available Providers"),
+        empty: t("Every provider has a key saved."),
     },
 ] as const;
 
@@ -143,10 +144,10 @@ export default function ByokPage() {
         setToggleError(null);
         try {
             const saved = await updateApiKeyEnabled(provider, enabled);
-            if (!saved) setToggleError("The provider could not be updated. Please try again.");
+            if (!saved) setToggleError(t("The provider could not be updated. Please try again."));
         } catch (error) {
             if (isMfaRequiredError(error)) setPendingToggle({ provider, enabled });
-            else setToggleError("The provider could not be updated. Please try again.");
+            else setToggleError(t("The provider could not be updated. Please try again."));
         } finally {
             setBusyProvider(null);
         }
@@ -214,7 +215,7 @@ export default function ByokPage() {
                             aria-haspopup="dialog"
                             onClick={open}
                         >
-                            Add
+                            {t("Add")}
                         </PillButtonUI>
                     )
                 }
@@ -282,7 +283,7 @@ export default function ByokPage() {
             />
             <WarningPopup
                 open={toggleError !== null}
-                title="Provider update failed"
+                title={t("Provider update failed")}
                 message={toggleError}
                 onClose={() => setToggleError(null)}
             />

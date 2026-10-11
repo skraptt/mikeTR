@@ -29,19 +29,20 @@ import {
     supportMailtoFor,
     type UserFacingError,
 } from "@/app/lib/userFacingError";
+import { t } from "@/shared/i18n";
 
 /** The shared auth table with this screen's deltas: here every session-
  *  shaped failure is really "your reset link is no longer usable". */
 const RESET_ERROR_MESSAGES = authMessages({
     validation_failed: PASSWORD_LENGTH_MESSAGE,
     invalid_request: PASSWORD_LENGTH_MESSAGE,
-    otp_expired: "This password-reset link has expired. Request a new one.",
-    session_expired: "This password-reset link has expired. Request a new one.",
+    otp_expired: t("This password-reset link has expired. Request a new one."),
+    session_expired: t("This password-reset link has expired. Request a new one."),
     session_not_found:
-        "This password-reset link is invalid or has expired. Request a new one.",
+        t("This password-reset link is invalid or has expired. Request a new one."),
     cookie_session_required:
-        "This password-reset link is invalid or has expired. Request a new one.",
-    reauthentication_needed: "Log in again before changing your password.",
+        t("This password-reset link is invalid or has expired. Request a new one."),
+    reauthentication_needed: t("Log in again before changing your password."),
 });
 
 function ResetPasswordContent() {
@@ -61,7 +62,7 @@ function ResetPasswordContent() {
     const isUnavailablePreview = preview === "reset-unavailable";
     const displayedReady = isUnavailablePreview || ready;
     const displayedError = isUnavailablePreview
-        ? "This password-reset link is invalid or has expired."
+        ? t("This password-reset link is invalid or has expired.")
         : error;
     const resetUnavailable =
         displayedReady && !!displayedError && !password && !confirmPassword;
@@ -76,7 +77,7 @@ function ResetPasswordContent() {
                 if (cancelled) return;
                 if (!session) {
                     setError(
-                        "This password-reset link is invalid or has expired.",
+                        t("This password-reset link is invalid or has expired."),
                     );
                 }
                 setReady(true);
@@ -89,13 +90,13 @@ function ResetPasswordContent() {
                 const described = describeError(caught, {
                     action: "check your reset link",
                     fallback:
-                        "This password-reset link is invalid or has expired.",
+                        t("This password-reset link is invalid or has expired."),
                 });
                 setError(
                     described.kind === "unauthenticated" ||
                         described.kind === "not_found" ||
                         described.kind === "validation"
-                        ? "This password-reset link is invalid or has expired."
+                        ? t("This password-reset link is invalid or has expired.")
                         : described.message,
                 );
                 setReady(true);
@@ -118,7 +119,7 @@ function ResetPasswordContent() {
             return;
         }
         if (password !== confirmPassword) {
-            setError("Passwords do not match.");
+            setError(t("Passwords do not match."));
             return;
         }
 
@@ -130,7 +131,7 @@ function ResetPasswordContent() {
             const described = describeError(caught, {
                 action: "update your password",
                 codeMessages: RESET_ERROR_MESSAGES,
-                fallback: "Unable to update your password. Try again.",
+                fallback: t("Unable to update your password. Try again."),
             });
             setFailure(described);
             setError(described.message);
@@ -156,20 +157,19 @@ function ResetPasswordContent() {
                         <div>
                             <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
                             <h1 className="mt-4 font-serif text-2xl font-medium text-gray-950">
-                                Verifying your reset link...
+                                {t("Verifying your reset link...")}
                             </h1>
                             <p className="mt-2 text-sm text-gray-500">
-                                This should only take a moment.
+                                {t("This should only take a moment.")}
                             </p>
                         </div>
                     ) : success ? (
                         <div>
                             <h1 className="text-2xl font-medium font-serif text-gray-950">
-                                Password updated
+                                {t("Password updated")}
                             </h1>
                             <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                                Your password has been changed. Log in again
-                                with your new password.
+                                {t("Your password has been changed. Log in again with your new password.")}
                             </p>
                             <Link
                                 href="/login"
@@ -179,13 +179,13 @@ function ResetPasswordContent() {
                                     className: "mt-6",
                                 })}
                             >
-                                Log in
+                                {t("Log in")}
                             </Link>
                         </div>
                     ) : resetUnavailable ? (
                         <div>
                             <h1 className="text-2xl font-medium font-serif text-gray-950">
-                                Reset link unavailable
+                                {t("Reset link unavailable")}
                             </h1>
                             <p className="mt-3 text-sm leading-relaxed text-gray-600">
                                 {displayedError}
@@ -198,13 +198,13 @@ function ResetPasswordContent() {
                                     className: "mt-6",
                                 })}
                             >
-                                Request another link
+                                {t("Request another link")}
                             </Link>
                         </div>
                     ) : (
                         <>
                             <h1 className="text-2xl font-medium font-serif text-gray-950">
-                                Choose a new password
+                                {t("Choose a new password")}
                             </h1>
                             <p className="mt-2 text-sm text-gray-500">
                                 Use at least {MIN_PASSWORD_LENGTH} characters.
@@ -215,7 +215,7 @@ function ResetPasswordContent() {
                             >
                                 <div>
                                     <FieldLabel htmlFor="password">
-                                        New password
+                                        {t("New password")}
                                     </FieldLabel>
                                     <InputUI
                                         id="password"
@@ -231,7 +231,7 @@ function ResetPasswordContent() {
                                 </div>
                                 <div>
                                     <FieldLabel htmlFor="confirmPassword">
-                                        Confirm new password
+                                        {t("Confirm new password")}
                                     </FieldLabel>
                                     <InputUI
                                         id="confirmPassword"
@@ -257,11 +257,11 @@ function ResetPasswordContent() {
                                             <a
                                                 href={supportMailtoFor(
                                                     failure,
-                                                    "Failed to update a password from a reset link.",
+                                                    t("Failed to update a password from a reset link."),
                                                 )}
                                                 className="ml-2 underline underline-offset-2"
                                             >
-                                                Contact support
+                                                {t("Contact support")}
                                             </a>
                                         )}
                                     </div>
@@ -276,8 +276,8 @@ function ResetPasswordContent() {
                                     className="w-full"
                                 >
                                     {loading
-                                        ? "Updating password..."
-                                        : "Update password"}
+                                        ? t("Updating password...")
+                                        : t("Update password")}
                                 </PillButtonUI>
                             </form>
                         </>

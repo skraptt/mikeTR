@@ -15,6 +15,7 @@ import { SettingsPersonalisationFields } from "@/app/components/settings/Setting
 import { SettingsRow } from "@/app/components/settings/SettingsRow";
 import { useUserProfile } from "@/app/contexts/UserProfileContext";
 import type { PersonalisationDetails } from "@/app/lib/mikeApi";
+import { t } from "@/shared/i18n";
 
 function fieldStatus(
   field: PersonalisationField,
@@ -110,7 +111,7 @@ function PersonalisationForm({
         setSavingField((current) => (current === field ? null : current));
         if (latestSnapshotRef.current !== snapshot) return;
         if (!success) {
-          setError("Unable to save your personalisation settings");
+          setError(t("Unable to save your personalisation settings"));
           return;
         }
         setSavedField(field);
@@ -145,15 +146,14 @@ function PersonalisationForm({
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <SettingsHeading>Your background</SettingsHeading>
+        <SettingsHeading>{t("Your background")}</SettingsHeading>
         <SettingsDescription>
-          Tell Mike about your role and practice so responses can be tailored to
-          your professional context.
+          {t("Tell Mike about your role and practice so responses can be tailored to your professional context.")}
         </SettingsDescription>
         <GlassCardUI>
           <SettingsPersonalisationFields
             form={form}
-            practiceAreasAriaLabel="Practice areas"
+            practiceAreasAriaLabel={t("Practice areas")}
             statusFor={(field) => fieldStatus(field, savingField, savedField)}
           />
 
@@ -184,7 +184,7 @@ function PersonalisationForm({
                   onClick={() => setRetryVersion((current) => current + 1)}
                   className="font-medium text-gray-700 hover:text-gray-950"
                 >
-                  Retry
+                  {t("Retry")}
                 </button>
               </div>
             </SettingsRow>

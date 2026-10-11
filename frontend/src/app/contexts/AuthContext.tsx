@@ -22,6 +22,7 @@ import { AUTH_SESSION_INVALIDATED_EVENT } from "@/app/lib/authEvents";
 import { setReportingUser } from "@/app/lib/errorReporting";
 import { isOnAuthRoute, notifyError } from "@/app/lib/userFacingError";
 import { clearToasts } from "@/shared/ui/ToastUI";
+import { t } from "@/shared/i18n";
 
 type User = AuthUser;
 
@@ -40,11 +41,12 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AUTH_SYNC_CHANNEL = "mike-auth-state";
 const AUTH_SYNC_STORAGE_KEY = "mike-auth-state-change";
-const SESSION_ERROR_MESSAGE =
-    "We could not check your session. Please try again.";
+const SESSION_ERROR_MESSAGE = t(
+    "We could not check your session. Please try again.",
+);
 /** One toast for the session, however many background checks fail. */
 const SESSION_TOAST_KEY = "auth-session";
-const EXPIRED_SESSION_MESSAGE = "Your session expired. Please log in again.";
+const EXPIRED_SESSION_MESSAGE = t("Your session expired. Please log in again.");
 
 type AuthSyncMessage = {
     state: "signed-in" | "signed-out";

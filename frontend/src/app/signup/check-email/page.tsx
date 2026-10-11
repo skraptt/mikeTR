@@ -8,6 +8,7 @@ import { authGlassCardUIClassName } from "@/shared/ui/AuthStylesUI";
 import { SiteLogo } from "@/app/components/site-logo";
 import { pillButtonUIClassName } from "@/shared/ui/PillButtonUI.styles";
 import { useAuth } from "@/app/contexts/AuthContext";
+import { t } from "@/shared/i18n";
 
 export default function SignupCheckEmailPage() {
     const router = useRouter();
@@ -31,11 +32,10 @@ export default function SignupCheckEmailPage() {
                     ) : (
                         <>
                             <h1 className="font-serif text-2xl font-medium text-gray-950">
-                                Check your email
+                                {t("Check your email")}
                             </h1>
                             <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                                We sent a confirmation link to your email
-                                address. Confirm your address before logging in.
+                                {t("We sent a confirmation link to your email address. Confirm your address before logging in.")}
                             </p>
                             <Link
                                 href="/login"
@@ -45,7 +45,7 @@ export default function SignupCheckEmailPage() {
                                     className: "mt-6",
                                 })}
                             >
-                                Return to login
+                                {t("Return to login")}
                             </Link>
                         </>
                     )}

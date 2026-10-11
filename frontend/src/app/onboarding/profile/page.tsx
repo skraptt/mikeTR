@@ -11,6 +11,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { useUserProfile } from "@/app/contexts/UserProfileContext";
 import { updateUserProfile } from "@/app/lib/mikeApi";
 import { FieldLabel } from "@/app/components/ui/form-field";
+import { t } from "@/shared/i18n";
 
 export default function OnboardingProfilePage() {
     const router = useRouter();
@@ -65,7 +66,7 @@ function ProfileDetailsForm({
             setError(
                 submitError instanceof Error
                     ? submitError.message
-                    : "Unable to save your details",
+                    : t("Unable to save your details"),
             );
         } finally {
             setSubmitting(false);
@@ -75,13 +76,13 @@ function ProfileDetailsForm({
     return (
         <OnboardingShell
             step="Step 1 of 2"
-            title="Tell us about you"
-            description="Add the details we should use across Mike."
+            title={t("Tell us about you")}
+            description={t("Add the details we should use across Mike.")}
         >
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <FieldLabel htmlFor="name">
-                        Name
+                        {t("Name")}
                     </FieldLabel>
                     <InputUI
                         id="name"
@@ -95,7 +96,7 @@ function ProfileDetailsForm({
 
                 <div>
                     <FieldLabel htmlFor="organisation">
-                        Organisation
+                        {t("Organisation")}
                     </FieldLabel>
                     <InputUI
                         id="organisation"

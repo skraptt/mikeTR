@@ -28,6 +28,7 @@ import {
   isSafeAccountModelId,
 } from "@/app/lib/accountModelIds";
 import { SettingsDescription } from "./SettingsText";
+import { t } from "@/shared/i18n";
 
 const COST_FORMATTER = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -93,7 +94,7 @@ const ROUTER_MODEL_ID: Record<
   },
   bedrock: {
     accepts: accountModelId("bedrock"),
-    shape: "a Bedrock model or inference-profile ID with no spaces",
+    shape: t("a Bedrock model or inference-profile ID with no spaces"),
     example: "us.anthropic.claude-opus-5-5",
   },
   azure: {
@@ -105,13 +106,13 @@ const ROUTER_MODEL_ID: Record<
     accepts: accountModelId("azure-foundry"),
     shape: "a deployment name with no spaces",
     example: "claude-opus-5-5",
-    hint: "Claude deployments are recognised by name. If a deployment is named differently, add it as anthropic:<name>, or openai:<name> for any other model.",
+    hint: t("Claude deployments are recognised by name. If a deployment is named differently, add it as anthropic:<name>, or openai:<name> for any other model."),
   },
   vertex: {
     accepts: accountModelId("vertex"),
-    shape: "a Vertex AI model ID with no spaces",
+    shape: t("a Vertex AI model ID with no spaces"),
     example: "gemini-3.1-pro-preview",
-    hint: "Claude and publisher/model IDs are recognised by name. For other partner models add openai:<id>; anthropic:<id> and gemini:<id> also work.",
+    hint: t("Claude and publisher/model IDs are recognised by name. For other partner models add openai:<id>; anthropic:<id> and gemini:<id> also work."),
   },
   xai: {
     accepts: accountModelId("xai"),
@@ -208,9 +209,9 @@ export function RouterSettingsSection({ provider }: { provider?: RouterSlug } = 
 
   return (
     <section id="routers" className="scroll-mt-6 space-y-3">
-      <FieldLabel as="p">Model Selections</FieldLabel>
+      <FieldLabel as="p">{t("Model Selections")}</FieldLabel>
       <SettingsDescription>
-        Add the models you want to use. Saved models appear in model selectors.
+        {t("Add the models you want to use. Saved models appear in model selectors.")}
       </SettingsDescription>
       <div className="space-y-4">
         {visible.map((router) => (
@@ -269,7 +270,7 @@ function RouterModelsSetting({
         if (!cancelled) {
           setCatalog([]);
           setError(
-            `${label}'s model list could not be loaded. You can still type a model ID.`,
+            t("{provider}'s model list could not be loaded. You can still type a model ID.", { provider: label }),
           );
         }
       });
@@ -327,8 +328,11 @@ function RouterModelsSetting({
     if (!model) {
       setError(
         candidate.length > MAX_MODEL_ID_LENGTH
-          ? `Model IDs are at most ${MAX_MODEL_ID_LENGTH} characters.`
-          : `"${candidate}" is not a model ID — pick one from the list, or type it as ${ROUTER_MODEL_ID[provider].shape}.`,
+          ? t("Model IDs are at most {max} characters.", { max: MAX_MODEL_ID_LENGTH })
+          : t("\"{candidate}\" is not a model ID — pick one from the list, or type it as {shape}.", {
+              candidate,
+              shape: ROUTER_MODEL_ID[provider].shape,
+            }),
       );
       return;
     }
@@ -487,7 +491,7 @@ function RouterModelsSetting({
                             disagree with aria-activedescendant. */}
             {typedModelId && (
               <div className="px-3 py-2 text-xs text-gray-400">
-                Press Enter to add this model ID.
+                {t("Press Enter to add this model ID.")}
               </div>
             )}
             <div
@@ -536,7 +540,7 @@ function RouterModelsSetting({
             </div>
             {visibleCatalog.length === 0 && (
               <div className="px-3 py-2 text-xs text-gray-400">
-                No matching models.
+                {t("No matching models.")}
               </div>
             )}
           </DropdownSurface>

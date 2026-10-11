@@ -20,15 +20,16 @@ import {
     type UserFacingError,
 } from "@/app/lib/userFacingError";
 import { authMessages } from "@/app/lib/authMessages";
+import { t } from "@/shared/i18n";
 
 /** The shared auth table with this screen's deltas. */
 const MFA_ERROR_MESSAGES = authMessages({
     // Only here is a missing authenticator a lock-out rather than a
     // settings row that disappeared.
     mfa_factor_not_found:
-        "This authenticator is no longer registered. Contact support to regain access.",
-    validation_failed: "Enter the six-digit code from your authenticator app.",
-    invalid_request: "Enter the six-digit code from your authenticator app.",
+        t("This authenticator is no longer registered. Contact support to regain access."),
+    validation_failed: t("Enter the six-digit code from your authenticator app."),
+    invalid_request: t("Enter the six-digit code from your authenticator app."),
 });
 
 type MfaFactor = {
@@ -104,7 +105,7 @@ export default function VerifyMfaPage() {
                     setError(
                         describeError(
                             new UserVisibleError(
-                                "No verified authenticator is registered for this account. Contact support to regain access.",
+                                t("No verified authenticator is registered for this account. Contact support to regain access."),
                                 { kind: "forbidden" },
                             ),
                             { action: "verify your identity" },
@@ -118,7 +119,7 @@ export default function VerifyMfaPage() {
                         action: "load your authenticator",
                         codeMessages: MFA_ERROR_MESSAGES,
                         fallback:
-                            "Unable to load authenticator verification. Try again.",
+                            t("Unable to load authenticator verification. Try again."),
                     }),
                 );
             } finally {
@@ -146,7 +147,7 @@ export default function VerifyMfaPage() {
                 describeError(caught, {
                     action: "verify that code",
                     codeMessages: MFA_ERROR_MESSAGES,
-                    fallback: "That code is invalid or expired.",
+                    fallback: t("That code is invalid or expired."),
                 }),
             );
             return;
@@ -167,7 +168,7 @@ export default function VerifyMfaPage() {
             setError(
                 describeError(caught, {
                     action: "sign out",
-                    fallback: "Unable to sign out. Try again.",
+                    fallback: t("Unable to sign out. Try again."),
                 }),
             );
         }
@@ -181,11 +182,10 @@ export default function VerifyMfaPage() {
             <div className={`w-full max-w-md ${authGlassCardUIClassName}`}>
                 <div className="mb-8 space-y-2">
                     <h1 className="font-serif text-2xl font-medium text-gray-950">
-                        Verify your identity
+                        {t("Verify your identity")}
                     </h1>
                     <p className="text-sm text-gray-500">
-                        Enter the six-digit code from your authenticator app to
-                        continue.
+                        {t("Enter the six-digit code from your authenticator app to continue.")}
                     </p>
                 </div>
 
@@ -193,12 +193,11 @@ export default function VerifyMfaPage() {
                     {displayedLoading ? (
                         <div className="flex h-13 items-center justify-center text-sm text-gray-500">
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Loading authenticator...
+                            {t("Loading authenticator...")}
                         </div>
                     ) : displayedFactors.length === 0 ? (
                         <p className="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-600">
-                            No verified authenticator factor is available for
-                            this session.
+                            {t("No verified authenticator factor is available for this session.")}
                         </p>
                     ) : (
                         <>
@@ -216,7 +215,7 @@ export default function VerifyMfaPage() {
                                             value={factor.id}
                                         >
                                             {factor.friendly_name ||
-                                                "Authenticator app"}
+                                                t("Authenticator app")}
                                         </option>
                                     ))}
                                 </select>
@@ -239,11 +238,11 @@ export default function VerifyMfaPage() {
                                 <a
                                     href={supportMailtoFor(
                                         error,
-                                        "Failed two-factor verification at login.",
+                                        t("Failed two-factor verification at login."),
                                     )}
                                     className="ml-2 underline underline-offset-2"
                                 >
-                                    Contact support
+                                    {t("Contact support")}
                                 </a>
                             )}
                         </p>
@@ -256,7 +255,7 @@ export default function VerifyMfaPage() {
                             disabled={verifying}
                             className="px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-950 disabled:cursor-not-allowed disabled:text-gray-400"
                         >
-                            Cancel
+                            {t("Cancel")}
                         </button>
                         <PillButtonUI
                             tone="black"

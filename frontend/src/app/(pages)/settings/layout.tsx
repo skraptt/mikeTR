@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { settingsTabButtonClassName } from "./settingsStyles";
+import { t } from "@/shared/i18n";
 
 interface TabDef {
     id: string;
@@ -13,28 +14,28 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-    { id: "account", label: "Account", href: "/settings" },
+    { id: "account", label: t("Account"), href: "/settings" },
     {
         id: "personalisation",
-        label: "Personalisation",
+        label: t("Personalisation"),
         href: "/settings/personalisation",
     },
-    { id: "memory", label: "Memory", href: "/settings/memory" },
-    { id: "appearance", label: "Appearance", href: "/settings/appearance" },
-    { id: "features", label: "Features", href: "/settings/features" },
+    { id: "memory", label: t("Memory"), href: "/settings/memory" },
+    { id: "appearance", label: t("Appearance"), href: "/settings/appearance" },
+    { id: "features", label: t("Features"), href: "/settings/features" },
     {
         id: "privacy-data",
-        label: "Privacy & Data",
+        label: t("Privacy & Data"),
         href: "/settings/privacy-data",
     },
-    { id: "security", label: "Security", href: "/settings/security" },
-    { id: "models", label: "Model Preferences", href: "/settings/models" },
+    { id: "security", label: t("Security"), href: "/settings/security" },
+    { id: "models", label: t("Model Preferences"), href: "/settings/models" },
     {
         id: "byok",
-        label: "Bring Your Own Keys",
+        label: t("Bring Your Own Keys"),
         href: "/settings/byok",
     },
-    { id: "connectors", label: "Connectors", href: "/settings/connectors" },
+    { id: "connectors", label: t("Connectors"), href: "/settings/connectors" },
 ];
 
 export default function SettingsLayout({
@@ -68,14 +69,14 @@ export default function SettingsLayout({
         <div className="flex h-full flex-col overflow-y-auto">
             <header className="mx-auto flex h-16 w-full max-w-5xl shrink-0 items-end px-6 pb-2 md:h-24 md:pb-4">
                 <h1 className="text-4xl font-medium font-eb-garamond">
-                    Settings
+                    {t("Settings")}
                 </h1>
             </header>
 
             <main className="@container/settings mx-auto w-full max-w-5xl flex-1 px-6 pb-10 pt-4 md:pt-6">
                 <div className="grid grid-cols-1 gap-y-6 @min-[52rem]/settings:grid-cols-[224px_minmax(0,1fr)] @min-[52rem]/settings:gap-x-10">
                     <nav
-                        aria-label="Settings"
+                        aria-label={t("Settings")}
                         className="z-10 -ml-3 min-w-0 self-start @min-[52rem]/settings:sticky @min-[52rem]/settings:top-4"
                     >
                         <div className="-m-1 min-w-0 p-1">

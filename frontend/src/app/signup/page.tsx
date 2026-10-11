@@ -21,6 +21,7 @@ import {
     type UserFacingError,
 } from "@/app/lib/userFacingError";
 import { t } from "@/shared/i18n";
+import { withNodes } from "@/shared/i18n/react";
 
 
 /** A failure the form found itself, so the text is already user-facing. */
@@ -253,24 +254,28 @@ function SignupContent() {
 
                         <div className="space-y-3 pt-2">
                             <div className="text-center text-xs text-gray-500">
-                                By signing up, you agree to our{" "}
-                                <Link
-                                    href="https://mikeoss.com/terms"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    Terms of Use
-                                </Link>{" "}
-                                and{" "}
-                                <Link
-                                    href="https://mikeoss.com/privacy"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    Privacy Policy
-                                </Link>
+                                {withNodes(t("By signing up, you agree to our {terms} and {privacy}"), {
+                                    terms: (
+                                        <Link
+                                            href="https://mikeoss.com/terms"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:underline"
+                                        >
+                                            {t("Terms of Use")}
+                                        </Link>
+                                    ),
+                                    privacy: (
+                                        <Link
+                                            href="https://mikeoss.com/privacy"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:underline"
+                                        >
+                                            {t("Privacy Policy")}
+                                        </Link>
+                                    ),
+                                })}
                             </div>
                             <PillButtonUI
                                 type="submit"

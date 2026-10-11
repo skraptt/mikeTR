@@ -12,6 +12,7 @@ import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { FullScreenLoader } from "@/app/components/shared/FullScreenLoader";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useUserProfile } from "@/app/contexts/UserProfileContext";
+import { t } from "@/shared/i18n";
 
 export default function OnboardingPracticePage() {
     const router = useRouter();
@@ -54,7 +55,7 @@ function PracticeDetailsForm({
         if (saved) {
             router.replace("/assistant");
         } else {
-            setError("Unable to save your practice details");
+            setError(t("Unable to save your practice details"));
             setSubmitting(false);
         }
     };
@@ -85,8 +86,8 @@ function PracticeDetailsForm({
     return (
         <OnboardingShell
             step="Step 2 of 2"
-            title="Your legal practice"
-            description="Optionally add your professional setting, primary jurisdiction, and the areas you work in."
+            title={t("Your legal practice")}
+            description={t("Optionally add your professional setting, primary jurisdiction, and the areas you work in.")}
         >
             <form onSubmit={handleSubmit}>
                 <PersonalisationFields
@@ -117,7 +118,7 @@ function PracticeDetailsForm({
                         disabled={submitting}
                         onClick={() => router.push("/onboarding/profile")}
                     >
-                        Back
+                        {t("Back")}
                     </PillButtonUI>
                     <div className="flex items-center gap-4">
                         <button
@@ -126,7 +127,7 @@ function PracticeDetailsForm({
                             onClick={() => void finishOnboarding({})}
                             className="text-sm font-medium text-gray-500 transition-colors hover:text-gray-950 disabled:cursor-not-allowed disabled:text-gray-300"
                         >
-                            Skip
+                            {t("Skip")}
                         </button>
                         <PillButtonUI
                             type="submit"

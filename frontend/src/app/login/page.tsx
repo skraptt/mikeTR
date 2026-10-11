@@ -323,8 +323,8 @@ export default function LoginPage() {
                                     className="ml-2 underline underline-offset-2 disabled:no-underline disabled:opacity-60"
                                 >
                                     {retryingSession
-                                        ? "Retrying..."
-                                        : "Retry"}
+                                        ? t("Retrying...")
+                                        : t("Retry")}
                                 </button>
                             )}
                             {error?.retryable && loginMode && (
@@ -356,7 +356,7 @@ export default function LoginPage() {
                     )}
                 </div>
                 <div className="text-center text-sm text-gray-500">
-                    Don&apos;t have an account?{" "}
+                    {t("Don't have an account?")}{" "}
                     <Link
                         href="/signup"
                         className="font-medium transition-colors hover:text-gray-950"

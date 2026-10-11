@@ -27,6 +27,7 @@ import {
 } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { cn } from "@/app/lib/utils";
+import { t } from "@/shared/i18n";
 
 type OptionCopy = { label: string; description: string };
 
@@ -38,14 +39,14 @@ function languageOptions(
 ): Record<ResponseLanguage, OptionCopy> {
   const options = {
     auto: {
-      label: "Automatic",
-      description: "Mike replies in the language you write in.",
+      label: t("Automatic"),
+      description: t("Mike replies in the language you write in."),
     },
   } as Record<ResponseLanguage, OptionCopy>;
   for (const [code, name] of Object.entries(names)) {
     options[code as ResponseLanguage] = {
-      label: name,
-      description: `Mike replies in ${name}.`,
+      label: t(name),
+      description: t("Mike replies in {language}.", { language: t(name) }),
     };
   }
   return options;
@@ -60,59 +61,59 @@ const SETTINGS: {
   };
 } = {
   verbosity: {
-    label: "Verbosity",
+    label: t("Verbosity"),
     options: {
       concise: {
-        label: "Concise",
-        description: "Short, direct answers that lead with the conclusion.",
+        label: t("Concise"),
+        description: t("Short, direct answers that lead with the conclusion."),
       },
       balanced: {
-        label: "Balanced",
-        description: "Enough explanation to follow the reasoning.",
+        label: t("Balanced"),
+        description: t("Enough explanation to follow the reasoning."),
       },
       detailed: {
-        label: "Detailed",
-        description: "Fuller reasoning, exceptions, and practical next steps.",
+        label: t("Detailed"),
+        description: t("Fuller reasoning, exceptions, and practical next steps."),
       },
     },
   },
   formatting: {
-    label: "Headers and Lists",
+    label: t("Headers and Lists"),
     options: {
       balanced: {
-        label: "Balanced",
-        description: "Mike picks the layout that suits each answer.",
+        label: t("Balanced"),
+        description: t("Mike picks the layout that suits each answer."),
       },
       less: {
-        label: "Less",
-        description: "Mostly prose, with headings and lists only when needed.",
+        label: t("Less"),
+        description: t("Mostly prose, with headings and lists only when needed."),
       },
       more: {
-        label: "More",
-        description: "Headings, bullet points, and tables for easy scanning.",
+        label: t("More"),
+        description: t("Headings, bullet points, and tables for easy scanning."),
       },
     },
   },
   tone: {
-    label: "Tone",
+    label: t("Tone"),
     options: {
       formal: {
-        label: "Formal and Legal",
+        label: t("Formal and Legal"),
         description: "A precise, client-ready legal register.",
       },
       balanced: {
-        label: "Balanced",
+        label: t("Balanced"),
         description: "Mike's usual professional tone.",
       },
       plain: {
-        label: "Plain and Simple",
+        label: t("Plain and Simple"),
         description:
-          "Short sentences and everyday words, with legal terms explained.",
+          t("Short sentences and everyday words, with legal terms explained."),
       },
     },
   },
   language: {
-    label: "Language",
+    label: t("Language"),
     options: languageOptions({
       "en-US": "English (US)",
       "en-GB": "English (UK)",
@@ -200,7 +201,7 @@ export function ResponseStyleSection() {
         ...current,
         [field]: userFacingApiError(
           error,
-          "This setting could not be saved. Please try again.",
+          t("This setting could not be saved. Please try again."),
         ),
       }));
     }
@@ -208,15 +209,15 @@ export function ResponseStyleSection() {
 
   return (
     <section className="space-y-3" aria-labelledby="response-style-heading">
-      <SettingsHeading id="response-style-heading">Response style</SettingsHeading>
+      <SettingsHeading id="response-style-heading">{t("Response style")}</SettingsHeading>
       <SettingsDescription>
-        Choose how Mike shapes its answers in chats.
+        {t("Choose how Mike shapes its answers in chats.")}
       </SettingsDescription>
       <GlassCardUI>
         {loadError ? (
           <SettingsRow>
             <p className="text-sm text-red-600" role="alert">
-              Could not load your response style.
+              {t("Could not load your response style.")}
             </p>
             <PillButtonUI
               tone="white"
@@ -226,7 +227,7 @@ export function ResponseStyleSection() {
                 setLoadVersion((current) => current + 1);
               }}
             >
-              Retry
+              {t("Retry")}
             </PillButtonUI>
           </SettingsRow>
         ) : (
@@ -301,7 +302,7 @@ function StyleSettingRow({
               authInputUIClassName,
             )}
           >
-            <span className="truncate">{selected?.label ?? "Loading..."}</span>
+            <span className="truncate">{selected?.label ?? t("Loading...")}</span>
             <ChevronDown className="h-4 w-4 shrink-0 text-gray-400" />
           </button>
         </DropdownTrigger>

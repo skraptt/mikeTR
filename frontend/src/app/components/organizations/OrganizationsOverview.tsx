@@ -34,6 +34,7 @@ import { ORG_ROLE_LABELS } from "@/app/lib/permissions";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { LIQUID_SUBTLE_PANEL_SURFACE_CLASS } from "@/app/components/ui/liquid-surface";
 import { CreateOrganizationModal } from "./OrganizationModals";
+import { t } from "@/shared/i18n";
 
 type OrganizationFilter = "managed" | "joined" | "invites";
 type OrganizationSortKey = "name" | "members" | "created";
@@ -85,7 +86,7 @@ export function OrganizationsOverview() {
       // two halves of one screen answered the same kind of failure
       // differently — and the more useful answer was the one discarded.
       setLoadError(
-        userFacingApiError(orgsResult.reason, "Could not load organizations."),
+        userFacingApiError(orgsResult.reason, t("Could not load organizations.")),
       );
       setOrgs([]);
     }
@@ -98,7 +99,7 @@ export function OrganizationsOverview() {
       setInvitationsError(
         userFacingApiError(
           invitationsResult.reason,
-          "Could not load your invitations.",
+          t("Could not load your invitations."),
         ),
       );
     }
@@ -116,7 +117,7 @@ export function OrganizationsOverview() {
       else await declineOrgInvitation(invitation.id);
     } catch (error) {
       setInvitationError(
-        userFacingApiError(error, "Could not answer that invitation."),
+        userFacingApiError(error, t("Could not answer that invitation.")),
       );
     } finally {
       setAnsweringId(null);
@@ -183,13 +184,13 @@ export function OrganizationsOverview() {
         actions={[
           {
             type: "new",
-            title: "New organization",
+            title: t("New organization"),
             onClick: () => setCreateOpen(true),
           },
         ]}
       >
         <h1 className="font-serif text-2xl font-medium text-gray-900">
-          Organizations
+          {t("Organizations")}
         </h1>
       </PageHeader>
 
@@ -212,12 +213,12 @@ export function OrganizationsOverview() {
           <div className="mx-4 mb-3 flex min-h-0 flex-1 items-center justify-center md:mx-8">
             <EmptyState
               icon={<OrganizationSkeuoIcon />}
-              title="Invitations"
+              title={t("Invitations")}
               description={invitationsError}
               tone="error"
               action={
                 <PillButtonUI tone="black" size="sm" onClick={() => void load()}>
-                  Try again
+                  {t("Try again")}
                 </PillButtonUI>
               }
             />
@@ -225,8 +226,8 @@ export function OrganizationsOverview() {
         ) : invitations.length === 0 ? (
           <div className="mx-4 mb-3 flex min-h-0 flex-1 items-center justify-center md:mx-8">
             <EmptyState
-              title="Invitations"
-              description="You have no active organization invitations."
+              title={t("Invitations")}
+              description={t("You have no active organization invitations.")}
             />
           </div>
         ) : (
@@ -241,7 +242,7 @@ export function OrganizationsOverview() {
                 >
                   <p className="min-w-0 flex-1 text-xs text-gray-600">
                     <span className="font-medium text-gray-800">
-                      {invitation.org_name ?? "An organization"}
+                      {invitation.org_name ?? t("An organization")}
                     </span>{" "}
                     invited you as {ORG_ROLE_LABELS[invitation.role]}.
                   </p>
@@ -254,7 +255,7 @@ export function OrganizationsOverview() {
                       onClick={() => void answer(invitation, true)}
                     >
                       <Check className="h-3.5 w-3.5" />
-                      Accept
+                      {t("Accept")}
                     </PillButtonUI>
                     <PillButtonUI
                       tone="white"
@@ -262,7 +263,7 @@ export function OrganizationsOverview() {
                       disabled={answeringId === invitation.id}
                       onClick={() => void answer(invitation, false)}
                     >
-                      Decline
+                      {t("Decline")}
                     </PillButtonUI>
                   </div>
                 </div>
@@ -275,35 +276,35 @@ export function OrganizationsOverview() {
           header={
             <TableHeaderRow>
               <TableStickyCell header>
-                <span className="mr-1">Name</span>
+                <span className="mr-1">{t("Name")}</span>
                 {!loading ? (
                   <TableSortFilter
-                    label="Sort by organization name"
+                    label={t("Sort by organization name")}
                     value={sort?.key === "name" ? sort.direction : null}
-                    allLabel="Default order"
+                    allLabel={t("Default order")}
                     align="right"
                     onChange={(direction) => setSortFor("name", direction)}
                   />
                 ) : null}
               </TableStickyCell>
               <TableHeaderCell className="ml-auto w-32">
-                <span className="mr-1">Members</span>
+                <span className="mr-1">{t("Members")}</span>
                 {!loading ? (
                   <TableSortFilter
-                    label="Sort by member count"
+                    label={t("Sort by member count")}
                     value={sort?.key === "members" ? sort.direction : null}
-                    allLabel="Default order"
+                    allLabel={t("Default order")}
                     onChange={(direction) => setSortFor("members", direction)}
                   />
                 ) : null}
               </TableHeaderCell>
               <TableHeaderCell className="w-36">
-                <span className="mr-1">Created</span>
+                <span className="mr-1">{t("Created")}</span>
                 {!loading ? (
                   <TableSortFilter
-                    label="Sort by creation date"
+                    label={t("Sort by creation date")}
                     value={sort?.key === "created" ? sort.direction : null}
-                    allLabel="Default order"
+                    allLabel={t("Default order")}
                     onChange={(direction) => setSortFor("created", direction)}
                   />
                 ) : null}
@@ -335,7 +336,7 @@ export function OrganizationsOverview() {
             <TableEmptyState>
               <EmptyState
                 icon={<OrganizationSkeuoIcon />}
-                title="Organizations"
+                title={t("Organizations")}
                 description={loadError}
                 tone="error"
                 action={
@@ -344,7 +345,7 @@ export function OrganizationsOverview() {
                     size="sm"
                     onClick={() => void load()}
                   >
-                    Try again
+                    {t("Try again")}
                   </PillButtonUI>
                 }
               />
@@ -353,15 +354,15 @@ export function OrganizationsOverview() {
             <TableEmptyState>
               <EmptyState
                 icon={<OrganizationSkeuoIcon />}
-                title="Organizations"
-                description="Create an organization to share projects, chats and reviews with your team."
+                title={t("Organizations")}
+                description={t("Create an organization to share projects, chats and reviews with your team.")}
                 action={
                   <PillButtonUI
                     tone="black"
                     size="sm"
                     onClick={() => setCreateOpen(true)}
                   >
-                    Create
+                    {t("Create")}
                   </PillButtonUI>
                 }
               />
@@ -370,8 +371,8 @@ export function OrganizationsOverview() {
             <TableEmptyState>
               <p className="text-sm text-gray-400">
                 {activeFilter === "managed"
-                  ? "No managed organizations"
-                  : "No joined organizations"}
+                  ? t("No managed organizations")
+                  : t("No joined organizations")}
               </p>
             </TableEmptyState>
           ) : (
@@ -428,7 +429,7 @@ export function OrganizationsOverview() {
       />
       <WarningPopup
         open={invitationError !== null}
-        title="Invitation not updated"
+        title={t("Invitation not updated")}
         message={invitationError}
         onClose={() => setInvitationError(null)}
       />

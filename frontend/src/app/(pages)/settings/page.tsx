@@ -24,6 +24,7 @@ import {
 import { GlassCardUI } from "@/shared/ui/GlassCardUI";
 import { SettingsHeading } from "@/app/components/settings/SettingsHeading";
 import { SettingsRow } from "@/app/components/settings/SettingsRow";
+import { t } from "@/shared/i18n";
 
 const isDev = process.env.NODE_ENV !== "production";
 const devLog = (...args: Parameters<typeof console.log>) => {
@@ -93,8 +94,8 @@ export default function SettingsPage() {
     }
     setEmailStatus(
       user.pendingEmail
-        ? "One confirmation was accepted. Confirm the email change from both your current and new addresses to finish."
-        : "Email updated.",
+        ? t("One confirmation was accepted. Confirm the email change from both your current and new addresses to finish.")
+        : t("Email updated."),
     );
     window.history.replaceState({}, "", "/settings");
   }, [user]);
@@ -132,7 +133,7 @@ export default function SettingsPage() {
       setDeleteError(
         userFacingApiError(
           error,
-          "Your account could not be deleted. Please try again.",
+          t("Your account could not be deleted. Please try again."),
         ),
       );
     }
@@ -162,8 +163,11 @@ export default function SettingsPage() {
       setEmailSaved(true);
       setEmailStatus(
         pendingEmail
-          ? `Confirmation sent to your current address and ${pendingEmail}. Confirm both messages to finish the change. Your current email remains ${updatedUser.email} until then.`
-          : "Email updated.",
+          ? t(
+              "Confirmation sent to your current address and {pendingEmail}. Confirm both messages to finish the change. Your current email remains {currentEmail} until then.",
+              { pendingEmail, currentEmail: updatedUser.email ?? "" },
+            )
+          : t("Email updated."),
       );
       setTimeout(() => setEmailSaved(false), 2000);
     } catch (error: unknown) {
@@ -171,13 +175,13 @@ export default function SettingsPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "Failed to update email. Please try again.";
+          : t("Failed to update email. Please try again.");
 
       if (isAlreadyRegisteredEmailError(message)) {
         setEmail(user?.pendingEmail || user?.email || "");
         setEmailWarning({
-          title: "Email already registered",
-          message: "An account with this email already exists.",
+          title: t("Email already registered"),
+          message: t("An account with this email already exists."),
         });
         return;
       }
@@ -185,14 +189,14 @@ export default function SettingsPage() {
       if (isEmailRateLimitError(message)) {
         setEmail(user?.pendingEmail || user?.email || "");
         setEmailWarning({
-          title: "Email change unavailable",
+          title: t("Email change unavailable"),
           message:
-            "You can’t change your email this often. Please wait before trying again.",
+            t("You can’t change your email this often. Please wait before trying again."),
         });
         return;
       }
 
-      setEmailStatus("Failed to update email. Please try again.");
+      setEmailStatus(t("Failed to update email. Please try again."));
     } finally {
       setIsSavingEmail(false);
     }
@@ -210,7 +214,7 @@ export default function SettingsPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } else {
-      setNameError("Unable to save your name.");
+      setNameError(t("Unable to save your name."));
     }
   };
 
@@ -226,7 +230,7 @@ export default function SettingsPage() {
       setOrgSaved(true);
       setTimeout(() => setOrgSaved(false), 2000);
     } else {
-      setOrgError("Unable to save your organisation.");
+      setOrgError(t("Unable to save your organisation."));
     }
   };
 
@@ -236,12 +240,12 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {/* Profile Settings */}
       <section className="space-y-3">
-        <SettingsHeading>Profile</SettingsHeading>
+        <SettingsHeading>{t("Profile")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow layout="stacked">
             <div>
               <div className="flex items-start justify-between gap-3">
-                <FieldLabel htmlFor="display-name">Display Name</FieldLabel>
+                <FieldLabel htmlFor="display-name">{t("Display Name")}</FieldLabel>
                 <span
                   className={`text-xs ${nameError ? "text-red-600" : "text-gray-400"}`}
                   aria-live="polite"
@@ -265,14 +269,14 @@ export default function SettingsPage() {
                   setSaved(false);
                 }}
                 onBlur={() => void handleSaveDisplayName()}
-                placeholder="Enter your name"
+                placeholder={t("Enter your name")}
               />
             </div>
           </SettingsRow>
           <SettingsRow layout="stacked">
             <div>
               <div className="flex items-start justify-between gap-3">
-                <FieldLabel htmlFor="organisation">Organisation</FieldLabel>
+                <FieldLabel htmlFor="organisation">{t("Organisation")}</FieldLabel>
                 <span
                   className={`text-xs ${orgError ? "text-red-600" : "text-gray-400"}`}
                   aria-live="polite"
@@ -296,7 +300,7 @@ export default function SettingsPage() {
                   setOrgSaved(false);
                 }}
                 onBlur={() => void handleSaveOrganisation()}
-                placeholder="Enter your organisation"
+                placeholder={t("Enter your organisation")}
               />
             </div>
           </SettingsRow>
@@ -305,12 +309,12 @@ export default function SettingsPage() {
 
       {/* Email */}
       <section className="space-y-3">
-        <SettingsHeading>Email</SettingsHeading>
+        <SettingsHeading>{t("Email")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow layout="stacked">
             <div className="space-y-2">
               <SettingsTextInput
-                aria-label="Email address"
+                aria-label={t("Email address")}
                 type="email"
                 value={email}
                 disabled={requiresPasswordForEmailChange}
@@ -320,7 +324,7 @@ export default function SettingsPage() {
                   setEmailWarning(null);
                   setEmailSaved(false);
                 }}
-                placeholder="Enter your email"
+                placeholder={t("Enter your email")}
               />
               {emailStatus ? (
                 <p className="text-xs text-gray-500">{emailStatus}</p>
@@ -364,7 +368,7 @@ export default function SettingsPage() {
 
       {/* Plan */}
       <section className="space-y-3">
-        <SettingsHeading>Usage Plan</SettingsHeading>
+        <SettingsHeading>{t("Usage Plan")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow layout="stacked">
             <p className="text-base font-medium text-gray-500 capitalize">
@@ -376,14 +380,13 @@ export default function SettingsPage() {
 
       {/* Danger Zone */}
       <section className="space-y-3">
-        <SettingsHeading tone="danger">Danger Zone</SettingsHeading>
+        <SettingsHeading tone="danger">{t("Danger Zone")}</SettingsHeading>
         <GlassCardUI>
           <SettingsRow>
             <div className="min-w-0 space-y-1">
-              <SettingsLabel>Delete account</SettingsLabel>
+              <SettingsLabel>{t("Delete account")}</SettingsLabel>
               <SettingsDescription>
-                Permanently delete your account and all associated data. This
-                action cannot be undone.
+                {t("Permanently delete your account and all associated data. This action cannot be undone.")}
               </SettingsDescription>
             </div>
             <PillButtonUI
@@ -395,19 +398,19 @@ export default function SettingsPage() {
               className="w-full shrink-0 sm:w-auto"
             >
               <Trash2 className="h-4 w-4 shrink-0" />
-              Delete account
+              {t("Delete account")}
             </PillButtonUI>
           </SettingsRow>
         </GlassCardUI>
       </section>
       <ConfirmPopup
         open={deleteConfirm}
-        title="Delete account?"
-        message="This will permanently delete your account and all associated data. This action cannot be undone."
-        confirmLabel="Delete"
+        title={t("Delete account?")}
+        message={t("This will permanently delete your account and all associated data. This action cannot be undone.")}
+        confirmLabel={t("Delete")}
         confirmVariant="danger"
         confirmStatus={isDeleting ? "loading" : "idle"}
-        cancelLabel="Cancel"
+        cancelLabel={t("Cancel")}
         onCancel={() => {
           if (isDeleting) return;
           setDeleteConfirm(false);
@@ -416,7 +419,7 @@ export default function SettingsPage() {
       />
       <WarningPopup
         open={deleteError !== null}
-        title="Account deletion failed"
+        title={t("Account deletion failed")}
         message={deleteError}
         onClose={() => setDeleteError(null)}
       />
@@ -429,11 +432,11 @@ export default function SettingsPage() {
       <Modal
         open={googleEmailModalOpen}
         onClose={() => setGoogleEmailModalOpen(false)}
-        breadcrumbs={["Account", "Change email"]}
+        breadcrumbs={[t("Account"), t("Change email")]}
         size="sm"
         className="h-auto"
         primaryAction={{
-          label: "Go to Security",
+          label: t("Go to Security"),
           onClick: () => {
             setGoogleEmailModalOpen(false);
             router.push("/settings/security");
@@ -441,8 +444,7 @@ export default function SettingsPage() {
         }}
       >
         <p className="pb-5 text-sm leading-relaxed text-gray-600">
-          Your account was created with Google. To change your email, first add
-          a password in Settings &gt; Security &gt; Password.
+          {t("Your account was created with Google. To change your email, first add a password in Settings > Security > Password.")}
         </p>
       </Modal>
       <MfaVerificationPopup
@@ -453,8 +455,8 @@ export default function SettingsPage() {
           setAccountDeleteMfaOpen(false);
           void handleDeleteAccount();
         }}
-        title="Two-factor verification required"
-        message="Account deletion is sensitive. Enter a code from your authenticator app to continue."
+        title={t("Two-factor verification required")}
+        message={t("Account deletion is sensitive. Enter a code from your authenticator app to continue.")}
       />
       <MfaVerificationPopup
         open={emailMfaOpen}
@@ -464,8 +466,8 @@ export default function SettingsPage() {
           setEmailMfaOpen(false);
           void handleSaveEmail();
         }}
-        title="Two-factor verification required"
-        message="Email changes are sensitive. Enter a code from your authenticator app to continue."
+        title={t("Two-factor verification required")}
+        message={t("Email changes are sensitive. Enter a code from your authenticator app to continue.")}
       />
     </div>
   );
