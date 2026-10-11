@@ -1,0 +1,7 @@
+# Findings gitleaks may skip, by fingerprint (commit:file:rule:line), so the
+# exception covers that one occurrence and never the value elsewhere.
+#
+# A Cloudflare R2 secret key committed to the pre-rebase mikeTR history
+# (backend/.env.example, May 2026; reachable through the eski-miketr-main
+# tag). The token was deleted in Cloudflare on 2026-10-11 and no longer works.
+93a72084f2013a78af9063eee98ffc8f67132dee:backend/.env.example:generic-api-key:8
