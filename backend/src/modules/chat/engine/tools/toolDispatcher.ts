@@ -10,6 +10,11 @@ import {
 } from "../../../../lib/courtlistener";
 import { normalizeCaseDocument } from "../../../../lib/sourceDocuments";
 import {
+  KANUN_TOOL_NAMES,
+  runKanunSearch,
+  type KanunSearchEvent,
+} from "./kanunTools";
+import {
   COURTLISTENER_TOOL_NAMES,
   type CaseCitationEvent,
   type CourtlistenerToolEvent,
@@ -322,6 +327,7 @@ export async function runToolCalls(
   docsEdited: DocEditedResult[];
   askInputsEvents: AskInputsEvent[];
   courtlistenerEvents: CourtlistenerToolEvent[];
+  kanunEvents: KanunSearchEvent[];
   caseCitationEvents: CaseCitationEvent[];
   mcpEvents: McpToolEvent[];
 }> {
@@ -346,6 +352,7 @@ export async function runToolCalls(
   const docsEdited: DocEditedResult[] = [];
   const askInputsEvents: AskInputsEvent[] = [];
   const courtlistenerEvents: CourtlistenerToolEvent[] = [];
+  const kanunEvents: KanunSearchEvent[] = [];
   const caseCitationEvents: CaseCitationEvent[] = [];
   const mcpEvents: McpToolEvent[] = [];
   const approvalItems: AskInputItem[] = [];
@@ -858,6 +865,13 @@ export async function runToolCalls(
         tool_call_id: tc.id,
         content: lines.join("\n") || "No cells found.",
       });
+    } else if (tc.function.name === KANUN_TOOL_NAMES.search) {
+      const query = typeof args.query === "string" ? args.query.trim() : "";
+      write(`data: ${JSON.stringify({ type: "kanun_search_start", query })}\n\n`);
+      const { event, content } = await runKanunSearch(db, args);
+      write(`data: ${JSON.stringify(event)}\n\n`);
+      kanunEvents.push(event);
+      toolResults.push({ role: "tool", tool_call_id: tc.id, content });
     } else if (tc.function.name === COURTLISTENER_TOOL_NAMES.searchCaseLaw) {
       const query = typeof args.query === "string" ? args.query : "";
       write(
@@ -2060,6 +2074,7 @@ export async function runToolCalls(
     docsEdited,
     askInputsEvents,
     courtlistenerEvents,
+    kanunEvents,
     caseCitationEvents,
     mcpEvents,
   };

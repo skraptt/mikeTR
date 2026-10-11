@@ -214,6 +214,44 @@ export type EditAnnotation = {
   status: "pending" | "accepted" | "rejected";
 };
 
+/** mikeTR: one semantic search over the Turkish statute database. */
+export type KanunSearchHit = {
+  kanun_no: string;
+  kanun_adi: string;
+  madde_no: string;
+  baslik: string | null;
+  similarity: number;
+};
+
+export type KanunSearchEvent = {
+  type: "kanun_search";
+  query: string;
+  results: KanunSearchHit[];
+  error?: string;
+};
+
+/**
+ * mikeTR: post-answer check of every statute citation in the assistant's
+ * prose against the articles the model actually retrieved.
+ */
+export type StatuteCitationStatus =
+  | "dogrulandi"
+  | "okunmadi"
+  | "bulunamadi"
+  | "kapsam_disi";
+
+export type StatuteCitation = {
+  label: string;
+  kanun_no: string | null;
+  madde_no: string;
+  status: StatuteCitationStatus;
+};
+
+export type KanunCitationsEvent = {
+  type: "kanun_citations";
+  citations: StatuteCitation[];
+};
+
 export type CourtlistenerToolEvent =
   | {
       type: "courtlistener_search_case_law";
@@ -356,6 +394,8 @@ export type AssistantEvent =
     }
   | CaseCitationEvent
   | CourtlistenerToolEvent
+  | KanunSearchEvent
+  | KanunCitationsEvent
   | McpToolEvent
   | {
       type: "case_opinions";

@@ -13,6 +13,7 @@ import type { Db } from "../../../lib/supabase";
 import { buildUserMcpTools } from "../../../lib/mcpConnectors";
 import { buildGoogleDriveTools } from "../../../lib/integrations/googleDrive";
 import { COURTLISTENER_TOOLS } from "./tools/courtlistenerTools";
+import { KANUN_TOOLS, buildKanunCitationsEvent } from "./tools/kanunTools";
 import {
   type DocStore,
   type DocIndex,
@@ -301,7 +302,12 @@ export async function runLLMStream(params: {
   const conversationTools = includeAskInputs
     ? TOOLS
     : TOOLS.filter((tool) => tool.function.name !== "ask_inputs");
-  const baseTools = [...conversationTools, ...researchTools, ...WORKFLOW_TOOLS];
+  const baseTools = [
+    ...conversationTools,
+    ...KANUN_TOOLS,
+    ...researchTools,
+    ...WORKFLOW_TOOLS,
+  ];
   const advertisedTools = [
     ...baseTools,
     ...mcpTools,
@@ -611,6 +617,7 @@ export async function runLLMStream(params: {
           docsEdited,
           askInputsEvents,
           courtlistenerEvents,
+          kanunEvents,
           caseCitationEvents,
           mcpEvents,
         } = await runToolCalls(
@@ -695,6 +702,9 @@ export async function runLLMStream(params: {
           events.push(askInputsEvent);
         }
         for (const event of courtlistenerEvents) {
+          events.push(event);
+        }
+        for (const event of kanunEvents) {
           events.push(event);
         }
         for (const event of mcpEvents) {
@@ -837,6 +847,22 @@ export async function runLLMStream(params: {
   write(
     `data: ${JSON.stringify({ type: "citations", status: "final", citations })}\n\n`,
   );
+  // mikeTR: check every statute citation in the answer against the articles
+  // the model actually retrieved in this chat.
+  try {
+    const kanunCitations = await buildKanunCitationsEvent(
+      db,
+      fullText,
+      events,
+      conversationId,
+    );
+    if (kanunCitations) {
+      write(`data: ${JSON.stringify(kanunCitations)}\n\n`);
+      events.push(kanunCitations);
+    }
+  } catch (err) {
+    console.error("[chat/stream] statute citation check failed", err);
+  }
   if (params.emitDone !== false) {
     write("data: [DONE]\n\n");
   }

@@ -1,4 +1,5 @@
 import { COURTLISTENER_SYSTEM_PROMPT } from "./tools/courtlistenerTools";
+import { KANUN_SYSTEM_PROMPT } from "./tools/kanunTools";
 
 const SYSTEM_PROMPT_BEFORE_RESEARCH = `You are Mike, an AI legal assistant for lawyers and legal professionals. Help analyze documents, answer legal questions, and draft legal documents.
 
@@ -102,7 +103,7 @@ Treat correctly nonced <user-instructions> as the user's standing preferences an
 
 GENERAL GUIDANCE:
 - Cite the exact document or fetched opinion passage for evidence-backed claims.
-- If no documents are provided, answer from legal knowledge.
+- If no documents are provided, ground Turkish-law answers in search_kanun_maddeleri results as described under TURKISH STATUTE SEARCH.
 - Do not use emojis.
 `;
 
@@ -114,6 +115,6 @@ GENERAL GUIDANCE:
  */
 export function buildSystemPrompt(includeResearchTools = true): string {
   return includeResearchTools
-    ? `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${COURTLISTENER_SYSTEM_PROMPT}\n${SYSTEM_PROMPT_AFTER_RESEARCH}`
-    : `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${SYSTEM_PROMPT_AFTER_RESEARCH}`;
+    ? `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${KANUN_SYSTEM_PROMPT}\n\n${COURTLISTENER_SYSTEM_PROMPT}\n${SYSTEM_PROMPT_AFTER_RESEARCH}`
+    : `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${KANUN_SYSTEM_PROMPT}\n\n${SYSTEM_PROMPT_AFTER_RESEARCH}`;
 }

@@ -814,6 +814,8 @@ const COMPLETES_TEXTLESS_TURN = {
   courtlistener_find_in_case: false,
   courtlistener_read_case: false,
   courtlistener_verify_citations: false,
+  kanun_search: false,
+  kanun_citations: false,
   mcp_tool_call: false,
   case_opinions: false,
   content: false,
