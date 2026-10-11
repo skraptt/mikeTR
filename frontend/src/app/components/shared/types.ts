@@ -13,12 +13,14 @@ import type {
   AskInputsEvent as SharedAskInputsEvent,
 } from "@mike/contracts";
 import type {
+  KanunArticle,
   KanunSearchHit,
+  KanunSearchResponse,
   StatuteCitation,
 } from "@mike/contracts";
 
-// mikeTR: Türk mevzuatı araması ve atıf kontrolü.
-export type { KanunSearchHit, StatuteCitation };
+// mikeTR: Turkish statute search and citation checking.
+export type { KanunArticle, KanunSearchHit, KanunSearchResponse, StatuteCitation };
 
 export interface Folder {
   id: string;

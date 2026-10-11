@@ -223,6 +223,17 @@ export type KanunSearchHit = {
   similarity: number;
 };
 
+/** One article returned by POST /kanun/search (the statute search panel). */
+export type KanunArticle = KanunSearchHit & {
+  id: string;
+  icerik: string;
+};
+
+export type KanunSearchResponse = {
+  query: string;
+  results: KanunArticle[];
+};
+
 export type KanunSearchEvent = {
   type: "kanun_search";
   query: string;

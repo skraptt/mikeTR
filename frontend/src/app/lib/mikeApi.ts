@@ -47,6 +47,7 @@ import type {
     LibraryFolder,
     Message,
     MessageFile,
+    KanunSearchResponse,
     PanelDocument,
     OpenSourceWorkflowContributorMode,
     OpenSourceWorkflowResponse,
@@ -3258,6 +3259,18 @@ export async function deleteWorkflowShare(
 ): Promise<void> {
     await apiRequest(`/workflows/${workflowId}/shares/${shareId}`, {
         method: "DELETE",
+    });
+}
+
+// mikeTR: semantic search over the Turkish statute index.
+export async function searchStatutes(
+    query: string,
+    limit = 10,
+): Promise<KanunSearchResponse> {
+    return apiRequest<KanunSearchResponse>("/kanun/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, limit }),
     });
 }
 

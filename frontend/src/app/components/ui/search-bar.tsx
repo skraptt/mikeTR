@@ -4,6 +4,7 @@ import * as React from "react";
 import { Search, X } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 import { LIQUID_GLASS_SUBTLE_CLASS } from "@/shared/ui/LiquidGlassUI";
+import { t } from "@/shared/i18n";
 
 type SearchBarSize = "sm" | "normal";
 
@@ -45,9 +46,9 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
             value,
             onValueChange,
             size = "normal",
-            clearLabel = "Clear search",
-            label = "Search",
-            placeholder = "Search...",
+            clearLabel = t("Clear search"),
+            label = t("Search"),
+            placeholder = t("Search..."),
             className,
             wrapperClassName,
             inputClassName,

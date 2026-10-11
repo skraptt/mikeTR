@@ -54,6 +54,11 @@ export function LibrarySkeuoIcon(props: IconProps) {
   return <AppSidebarIcon name="features/library" {...props} />;
 }
 
+// mikeTR: Turkish statute search.
+export function StatutesSkeuoIcon(props: IconProps) {
+  return <AppSidebarIcon name="features/statutes" {...props} />;
+}
+
 export function TabularReviewSkeuoIcon(props: IconProps) {
   return <AppSidebarIcon name="features/tabular-review" {...props} />;
 }

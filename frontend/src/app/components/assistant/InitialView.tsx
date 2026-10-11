@@ -13,6 +13,8 @@ import {
     LIQUID_GLASS_SUBTLE_CLASS,
 } from "@/shared/ui/LiquidGlassUI";
 import { t } from "@/shared/i18n";
+import { useRouter } from "next/navigation";
+import { StatuteSearchForm } from "@/app/components/statutes/StatuteSearch";
 
 interface InitialViewProps {
     onSubmit: (message: Message) => void;
@@ -39,6 +41,7 @@ export function InitialView({
     const textRef = useRef<HTMLHeadingElement>(null);
     const localInputRef = useRef<ChatInputHandle>(null);
     const chatInputRef = inputRef ?? localInputRef;
+    const router = useRouter();
 
     const username =
         profile?.displayName?.trim() || user?.email?.split("@")[0] || "";
@@ -127,9 +130,20 @@ export function InitialView({
 
             <div className="min-h-0 w-full max-w-4xl justify-self-center px-0 pt-1 xl:px-8">
                 <div className="text-center">
-                    <p className="text-xs py-2 mb-12 text-gray-500">
+                    <p className="text-xs py-2 text-gray-500">
                         {t("AI can make mistakes. Answers are not legal advice.")}
                     </p>
+                </div>
+
+                {/* mikeTR: a shortcut into the statute search page. */}
+                <div className="mx-auto mb-12 mt-4 w-full max-w-md">
+                    <StatuteSearchForm
+                        size="sm"
+                        placeholder={t("Search Turkish statutes…")}
+                        onSearch={(query) =>
+                            router.push(`/statutes?q=${encodeURIComponent(query)}`)
+                        }
+                    />
                 </div>
 
                 {profile?.quickActionsVisible !== false && (
