@@ -40,6 +40,7 @@ export function toolCallLabel(name: string): string {
     if (name === "read_workflow") return "Reading workflow...";
     if (name === "list_workflows") return "Loading workflows...";
     if (name === "list_documents") return "Loading documents...";
+    if (name === "search_kanun_maddeleri") return "Kanunlarda aranıyor...";
     if (name === "courtlistener_search_case_law")
         return "Searching case law...";
     if (name === "courtlistener_get_cases") return "Fetching cases...";

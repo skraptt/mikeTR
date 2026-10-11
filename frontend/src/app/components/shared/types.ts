@@ -12,6 +12,13 @@ import type {
   AskInputResponseItem as SharedAskInputResponseItem,
   AskInputsEvent as SharedAskInputsEvent,
 } from "@mike/contracts";
+import type {
+  KanunSearchHit,
+  StatuteCitation,
+} from "@mike/contracts";
+
+// mikeTR: Türk mevzuatı araması ve atıf kontrolü.
+export type { KanunSearchHit, StatuteCitation };
 
 export interface Folder {
   id: string;
@@ -206,6 +213,12 @@ type WireActivity<T extends WireAssistantEvent["type"]> = Extract<
 >;
 export type AssistantEvent =
   | (Omit<WireActivity<"reasoning">, "isStreaming"> & { isStreaming?: boolean })
+  | (Omit<WireActivity<"kanun_search">, "results" | "error"> & {
+      results?: KanunSearchHit[];
+      error?: string;
+      isStreaming?: boolean;
+    })
+  | WireActivity<"kanun_citations">
   | (Omit<WireActivity<"error">, "safe_to_display"> & {
       safe_to_display?: boolean;
     })

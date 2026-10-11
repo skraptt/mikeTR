@@ -22,6 +22,7 @@ import { useSmoothedReveal } from "./message/useSmoothedReveal";
 import { MarkdownContent } from "./message/MarkdownContent";
 import { CitationsBlock, buildCitationAppendix } from "./message/CitationSources";
 import { EditCardsSection } from "./message/EditCardsSection";
+import { KanunCitationCheck, kanunSearchItems } from "./message/KanunBlocks";
 import {
     AskInputsBlock,
     CourtListenerBlock,
@@ -187,7 +188,9 @@ export function AssistantMessage({
         event.type !== "error" &&
         event.type !== "ask_inputs_response" &&
         event.type !== "case_citation" &&
-        event.type !== "case_opinions";
+        event.type !== "case_opinions" &&
+        // Drawn below the answer instead of in the step timeline.
+        event.type !== "kanun_citations";
 
     // Find the last content event so its raw text can be smoothed before
     // citation preprocessing — slicing already-preprocessed text would risk
@@ -602,6 +605,31 @@ export function AssistantMessage({
                     event={event}
                     response={response}
                     showConnector={showConnector}
+                />
+            );
+        }
+        if (event.type === "kanun_search") {
+            const results = event.results ?? [];
+            const detail = event.isStreaming
+                ? `"${event.query}"`
+                : event.error
+                  ? event.error
+                  : `"${event.query}" (${results.length} madde)`;
+            return (
+                <CourtListenerBlock
+                    key={globalIdx}
+                    label={
+                        event.isStreaming
+                            ? "Kanunlarda aranıyor"
+                            : event.error
+                              ? "Kanun araması yapılamadı"
+                              : "Kanunlarda arandı"
+                    }
+                    detail={detail}
+                    isStreaming={!!event.isStreaming}
+                    hasError={!!event.error}
+                    showConnector={showConnector}
+                    items={results.length > 0 ? kanunSearchItems(results) : undefined}
                 />
             );
         }
@@ -1142,6 +1170,13 @@ export function AssistantMessage({
                         }
                     />
                 )}
+
+                {!isStreaming &&
+                    events?.map((e, i) =>
+                        e.type === "kanun_citations" && e.citations.length > 0 ? (
+                            <KanunCitationCheck key={`kc-${i}`} citations={e.citations} />
+                        ) : null,
+                    )}
 
                 {/* Copy button */}
                 <div className="flex items-center gap-2 font-sans justify-start">

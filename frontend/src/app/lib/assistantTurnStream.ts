@@ -3,7 +3,12 @@
 import { streamChatTurn } from "@/app/lib/mikeApi";
 import { readSseFrames } from "@/app/lib/sse";
 import { isPanelDocument } from "@/app/components/shared/types";
-import type { AssistantEvent, Citation } from "@/app/components/shared/types";
+import type {
+  AssistantEvent,
+  Citation,
+  KanunSearchHit,
+  StatuteCitation,
+} from "@/app/components/shared/types";
 import type { AssistantTurnHandle } from "@/app/lib/assistantTurns";
 import type { ConnectorApprovalItem } from "@mike/contracts";
 
@@ -662,6 +667,48 @@ export async function consumeAssistantTurnStream(
             }),
           );
           pushThinkingPlaceholder();
+          continue;
+        }
+
+        if (data.type === "kanun_search_start") {
+          pushEvent({
+            type: "kanun_search",
+            query: (data.query as string) ?? "",
+            isStreaming: true,
+          });
+          continue;
+        }
+
+        if (data.type === "kanun_search") {
+          updateMatchingEvent(
+            (e) =>
+              e.type === "kanun_search" &&
+              e.query === (data.query as string) &&
+              !!e.isStreaming,
+            () => ({
+              type: "kanun_search",
+              query: (data.query as string) ?? "",
+              results: Array.isArray(data.results)
+                ? (data.results as KanunSearchHit[])
+                : [],
+              error:
+                typeof data.error === "string"
+                  ? (data.error as string)
+                  : undefined,
+              isStreaming: false,
+            }),
+          );
+          pushThinkingPlaceholder();
+          continue;
+        }
+
+        if (data.type === "kanun_citations") {
+          if (Array.isArray(data.citations)) {
+            pushEvent({
+              type: "kanun_citations",
+              citations: data.citations as StatuteCitation[],
+            });
+          }
           continue;
         }
 
