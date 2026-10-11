@@ -189,7 +189,7 @@ export function notifyError(
     const actions: ToastAction[] = [...(options.actions ?? [])];
     if (options.onRetry && described.retryable) {
         actions.push({
-            label: "Retry",
+            label: t("Retry"),
             onClick: async () => {
                 try {
                     await options.onRetry?.();
@@ -204,7 +204,7 @@ export function notifyError(
     const signInHref = signInActionHref();
     if (described.kind === "unauthenticated" && signInHref) {
         actions.push({
-            label: "Sign in",
+            label: t("Sign in"),
             onClick: () => window.location.assign(signInHref),
         });
     }
