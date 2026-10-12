@@ -64,7 +64,9 @@ function ArticleCard({ article }: { article: KanunArticle }) {
                     </h3>
                 </div>
                 <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                    {t("{percent}% match", { percent: Math.round(article.similarity * 100) })}
+                    {article.exact
+                        ? t("Cited article")
+                        : t("{percent}% match", { percent: Math.round(article.similarity * 100) })}
                 </span>
             </div>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-gray-700">

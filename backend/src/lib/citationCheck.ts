@@ -144,6 +144,37 @@ export function extractStatuteCitations(text: string): RawCitation[] {
     });
 }
 
+// Arama kutusuna yazılan kısa atıflar: "HMK 107", "hmk m.107", "6698 s. K. md. 5",
+// "6100 sayılı Kanun 107". Kanun adlı biçimler ("Türk Borçlar Kanunu md. 49")
+// extractStatuteCitations ile yakalanır.
+// Kanun numarası madde numarasına bitişik olamaz ("6100107").
+const LAW_TOKENS = LAWS.flatMap((law) => [...law.abbrs, `${law.no}(?!\\d)`]).join("|");
+const BARE_REFERENCE = new RegExp(
+    `(?<![${WORD}\\d])(${LAW_TOKENS})\\.?(?:\\s*(?:s\\.\\s*k\\.|sayılı(?:\\s+kanun(?:un)?)?))?\\s*[,']?\\s*(?:(geçici|ek)\\s+)?(?:(?:md\\.|m\\.|madde(?:si)?)\\s*)?(${NUM_LIST})(?![\\d])`,
+    "giu",
+);
+
+/** Database articles a search query refers to directly, in the order written. */
+export function findArticleReferences(query: string): { kanun_no: string; madde_no: string }[] {
+    const refs: { kanun_no: string; madde_no: string }[] = [];
+    for (const m of query.matchAll(BARE_REFERENCE)) {
+        const token = m[1].toLocaleUpperCase("tr-TR");
+        const law = LAWS.find((l) => l.no === token || l.abbrs.some((a) => a.toLocaleUpperCase("tr-TR") === token));
+        if (!law) continue;
+        for (const madde of splitNumbers(m[3], m[2])) refs.push({ kanun_no: law.no, madde_no: madde });
+    }
+    for (const c of extractStatuteCitations(query)) {
+        if (c.lawNo) refs.push({ kanun_no: c.lawNo, madde_no: c.madde });
+    }
+    const seen = new Set<string>();
+    return refs.filter((r) => {
+        const key = `${r.kanun_no}|${r.madde_no}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
 function formatLabel(lawLabel: string, madde: string): string {
     const m = madde.match(/^(Geçici|Ek) (.+)$/);
     return m ? `${lawLabel} ${m[1]} md. ${m[2]}` : `${lawLabel} md. ${madde}`;

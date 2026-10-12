@@ -1,4 +1,5 @@
 import type { Db } from "./supabase";
+import { findArticleReferences } from "./citationCheck";
 
 export type KanunMaddesiMatch = {
   id: string;
@@ -9,6 +10,8 @@ export type KanunMaddesiMatch = {
   icerik: string;
   created_at: string;
   similarity: number;
+  /** True when the query named this article ("HMK 107") rather than describing it. */
+  exact?: boolean;
 };
 
 class NonRetryableError extends Error {}
@@ -182,4 +185,35 @@ export async function searchKanunMaddeleri(
 
     return (data ?? []) as KanunMaddesiMatch[];
   });
+}
+
+// A bare reference like "HMK 107" carries almost no meaning for the embedding
+// model (similarity ~0.45, below the threshold), so referenced articles are
+// read directly and listed first, ahead of the semantic matches.
+export async function searchKanunWithReferences(
+  db: Db,
+  params: {
+    query: string;
+    limit: number;
+    matchThreshold: number;
+  },
+): Promise<KanunMaddesiMatch[]> {
+  const refs = findArticleReferences(params.query).slice(0, params.limit);
+  const exact: KanunMaddesiMatch[] = [];
+  if (refs.length > 0) {
+    const { data, error } = await db
+      .from("kanun_maddeleri")
+      .select("id, kanun_no, kanun_adi, madde_no, baslik, icerik, created_at")
+      .in("kanun_no", [...new Set(refs.map((r) => r.kanun_no))])
+      .in("madde_no", [...new Set(refs.map((r) => r.madde_no))]);
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as Omit<KanunMaddesiMatch, "similarity">[];
+    for (const ref of refs) {
+      const row = rows.find((r) => r.kanun_no === ref.kanun_no && r.madde_no === ref.madde_no);
+      if (row) exact.push({ ...row, similarity: 1, exact: true });
+    }
+  }
+  const semantic = await searchKanunMaddeleri(db, params);
+  const seen = new Set(exact.map((m) => m.id));
+  return [...exact, ...semantic.filter((m) => !seen.has(m.id))].slice(0, params.limit);
 }

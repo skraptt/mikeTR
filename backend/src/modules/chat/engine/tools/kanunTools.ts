@@ -3,7 +3,7 @@
 // lib/citationCheck.ts ile bu aramaların sonuçlarına göre doğrulanır.
 import type { KanunCitationsEvent, KanunSearchEvent } from "@mike/contracts";
 import type { Db } from "../../../../lib/supabase";
-import { searchKanunMaddeleri } from "../../../../lib/kanunSearch";
+import { searchKanunWithReferences } from "../../../../lib/kanunSearch";
 import { checkStatuteCitations } from "../../../../lib/citationCheck";
 import { statuteCurrencyDates } from "../../../kanun/kanun.service";
 
@@ -17,7 +17,7 @@ const MATCH_THRESHOLD = 0.5;
 
 export const KANUN_SYSTEM_PROMPT = `TURKISH STATUTE SEARCH (search_kanun_maddeleri):
 The search_kanun_maddeleri tool performs semantic search over the full text of these Turkish laws (short name used in citations, law number): Türk Medeni Kanunu (TMK, 4721) and its Yürürlük Kanunu (4722), Fikir ve Sanat Eserleri Kanunu (FSEK, 5846), Çek Kanunu (Çek K., 5941), Türk Borçlar Kanunu (TBK, 6098) and its Yürürlük Kanunu (6101), Hukuk Muhakemeleri Kanunu (HMK, 6100), Türk Ticaret Kanunu (TTK, 6102) and its Yürürlük Kanunu (6103), Sermaye Piyasası Kanunu (SPK, 6362), Tüketicinin Korunması Hakkında Kanun (TKHK, 6502), Kişisel Verilerin Korunması Kanunu (KVKK, 6698), Sınai Mülkiyet Kanunu (SMK, 6769). For the Yürürlük laws cite the law number, e.g. "(6101 s. K. md. 1)".
-- Before stating any Turkish legal rule, right, obligation, deadline, sanction or article number, call search_kanun_maddeleri. Phrase the query as a short Turkish legal description of the issue (e.g. "kiracının kira bedelini ödememesi temerrüt fesih"), not as the user's full question. For questions touching several issues, call it once per issue.
+- Before stating any Turkish legal rule, right, obligation, deadline, sanction or article number, call search_kanun_maddeleri. Phrase the query as a short Turkish legal description of the issue (e.g. "kiracının kira bedelini ödememesi temerrüt fesih"), not as the user's full question. To read a specific article, put its reference in the query (e.g. "HMK 107" or "TBK md. 49"); that article is then returned first. For questions touching several issues, call it once per issue.
 - Cite statutes inline in prose using the law's short name and article number exactly as returned, e.g. "(TBK md. 315)", "(KVKK md. 5)", "(TMK Geçici md. 1)". Only cite article numbers that appear in the tool results of this conversation. NEVER cite an article number from memory.
 - When you quote statutory text, quote it verbatim from the tool result.
 - If the results do not cover the question (unrelated articles, or the relevant law is not in the list above — e.g. İcra ve İflas Kanunu, İş Kanunu, Türk Ceza Kanunu), say clearly that the statute database does not contain the relevant provision. You may then give general guidance, but do not cite any article numbers for it, and mark every such part of the answer with this exact sentence in its own paragraph: "Not: Bu bölüm, veritabanındaki kanun metinleriyle doğrulanmamıştır; ilgili mevzuatın güncel metninden kontrol edilmelidir." This applies even when the rest of the answer is grounded in search results.
@@ -62,7 +62,7 @@ export async function runKanunSearch(
             : 6;
     try {
         if (!query) throw new Error("query is required");
-        const matches = await searchKanunMaddeleri(db, {
+        const matches = await searchKanunWithReferences(db, {
             query,
             limit,
             matchThreshold: MATCH_THRESHOLD,
@@ -78,6 +78,7 @@ export async function runKanunSearch(
                     madde_no: m.madde_no,
                     baslik: m.baslik,
                     similarity: m.similarity,
+                    ...(m.exact ? { exact: true } : {}),
                 })),
             },
             content: JSON.stringify({
@@ -88,6 +89,7 @@ export async function runKanunSearch(
                     madde_no: m.madde_no,
                     baslik: m.baslik,
                     similarity: Number(m.similarity.toFixed(3)),
+                    ...(m.exact ? { atif: "sorguda adıyla anılan madde" } : {}),
                     metin_guncelligi: currentAsOf.get(m.kanun_no) ?? "doğrulanmadı",
                     metin: m.icerik,
                 })),

@@ -6,7 +6,7 @@
 
 import type { KanunArticle, KanunSearchResponse } from "@mike/contracts";
 import type { Db } from "../../lib/supabase";
-import { searchKanunMaddeleri } from "../../lib/kanunSearch";
+import { searchKanunWithReferences } from "../../lib/kanunSearch";
 import { isStatuteAdmin, listKanunlar, runStatuteCheck } from "./kanunUpdates";
 import {
   failure,
@@ -47,7 +47,7 @@ export async function searchStatutes(
     : DEFAULT_LIMIT;
 
   try {
-    const matches = await searchKanunMaddeleri(db, {
+    const matches = await searchKanunWithReferences(db, {
       query,
       limit,
       matchThreshold: MATCH_THRESHOLD,
@@ -65,6 +65,7 @@ export async function searchStatutes(
       baslik: match.baslik,
       icerik: match.icerik,
       similarity: match.similarity,
+      ...(match.exact ? { exact: true } : {}),
       guncellik_tarihi: currentAsOf.get(match.kanun_no) ?? null,
     }));
     return ok({ query, results });

@@ -221,6 +221,8 @@ export type KanunSearchHit = {
   madde_no: string;
   baslik: string | null;
   similarity: number;
+  /** The query named this article ("HMK 107"); similarity is then 1. */
+  exact?: boolean;
 };
 
 /** One article returned by POST /kanun/search (the statute search panel). */

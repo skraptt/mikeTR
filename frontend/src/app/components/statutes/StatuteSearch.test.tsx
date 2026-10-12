@@ -66,6 +66,15 @@ describe("StatuteSearchPage", () => {
         expect(searchStatutes).toHaveBeenCalledWith("kira ödememe", 10);
     });
 
+    it("labels an article the query named instead of scoring it", async () => {
+        query = "TBK 315";
+        searchStatutes.mockResolvedValue({ query, results: [{ ...article, similarity: 1, exact: true }] });
+        render(<StatuteSearchPage />);
+
+        expect(await screen.findByText("Cited article")).toBeInTheDocument();
+        expect(screen.queryByText("100% match")).not.toBeInTheDocument();
+    });
+
     it("says so when nothing matches", async () => {
         query = "uzay hukuku";
         searchStatutes.mockResolvedValue({ query, results: [] });

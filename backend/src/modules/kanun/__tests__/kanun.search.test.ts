@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Db } from "../../../lib/supabase";
 
-const searchKanunMaddeleri = vi.hoisted(() => vi.fn());
-vi.mock("../../../lib/kanunSearch", () => ({ searchKanunMaddeleri }));
+const searchKanunWithReferences = vi.hoisted(() => vi.fn());
+vi.mock("../../../lib/kanunSearch", () => ({ searchKanunWithReferences }));
 
 import { searchStatutes } from "../kanun.service";
 
@@ -21,13 +21,13 @@ const match = {
 
 describe("searchStatutes", () => {
   beforeEach(() => {
-    searchKanunMaddeleri.mockReset();
+    searchKanunWithReferences.mockReset();
   });
 
   it("rejects an empty query without searching", async () => {
     const result = await searchStatutes(db, { query: "   " });
     expect(result).toEqual({ ok: false, kind: "validation", detail: "Enter a search query." });
-    expect(searchKanunMaddeleri).not.toHaveBeenCalled();
+    expect(searchKanunWithReferences).not.toHaveBeenCalled();
   });
 
   it("rejects an overlong query", async () => {
@@ -36,9 +36,9 @@ describe("searchStatutes", () => {
   });
 
   it("clamps the limit and returns articles without internal columns", async () => {
-    searchKanunMaddeleri.mockResolvedValue([match]);
+    searchKanunWithReferences.mockResolvedValue([match]);
     const result = await searchStatutes(db, { query: " kira temerrüt ", limit: 99 });
-    expect(searchKanunMaddeleri).toHaveBeenCalledWith(db, {
+    expect(searchKanunWithReferences).toHaveBeenCalledWith(db, {
       query: "kira temerrüt",
       limit: 20,
       matchThreshold: 0.5,
@@ -65,7 +65,7 @@ describe("searchStatutes", () => {
   });
 
   it("turns an embedding or database error into an internal failure", async () => {
-    searchKanunMaddeleri.mockImplementation(async () => {
+    searchKanunWithReferences.mockImplementation(async () => {
       throw new Error("ollama unreachable");
     });
     const result = await searchStatutes(db, { query: "kira" });
