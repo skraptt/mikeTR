@@ -291,7 +291,7 @@ export default function SecurityPage() {
         traceMfa("[security/mfa] retrying enrollment with unique name", {
           error: error instanceof Error ? error.message : String(error),
         });
-        data = await enrollMfa(`Mike ${Date.now()}`);
+        data = await enrollMfa(`mikeTR ${Date.now()}`);
       }
       traceMfa("[security/mfa] enrollment created", {
         factorId: data.id,
