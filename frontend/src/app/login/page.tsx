@@ -17,6 +17,7 @@ import {
 import { AuthDividerUI } from "@/shared/ui/AuthDividerUI";
 import { SsoAuthButton } from "@/app/components/auth/SsoAuthButton";
 import { GoogleAuthButton } from "@/app/components/auth/GoogleAuthButton";
+import { googleLoginEnabled, ssoLoginEnabled } from "@/app/components/auth/authProviders";
 import { FieldLabel } from "@/app/components/ui/form-field";
 import {
     describeError,
@@ -293,18 +294,20 @@ export default function LoginPage() {
                                     {loading ? t("Logging in...") : t("Log in")}
                                 </PillButtonUI>
                             </div>
-                            {!guest && (
+                            {!guest && (googleLoginEnabled() || ssoLoginEnabled()) && (
                                 <>
                                     <AuthDividerUI />
-                                    <GoogleAuthButton
-                                        onError={(nextError) => {
-                                            setLoginMode(null);
-                                            setError(nextError);
-                                        }}
-                                        disabled={loading}
-                                        onLoadingChange={setLoading}
-                                    />
-                                    <SsoAuthButton disabled={loading} />
+                                    {googleLoginEnabled() && (
+                                        <GoogleAuthButton
+                                            onError={(nextError) => {
+                                                setLoginMode(null);
+                                                setError(nextError);
+                                            }}
+                                            disabled={loading}
+                                            onLoadingChange={setLoading}
+                                        />
+                                    )}
+                                    {ssoLoginEnabled() && <SsoAuthButton disabled={loading} />}
                                 </>
                             )}
                         </form>

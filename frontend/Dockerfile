@@ -26,6 +26,10 @@ ARG NEXT_PUBLIC_SENTRY_ENVIRONMENT=
 ARG NEXT_PUBLIC_SENTRY_RELEASE=
 # mikeTR: the interface language (en | tr) is inlined by next build too.
 ARG NEXT_PUBLIC_DEFAULT_LOCALE=en
+# mikeTR: "true" shows the Google / SSO sign-in buttons; set only once the
+# provider is configured (docs/deployment.md).
+ARG NEXT_PUBLIC_GOOGLE_LOGIN=
+ARG NEXT_PUBLIC_SSO_LOGIN=
 # The commit this image was built from; the release tag when no explicit
 # release is given, for the browser bundle (inlined) and the Next server.
 ARG GIT_SHA=
@@ -35,6 +39,8 @@ ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN \
     NEXT_PUBLIC_SENTRY_ENVIRONMENT=$NEXT_PUBLIC_SENTRY_ENVIRONMENT \
     NEXT_PUBLIC_SENTRY_RELEASE=$NEXT_PUBLIC_SENTRY_RELEASE \
     NEXT_PUBLIC_DEFAULT_LOCALE=$NEXT_PUBLIC_DEFAULT_LOCALE \
+    NEXT_PUBLIC_GOOGLE_LOGIN=$NEXT_PUBLIC_GOOGLE_LOGIN \
+    NEXT_PUBLIC_SSO_LOGIN=$NEXT_PUBLIC_SSO_LOGIN \
     NEXT_PUBLIC_GIT_SHA=$GIT_SHA \
     GIT_SHA=$GIT_SHA
 

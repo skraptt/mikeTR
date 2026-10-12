@@ -5,11 +5,20 @@ import "./globals.css";
 import { Providers } from "@/app/components/providers";
 import { DEFAULT_LOCALE } from "@/shared/i18n";
 
+// mikeTR: the app's own name and description, in the interface language.
+const TITLE =
+    DEFAULT_LOCALE === "tr"
+        ? "mikeTR – Türk hukuku için yapay zekâ asistanı"
+        : "mikeTR – AI assistant for Turkish law";
+const DESCRIPTION =
+    DEFAULT_LOCALE === "tr"
+        ? "Belge inceleme, taslak hazırlama ve Türk mevzuatında araştırma için açık kaynak yapay zekâ asistanı."
+        : "Open-source AI assistant for document review, drafting and research in Turkish legislation.";
+
 export const metadata: Metadata = {
-    metadataBase: new URL("https://app.mikeoss.com"),
-    title: "Mike - Legal AI Platform",
-    description:
-        "AI-powered legal document analysis and contract review platform.",
+    metadataBase: new URL("https://miketr.me"),
+    title: TITLE,
+    description: DESCRIPTION,
     icons: {
         icon: [
             { url: "/icon.svg", type: "image/svg+xml" },
@@ -19,25 +28,23 @@ export const metadata: Metadata = {
     },
     openGraph: {
         type: "website",
-        url: "https://app.mikeoss.com",
-        siteName: "Mike",
-        title: "Mike - Legal AI Platform",
-        description:
-            "AI-powered legal document analysis and contract review platform.",
+        url: "https://miketr.me",
+        siteName: "mikeTR",
+        title: TITLE,
+        description: DESCRIPTION,
         images: [
             {
                 url: "/link-image.jpg",
                 width: 1200,
                 height: 651,
-                alt: "Mike",
+                alt: "mikeTR",
             },
         ],
     },
     twitter: {
         card: "summary_large_image",
-        title: "Mike - Legal AI Platform",
-        description:
-            "AI-powered legal document analysis and contract review platform.",
+        title: TITLE,
+        description: DESCRIPTION,
         images: ["/link-image.jpg"],
     },
 };

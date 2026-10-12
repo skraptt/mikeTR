@@ -285,7 +285,7 @@ export default function SecurityPage() {
 
       let data;
       try {
-        data = await enrollMfa("Mike");
+        data = await enrollMfa("mikeTR");
       } catch (error) {
         if (!isDuplicateFriendlyNameError(error)) throw error;
         traceMfa("[security/mfa] retrying enrollment with unique name", {

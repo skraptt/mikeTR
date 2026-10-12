@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import LoginPage from "./page";
 import { AuthApiError } from "@/app/lib/authApi";
 
@@ -78,6 +78,10 @@ describe("LoginPage", () => {
             .mockResolvedValue({ onboardingComplete: true });
     });
 
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
     it("allows an existing account to submit a password shorter than the new minimum", async () => {
         login.mockResolvedValue({ user: { id: "user-1" } });
         const user = userEvent.setup();
@@ -153,7 +157,17 @@ describe("LoginPage", () => {
         expect(push).toHaveBeenCalledWith("/onboarding/profile");
     });
 
+    it("hides Google and SSO until the build switches them on", () => {
+        render(<LoginPage />);
+
+        expect(screen.getByRole("button", { name: "Log in" })).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Continue with Google" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Continue with SSO" })).not.toBeInTheDocument();
+    });
+
     it("places Google and SSO after the primary login action", () => {
+        vi.stubEnv("NEXT_PUBLIC_GOOGLE_LOGIN", "true");
+        vi.stubEnv("NEXT_PUBLIC_SSO_LOGIN", "true");
         render(<LoginPage />);
 
         const login = screen.getByRole("button", { name: "Log in" });

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SignupPage from "./page";
 
 const { signup, startGoogleOAuth, refreshSession, replace, push } = vi.hoisted(() => ({
@@ -40,6 +40,10 @@ describe("SignupPage", () => {
         refreshSession.mockReset();
         replace.mockReset();
         push.mockReset();
+    });
+
+    afterEach(() => {
+        vi.unstubAllEnvs();
     });
 
     it("creates credentials and waits for email confirmation", async () => {
@@ -133,7 +137,14 @@ describe("SignupPage", () => {
         );
     });
 
+    it("hides Google until the build switches it on", () => {
+        render(<SignupPage />);
+        expect(screen.queryByRole("button", { name: "Continue with Google" })).not.toBeInTheDocument();
+    });
+
     it("places Google after the primary signup action without offering SSO", () => {
+        vi.stubEnv("NEXT_PUBLIC_GOOGLE_LOGIN", "true");
+        vi.stubEnv("NEXT_PUBLIC_SSO_LOGIN", "true");
         render(<SignupPage />);
 
         const signup = screen.getByRole("button", { name: "Sign up" });

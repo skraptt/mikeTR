@@ -65,6 +65,7 @@ import {
 import { TOO_MANY_ATTEMPTS_MESSAGE, authMessages } from "@/app/lib/authMessages";
 import { AuthDividerUI } from "@/shared/ui/AuthDividerUI";
 import { GoogleAuthButton } from "@/app/components/auth/GoogleAuthButton";
+import { googleLoginEnabled } from "@/app/components/auth/authProviders";
 import { FieldLabel } from "@/app/components/ui/form-field";
 
 function SignupContent() {
@@ -286,17 +287,21 @@ function SignupContent() {
                             >
                                 {loading ? t("Creating account...") : t("Sign up")}
                             </PillButtonUI>
-                            <AuthDividerUI />
-                            <GoogleAuthButton
-                                onError={setError}
-                                disabled={loading}
-                                onLoadingChange={setLoading}
-                            />
+                            {googleLoginEnabled() && (
+                                <>
+                                    <AuthDividerUI />
+                                    <GoogleAuthButton
+                                        onError={setError}
+                                        disabled={loading}
+                                        onLoadingChange={setLoading}
+                                    />
+                                </>
+                            )}
                         </div>
                     </form>
                 </div>
                 <div className="text-center text-sm text-gray-500">
-                    Have an account?{" "}
+                    {t("Have an account?")}{" "}
                     <Link
                         href="/login"
                         className="font-medium transition-colors hover:text-gray-950"

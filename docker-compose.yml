@@ -73,7 +73,7 @@ services:
       # No SMTP_USER/PASS: Mailpit needs no auth, and GoTrue refuses to send
       # credentials over a plaintext (non-TLS) connection ("unencrypted connection").
       GOTRUE_SMTP_ADMIN_EMAIL: admin@mike.local
-      GOTRUE_SMTP_SENDER_NAME: Mike
+      GOTRUE_SMTP_SENDER_NAME: mikeTR
       # Confirmation/recovery links resolve to the gateway, which strips /auth/v1.
       GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/v1/verify
       GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/v1/verify
@@ -409,6 +409,9 @@ services:
         GIT_SHA: ${GIT_SHA:-}
         # mikeTR: interface language, inlined at build time (tr or en).
         NEXT_PUBLIC_DEFAULT_LOCALE: ${NEXT_PUBLIC_DEFAULT_LOCALE:-tr}
+        # mikeTR: sign-in buttons, hidden until the provider is configured.
+        NEXT_PUBLIC_GOOGLE_LOGIN: ${NEXT_PUBLIC_GOOGLE_LOGIN:-}
+        NEXT_PUBLIC_SSO_LOGIN: ${NEXT_PUBLIC_SSO_LOGIN:-}
     environment:
       - API_BASE_URL=${API_BASE_URL:-http://backend:3001}
       # Next server side (the /api gateway); same project as the browser.
