@@ -11,6 +11,10 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 > **Önemli:** mikeTR hukuki danışmanlık yerine geçmez. Kanun metinlerinin
 > güncelliğini ve asistanın cevaplarını her zaman resmî kaynaktan kontrol edin.
 
+![Mevzuat araması: "kiracının temerrüdü" için TBK md. 315 ve ilgili maddeler](docs/assets/miketr-mevzuat.jpg)
+
+![Güncellemeler: her kanunun mevzuat.gov.tr ile son karşılaştırılma tarihi](docs/assets/miketr-guncellemeler.jpg)
+
 ## Özellikler
 
 - **Türkçe arayüz:** Mike'ın tüm ekranları Türkçeye çevrildi.
