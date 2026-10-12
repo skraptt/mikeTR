@@ -6,6 +6,7 @@
     "kanun:import": "tsx scripts/kanun/import-kanunlar.ts",
     "kanun:embed": "tsx scripts/kanun/embed-kanun-maddeleri.ts",
     "kanun:check": "tsx scripts/kanun/check-kanunlar.ts",
+    "kanun:snapshot": "tsx scripts/kanun/export-snapshot.ts",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "typecheck:test": "tsc -p tsconfig.test.json",

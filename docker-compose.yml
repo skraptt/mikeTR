@@ -140,6 +140,10 @@ services:
       - ./backend/migrations:/migrations:ro
       - ./backend/scripts/migrate.sh:/migrate.sh:ro
       - ./docker/db-init/adopt-ledger.sh:/adopt-ledger.sh:ro
+      # mikeTR: statute snapshot (texts + BGE-M3 vectors) for a new database.
+      - ./docker/db-init/load-kanunlar.sh:/load-kanunlar.sh:ro
+      - ./backend/setup-data/kanun-maddeleri.csv.gz:/setup-data/kanun-maddeleri.csv.gz:ro
+      - ./backend/setup-data/kanunlar-guncellik.csv:/setup-data/kanunlar-guncellik.csv:ro
     entrypoint: ["bash", "-c"]
     command:
       - |
@@ -156,6 +160,7 @@ services:
           bash /adopt-ledger.sh || exit 1;
         fi
         bash /migrate.sh up || exit 1;
+        bash /load-kanunlar.sh || exit 1;
         psql "$$DB" -c "grant usage on schema public to service_role;
           grant all privileges on all tables in schema public to service_role;
           grant all privileges on all sequences in schema public to service_role;
@@ -231,6 +236,31 @@ services:
       retries: 20
     restart: unless-stopped
 
+  # --- mikeTR: the BGE-M3 embedding model for statute search. CPU is enough:
+  # a search embeds one short query. Chat models via Ollama are separate (see
+  # OLLAMA_BASE_URL on the backend, which points at the host).
+  ollama:
+    image: ollama/ollama:0.34.4
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # --- One-shot: downloads bge-m3 into the volume on first start (~1.2 GB).
+  ollama-pull:
+    image: ollama/ollama:0.34.4
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    entrypoint: ["ollama", "pull", "bge-m3"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+
   # --- One-shot: download, validate, and transactionally import mike-workflows.
   workflow-sync:
     build:
@@ -296,6 +326,9 @@ services:
       - R2_BUCKET_NAME=mike
       # Local Ollama running on the host. Override OLLAMA_MODEL to change the tag.
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      # mikeTR: statute search embeds queries with BGE-M3 in the ollama service.
+      - EMBEDDING_PROVIDER=bge-m3
+      - OLLAMA_URL=http://ollama:11434
       # Durable job queues: fresh compose installs run BullMQ-on-Redis for
       # everything (conversion + extraction async, instant delivery for
       # background jobs). Deployments without Redis fall back to the
@@ -320,6 +353,8 @@ services:
         condition: service_started
       redis:
         condition: service_healthy
+      ollama-pull:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   # --- Optional: dedicated worker process ("async computer" mode).
@@ -369,13 +404,15 @@ services:
         NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-}
         NEXT_PUBLIC_SENTRY_RELEASE: ${SENTRY_RELEASE:-}
         # Opt-out and install kind reach the browser bundle at build time.
-        NEXT_PUBLIC_SENTRY_DISABLED: ${SENTRY_DISABLED:-}
+        NEXT_PUBLIC_SENTRY_DISABLED: ${SENTRY_DISABLED:-true}
         NEXT_PUBLIC_SENTRY_INSTALL: ${SENTRY_INSTALL:-}
         GIT_SHA: ${GIT_SHA:-}
+        # mikeTR: interface language, inlined at build time (tr or en).
+        NEXT_PUBLIC_DEFAULT_LOCALE: ${NEXT_PUBLIC_DEFAULT_LOCALE:-tr}
     environment:
       - API_BASE_URL=${API_BASE_URL:-http://backend:3001}
       # Next server side (the /api gateway); same project as the browser.
-      - SENTRY_DISABLED=${SENTRY_DISABLED:-}
+      - SENTRY_DISABLED=${SENTRY_DISABLED:-true}
       - SENTRY_INSTALL=${SENTRY_INSTALL:-}
       - SENTRY_DSN=${FRONTEND_SENTRY_DSN:-}
       - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT:-}
@@ -391,3 +428,4 @@ volumes:
   db_data:
   storage_data:
   redis_data:
+  ollama_models:
