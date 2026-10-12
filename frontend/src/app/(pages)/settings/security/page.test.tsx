@@ -115,6 +115,6 @@ describe("SecurityPage", () => {
         );
 
         await waitFor(() => expect(enrollMfa).toHaveBeenCalledTimes(2));
-        expect(enrollMfa.mock.calls[1][0]).toMatch(/^Mike /);
+        expect(enrollMfa.mock.calls[1][0]).toMatch(/^mikeTR /);
     });
 });
