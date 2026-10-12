@@ -12,6 +12,7 @@
 // unless a deployment opts in. This module is framework-light so the Word
 // add-in can use it too; React bindings live in ./react.tsx.
 import { tr } from "./locales/tr";
+import { trPatterns } from "./locales/trPatterns";
 
 export type Locale = "en" | "tr";
 
@@ -21,6 +22,25 @@ const DICTIONARIES: Record<Locale, Readonly<Record<string, string>>> = {
     en: {},
     tr,
 };
+
+// Composed messages ("Gemini rate limit…") matched by shape when no exact key
+// exists; captures fill {1}, {2}… in the translation.
+const PATTERNS: Record<Locale, ReadonlyArray<readonly [RegExp, string]>> = {
+    en: [],
+    tr: trPatterns,
+};
+
+function matchPattern(locale: Locale, message: string): string | undefined {
+    for (const [pattern, translation] of PATTERNS[locale]) {
+        const match = pattern.exec(message);
+        if (match) {
+            return translation.replace(/\{(\d)\}/g, (whole, index: string) =>
+                match[Number(index)] ?? whole,
+            );
+        }
+    }
+    return undefined;
+}
 
 export const SUPPORTED_LOCALES = Object.keys(DICTIONARIES) as Locale[];
 
@@ -47,7 +67,10 @@ export function translate(
     message: string,
     params?: MessageParams,
 ): string {
-    return interpolate(DICTIONARIES[locale][message] ?? message, params);
+    return interpolate(
+        DICTIONARIES[locale][message] ?? matchPattern(locale, message) ?? message,
+        params,
+    );
 }
 
 /**

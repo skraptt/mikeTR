@@ -22,6 +22,21 @@ describe("toProviderStreamError", () => {
     expect(JSON.stringify(error)).not.toContain("private provider response");
   });
 
+  it("explains a provider that refuses the server's region", () => {
+    const error = toProviderStreamError(
+      apiCallError(
+        400,
+        '{"error":{"code":400,"message":"User location is not supported for the API use.","status":"FAILED_PRECONDITION"}}',
+      ),
+      gemini,
+    );
+
+    expect(error).toBeInstanceOf(UserFacingError);
+    expect(error.message).toBe(
+      "Gemini isn't available in the region this server runs in. Select a model from another provider.",
+    );
+  });
+
   it("explains a free-tier key without access to the model", () => {
     const error = toProviderStreamError(
       apiCallError(

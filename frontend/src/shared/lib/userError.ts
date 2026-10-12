@@ -366,7 +366,7 @@ export function describeError(
     if (!message) {
         message =
             kind === "unknown" && options.fallback
-                ? options.fallback
+                ? t(options.fallback)
                 : t(KIND_MESSAGES[kind]);
     }
 

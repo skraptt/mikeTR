@@ -32,6 +32,18 @@ describe("translate", () => {
         expect(translate("tr", "Hi, {name}", { name: "Ada" })).toBe("Merhaba, Ada");
     });
 
+    it("translates composed provider messages by their shape", () => {
+        expect(
+            translate("tr", "Gemini isn't available in the region this server runs in. Select a model from another provider."),
+        ).toBe("Gemini, bu sunucunun bulunduğu bölgede kullanılamıyor. Başka bir sağlayıcının modelini seçin.");
+        expect(
+            translate("tr", "The Gemini plan doesn't include gemini-2.5-pro. Select another model, or upgrade the Gemini plan."),
+        ).toBe("Gemini planınız gemini-2.5-pro modelini kapsamıyor. Başka bir model seçin ya da Gemini planınızı yükseltin.");
+        expect(
+            translate("en", "Gemini rate limit or quota reached. Wait a moment and try again, or select another model."),
+        ).toBe("Gemini rate limit or quota reached. Wait a moment and try again, or select another model.");
+    });
+
     it("picks the English plural form by count", () => {
         const en = createTranslator("en");
         expect(en.plural(1, "Completed in {count} step", "Completed in {count} steps")).toBe(

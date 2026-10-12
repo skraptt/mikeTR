@@ -32,6 +32,11 @@ function accessFailureMessage(
   { statusCode, responseBody = "" }: ApiCallErrorLike,
   { label, modelId }: ProviderContext,
 ): string | null {
+  // mikeTR: Gemini's free tier refuses some server regions (e.g. parts of the
+  // EU) with a 400. Retrying cannot help; the user must switch provider.
+  if (statusCode === 400 && /User location is not supported/i.test(responseBody)) {
+    return `${label} isn't available in the region this server runs in. Select a model from another provider.`;
+  }
   if (statusCode === 402) {
     return `The ${label} account is out of credits. Top up, or select another model.`;
   }

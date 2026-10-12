@@ -1059,7 +1059,8 @@ export function AssistantMessage({
 
                 {effectiveErrorMessage && (
                     <p className="mt-2 text-base font-serif leading-7 text-red-700">
-                        {effectiveErrorMessage}
+                        {/* Stored turns keep the English text; show it translated. */}
+                        {t(effectiveErrorMessage)}
                     </p>
                 )}
 

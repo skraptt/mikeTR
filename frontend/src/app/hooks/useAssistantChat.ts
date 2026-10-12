@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/shared/i18n";
 import {
   useCallback,
   useEffect,
@@ -608,7 +609,7 @@ export function useAssistantChat({
               new UserVisibleError(
                 safeToDisplay
                   ? frameMessage
-                  : "Mike couldn't finish this answer. Try again.",
+                  : t("Mike couldn't finish this answer. Try again."),
                 { kind: "server", retryable: !safeToDisplay },
               ),
               {
@@ -671,7 +672,7 @@ export function useAssistantChat({
         }
         const described = describeError(error, {
           action: "get a response",
-          fallback: "Mike couldn't finish this answer. Try again.",
+          fallback: t("Mike couldn't finish this answer. Try again."),
         });
         // A lost response is not proof the POST failed. Until a turn is
         // named, only an explicit 4xx refusal permits a new send.
@@ -679,7 +680,7 @@ export function useAssistantChat({
           (described.status === null || described.status >= 500);
         const failure = uncertain
           ? new UserVisibleError(
-              "The answer may still be running. Check chat history before sending the question again.",
+              t("The answer may still be running. Check chat history before sending the question again."),
               { cause: error },
             )
           : error;
@@ -692,12 +693,12 @@ export function useAssistantChat({
         }));
         notifyError(failure, {
           action: "get a response",
-          fallback: "Mike couldn't finish this answer. Try again.",
+          fallback: t("Mike couldn't finish this answer. Try again."),
           dedupeKey: "assistant-chat",
           support: true,
           onRetry: uncertain ? undefined : async () => { await retryTurn(retrySnapshot); },
           actions: uncertain ? [{
-            label: retrySnapshot.chatId ? "Check chat" : "Refresh history",
+            label: retrySnapshot.chatId ? t("Check chat") : t("Refresh history"),
             onClick: async () => {
               if (retrySnapshot.chatId) await retryTurn(retrySnapshot);
               else await loadChats();
