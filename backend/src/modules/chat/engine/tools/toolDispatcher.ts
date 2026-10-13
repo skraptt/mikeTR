@@ -15,6 +15,13 @@ import {
   type KanunSearchEvent,
 } from "./kanunTools";
 import {
+  ICTIHAT_TOOL_NAMES,
+  runGetKarar,
+  runIctihatSearch,
+  type IctihatDecisionEvent,
+  type IctihatSearchEvent,
+} from "./ictihatTools";
+import {
   COURTLISTENER_TOOL_NAMES,
   type CaseCitationEvent,
   type CourtlistenerToolEvent,
@@ -328,6 +335,7 @@ export async function runToolCalls(
   askInputsEvents: AskInputsEvent[];
   courtlistenerEvents: CourtlistenerToolEvent[];
   kanunEvents: KanunSearchEvent[];
+  ictihatEvents: (IctihatSearchEvent | IctihatDecisionEvent)[];
   caseCitationEvents: CaseCitationEvent[];
   mcpEvents: McpToolEvent[];
 }> {
@@ -353,6 +361,7 @@ export async function runToolCalls(
   const askInputsEvents: AskInputsEvent[] = [];
   const courtlistenerEvents: CourtlistenerToolEvent[] = [];
   const kanunEvents: KanunSearchEvent[] = [];
+  const ictihatEvents: (IctihatSearchEvent | IctihatDecisionEvent)[] = [];
   const caseCitationEvents: CaseCitationEvent[] = [];
   const mcpEvents: McpToolEvent[] = [];
   const approvalItems: AskInputItem[] = [];
@@ -871,6 +880,20 @@ export async function runToolCalls(
       const { event, content } = await runKanunSearch(db, args);
       write(`data: ${JSON.stringify(event)}\n\n`);
       kanunEvents.push(event);
+      toolResults.push({ role: "tool", tool_call_id: tc.id, content });
+    } else if (tc.function.name === ICTIHAT_TOOL_NAMES.search) {
+      const query = typeof args.query === "string" ? args.query.trim() : "";
+      write(`data: ${JSON.stringify({ type: "ictihat_search_start", query })}\n\n`);
+      const { event, content } = await runIctihatSearch(args);
+      write(`data: ${JSON.stringify(event)}\n\n`);
+      ictihatEvents.push(event);
+      toolResults.push({ role: "tool", tool_call_id: tc.id, content });
+    } else if (tc.function.name === ICTIHAT_TOOL_NAMES.read) {
+      const id = typeof args.id === "string" ? args.id.trim() : "";
+      write(`data: ${JSON.stringify({ type: "ictihat_karar_start", id })}\n\n`);
+      const { event, content } = await runGetKarar(args);
+      write(`data: ${JSON.stringify(event)}\n\n`);
+      ictihatEvents.push(event);
       toolResults.push({ role: "tool", tool_call_id: tc.id, content });
     } else if (tc.function.name === COURTLISTENER_TOOL_NAMES.searchCaseLaw) {
       const query = typeof args.query === "string" ? args.query : "";
@@ -2075,6 +2098,7 @@ export async function runToolCalls(
     askInputsEvents,
     courtlistenerEvents,
     kanunEvents,
+    ictihatEvents,
     caseCitationEvents,
     mcpEvents,
   };

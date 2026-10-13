@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, XCircle } from "lucide-react";
 import type {
+    IctihatHit,
     KanunSearchHit,
     StatuteCitation,
 } from "@/app/components/shared/types";
@@ -38,6 +39,15 @@ export function kanunSearchItems(results: KanunSearchHit[]): CourtListenerBlockI
     return results.map((hit) => ({
         caseName: `${kanunMaddeEtiketi(hit)}${hit.baslik ? ` – ${hit.baslik}` : ""}`,
         citation: t("{percent}% match", { percent: Math.round(hit.similarity * 100) }),
+    }));
+}
+
+/** İçtihat arama sonuçları: künye, kesinleşme durumu ve resmî sayfa bağlantısı. */
+export function ictihatSearchItems(results: IctihatHit[]): CourtListenerBlockItem[] {
+    return results.map((hit) => ({
+        caseName: hit.atif,
+        citation: hit.durum,
+        url: hit.kaynak,
     }));
 }
 

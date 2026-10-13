@@ -23,6 +23,7 @@ const { streamChatWithTools, runToolCalls } = vi.hoisted(() => ({
     askInputsEvents: [],
     courtlistenerEvents: [],
     kanunEvents: [],
+    ictihatEvents: [],
     caseCitationEvents: [],
     mcpEvents: [],
   })),
@@ -123,6 +124,7 @@ describe("runLLMStream document-mutation gating", () => {
       askInputsEvents: [askInputsEvent],
       courtlistenerEvents: [],
       kanunEvents: [],
+      ictihatEvents: [],
       caseCitationEvents: [],
       mcpEvents: [],
     } as never);

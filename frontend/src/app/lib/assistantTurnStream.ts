@@ -6,6 +6,8 @@ import { isPanelDocument } from "@/app/components/shared/types";
 import type {
   AssistantEvent,
   Citation,
+  IctihatCourt,
+  IctihatHit,
   KanunSearchHit,
   StatuteCitation,
 } from "@/app/components/shared/types";
@@ -695,6 +697,67 @@ export async function consumeAssistantTurnStream(
                 typeof data.error === "string"
                   ? (data.error as string)
                   : undefined,
+              isStreaming: false,
+            }),
+          );
+          pushThinkingPlaceholder();
+          continue;
+        }
+
+        if (data.type === "ictihat_search_start") {
+          pushEvent({
+            type: "ictihat_search",
+            query: (data.query as string) ?? "",
+            court: "adli",
+            isStreaming: true,
+          });
+          continue;
+        }
+
+        if (data.type === "ictihat_search") {
+          updateMatchingEvent(
+            (e) =>
+              e.type === "ictihat_search" &&
+              e.query === ((data.query as string) ?? "") &&
+              !!e.isStreaming,
+            () => ({
+              type: "ictihat_search",
+              query: (data.query as string) ?? "",
+              court: (data.court as IctihatCourt) ?? "adli",
+              total: typeof data.total === "number" ? data.total : 0,
+              results: Array.isArray(data.results)
+                ? (data.results as IctihatHit[])
+                : [],
+              error:
+                typeof data.error === "string" ? data.error : undefined,
+              isStreaming: false,
+            }),
+          );
+          pushThinkingPlaceholder();
+          continue;
+        }
+
+        if (data.type === "ictihat_karar_start") {
+          pushEvent({
+            type: "ictihat_karar",
+            id: (data.id as string) ?? "",
+            isStreaming: true,
+          });
+          continue;
+        }
+
+        if (data.type === "ictihat_karar") {
+          // The read decision's id gains the "yargitay:" prefix only when the
+          // model already passed it, so match on the streaming placeholder.
+          updateMatchingEvent(
+            (e) => e.type === "ictihat_karar" && !!e.isStreaming,
+            () => ({
+              type: "ictihat_karar",
+              id: (data.id as string) ?? "",
+              atif: typeof data.atif === "string" ? data.atif : null,
+              kaynak: typeof data.kaynak === "string" ? data.kaynak : null,
+              error:
+                typeof data.error === "string" ? data.error : undefined,
               isStreaming: false,
             }),
           );

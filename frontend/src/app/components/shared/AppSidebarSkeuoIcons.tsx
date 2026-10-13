@@ -59,6 +59,10 @@ export function StatutesSkeuoIcon(props: IconProps) {
   return <AppSidebarIcon name="features/statutes" {...props} />;
 }
 
+export function CaseLawSkeuoIcon(props: IconProps) {
+  return <AppSidebarIcon name="features/case-law" {...props} />;
+}
+
 export function TabularReviewSkeuoIcon(props: IconProps) {
   return <AppSidebarIcon name="features/tabular-review" {...props} />;
 }

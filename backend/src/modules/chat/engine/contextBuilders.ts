@@ -816,6 +816,8 @@ const COMPLETES_TEXTLESS_TURN = {
   courtlistener_verify_citations: false,
   kanun_search: false,
   kanun_citations: false,
+  ictihat_search: false,
+  ictihat_karar: false,
   mcp_tool_call: false,
   case_opinions: false,
   content: false,

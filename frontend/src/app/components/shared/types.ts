@@ -13,6 +13,10 @@ import type {
   AskInputsEvent as SharedAskInputsEvent,
 } from "@mike/contracts";
 import type {
+  IctihatCourt,
+  IctihatDecision,
+  IctihatHit,
+  IctihatSearchResponse,
   KanunArticle,
   KanunSearchHit,
   KanunSearchResponse,
@@ -22,8 +26,12 @@ import type {
   StatuteUpdatesResponse,
 } from "@mike/contracts";
 
-// mikeTR: Turkish statute search, citation checking and statute updates.
+// mikeTR: Turkish statute and case-law search, citation checking and statute updates.
 export type {
+  IctihatCourt,
+  IctihatDecision,
+  IctihatHit,
+  IctihatSearchResponse,
   KanunArticle,
   KanunSearchHit,
   KanunSearchResponse,
@@ -232,6 +240,18 @@ export type AssistantEvent =
       isStreaming?: boolean;
     })
   | WireActivity<"kanun_citations">
+  | (Omit<WireActivity<"ictihat_search">, "results" | "total" | "error"> & {
+      results?: IctihatHit[];
+      total?: number;
+      error?: string;
+      isStreaming?: boolean;
+    })
+  | (Omit<WireActivity<"ictihat_karar">, "atif" | "kaynak" | "error"> & {
+      atif?: string | null;
+      kaynak?: string | null;
+      error?: string;
+      isStreaming?: boolean;
+    })
   | (Omit<WireActivity<"error">, "safe_to_display"> & {
       safe_to_display?: boolean;
     })

@@ -48,6 +48,9 @@ import type {
     Message,
     MessageFile,
     KanunSearchResponse,
+    IctihatCourt,
+    IctihatDecision,
+    IctihatSearchResponse,
     StatuteStatus,
     StatuteUpdatesResponse,
     PanelDocument,
@@ -3274,6 +3277,23 @@ export async function searchStatutes(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query, limit }),
     });
+}
+
+// mikeTR: Turkish case law from the Ministry of Justice's decision services.
+export async function searchCaseLaw(
+    query: string,
+    court: IctihatCourt = "adli",
+    page = 1,
+): Promise<IctihatSearchResponse> {
+    return apiRequest<IctihatSearchResponse>("/ictihat/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, court, page, limit: 10 }),
+    });
+}
+
+export async function getCaseLawDecision(id: string): Promise<IctihatDecision> {
+    return apiRequest<IctihatDecision>(`/ictihat/karar/${encodeURIComponent(id)}`);
 }
 
 export async function getStatuteStatus(): Promise<StatuteStatus> {

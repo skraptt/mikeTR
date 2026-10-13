@@ -22,7 +22,11 @@ import { useSmoothedReveal } from "./message/useSmoothedReveal";
 import { MarkdownContent } from "./message/MarkdownContent";
 import { CitationsBlock, buildCitationAppendix } from "./message/CitationSources";
 import { EditCardsSection } from "./message/EditCardsSection";
-import { KanunCitationCheck, kanunSearchItems } from "./message/KanunBlocks";
+import {
+    KanunCitationCheck,
+    ictihatSearchItems,
+    kanunSearchItems,
+} from "./message/KanunBlocks";
 import {
     AskInputsBlock,
     CourtListenerBlock,
@@ -636,6 +640,59 @@ export function AssistantMessage({
                     hasError={!!event.error}
                     showConnector={showConnector}
                     items={results.length > 0 ? kanunSearchItems(results) : undefined}
+                />
+            );
+        }
+        if (event.type === "ictihat_search") {
+            const results = event.results ?? [];
+            const detail = event.isStreaming
+                ? `"${event.query}"`
+                : event.error
+                  ? event.error
+                  : t.plural(
+                        event.total ?? results.length,
+                        '"{query}" ({count} decision)',
+                        '"{query}" ({count} decisions)',
+                        { query: event.query },
+                    );
+            return (
+                <CourtListenerBlock
+                    key={globalIdx}
+                    label={
+                        event.isStreaming
+                            ? t("Searching Turkish case law")
+                            : event.error
+                              ? t("Turkish case-law search failed")
+                              : t("Searched Turkish case law")
+                    }
+                    detail={detail}
+                    isStreaming={!!event.isStreaming}
+                    hasError={!!event.error}
+                    showConnector={showConnector}
+                    items={results.length > 0 ? ictihatSearchItems(results) : undefined}
+                />
+            );
+        }
+        if (event.type === "ictihat_karar") {
+            return (
+                <CourtListenerBlock
+                    key={globalIdx}
+                    label={
+                        event.isStreaming
+                            ? t("Reading decision")
+                            : event.error
+                              ? t("Couldn't read the decision")
+                              : t("Read decision")
+                    }
+                    detail={event.error ?? event.atif ?? undefined}
+                    isStreaming={!!event.isStreaming}
+                    hasError={!!event.error}
+                    showConnector={showConnector}
+                    items={
+                        !event.isStreaming && !event.error && event.kaynak
+                            ? [{ caseName: event.atif ?? null, citation: null, url: event.kaynak }]
+                            : undefined
+                    }
                 />
             );
         }

@@ -1,5 +1,6 @@
 import { COURTLISTENER_SYSTEM_PROMPT } from "./tools/courtlistenerTools";
 import { KANUN_SYSTEM_PROMPT } from "./tools/kanunTools";
+import { ICTIHAT_SYSTEM_PROMPT } from "./tools/ictihatTools";
 
 const SYSTEM_PROMPT_BEFORE_RESEARCH = `You are Mike, an AI legal assistant for lawyers and legal professionals. Help analyze documents, answer legal questions, and draft legal documents.
 
@@ -115,6 +116,6 @@ GENERAL GUIDANCE:
  */
 export function buildSystemPrompt(includeResearchTools = true): string {
   return includeResearchTools
-    ? `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${KANUN_SYSTEM_PROMPT}\n\n${COURTLISTENER_SYSTEM_PROMPT}\n${SYSTEM_PROMPT_AFTER_RESEARCH}`
-    : `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${KANUN_SYSTEM_PROMPT}\n\n${SYSTEM_PROMPT_AFTER_RESEARCH}`;
+    ? `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${KANUN_SYSTEM_PROMPT}\n\n${ICTIHAT_SYSTEM_PROMPT}\n\n${COURTLISTENER_SYSTEM_PROMPT}\n${SYSTEM_PROMPT_AFTER_RESEARCH}`
+    : `${SYSTEM_PROMPT_BEFORE_RESEARCH}\n\n${KANUN_SYSTEM_PROMPT}\n\n${ICTIHAT_SYSTEM_PROMPT}\n\n${SYSTEM_PROMPT_AFTER_RESEARCH}`;
 }

@@ -21,6 +21,11 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 - **Mevzuat araması:** 13 kanunun tam metninde anlam araması yapar. "Kiracının
   temerrüdü" gibi bir konu yazabilir ya da "HMK 107", "TBK md. 49" gibi doğrudan
   madde atfıyla arayabilirsiniz.
+- **İçtihat araması:** Yargıtay kararlarında ve UYAP Emsal'deki bölge adliye ve
+  ilk derece mahkemesi kararlarında arama yapar; kararın tam metnini açar ve
+  resmî sayfasına bağlantı verir. Asistan, bir karara atıf yapmadan önce kararı
+  bulur ve okur; künyeyi (daire, esas/karar no, tarih) hafızasından değil resmî
+  kaynaktan alır.
 - **Kanuna dayalı cevaplar:** Asistan, hukuki bir kural söylemeden önce ilgili
   maddeyi arar. Cevaptaki her kanun atfı, gerçekten okunan maddelerle
   karşılaştırılıp işaretlenir.
@@ -125,6 +130,9 @@ docker compose up --build
   ilişkin sorularda asistan, ilgili maddeleri arar ve cevabında atıf yapar.
 - **Mevzuat:** Kenar çubuğundaki **Mevzuat** sayfasından ya da ana ekrandaki
   arama kutusundan kanun maddelerini doğrudan arayın.
+- **İçtihat:** Kenar çubuğundaki **İçtihat** sayfasından birkaç belirleyici
+  terimle karar arayın (ör. `"ihtiyaç nedeniyle tahliye" konut`). Her sözcük
+  kararda geçmelidir; kalıp ifadeleri çift tırnak içine alın.
 - **Güncellemeler:** Uygulama çalışırken kanunları günde bir kez
   mevzuat.gov.tr ile karşılaştırır. Fark bulunursa **Mevzuat > Güncellemeler**
   sayfasında eski ve yeni metni yan yana görür, onaylar ya da reddedersiniz.

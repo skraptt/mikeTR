@@ -746,6 +746,62 @@ describe("CourtListener frames", () => {
     ]);
   });
 
+  it("resolves a case-law search and a decision read", async () => {
+    const hit = {
+      id: "yargitay:1",
+      kaynak_turu: "yargitay",
+      mahkeme: "Yargıtay 3. Hukuk Dairesi",
+      esas_no: "2022/1258",
+      karar_no: "2022/3089",
+      karar_tarihi: "04.04.2022",
+      durum: null,
+      atif: "Yargıtay 3. Hukuk Dairesi, E.2022/1258 K.2022/3089, T.04.04.2022",
+      kaynak: "https://mevzuat.adalet.gov.tr/ictihat/1",
+    };
+    expect(
+      await eventsOf([
+        { type: "ictihat_search_start", query: "temerrüt" },
+        { type: "ictihat_search", query: "temerrüt", court: "yargitay", total: 12, results: [hit] },
+        { type: "ictihat_karar_start", id: "yargitay:1" },
+        { type: "ictihat_karar", id: "yargitay:1", atif: hit.atif, kaynak: hit.kaynak },
+      ]),
+    ).toEqual([
+      {
+        type: "ictihat_search",
+        query: "temerrüt",
+        court: "yargitay",
+        total: 12,
+        results: [hit],
+        error: undefined,
+        isStreaming: false,
+      },
+      {
+        type: "ictihat_karar",
+        id: "yargitay:1",
+        atif: hit.atif,
+        kaynak: hit.kaynak,
+        error: undefined,
+        isStreaming: false,
+      },
+      thinking,
+    ]);
+  });
+
+  it("reports failed case-law searches and reads with safe defaults", async () => {
+    expect(
+      await eventsOf([
+        { type: "ictihat_search_start" },
+        { type: "ictihat_search", results: "nope", total: "x", error: "down" },
+        { type: "ictihat_karar_start" },
+        { type: "ictihat_karar", atif: 1, kaynak: 2, error: "gone" },
+      ]),
+    ).toEqual([
+      { type: "ictihat_search", query: "", court: "adli", total: 0, results: [], error: "down", isStreaming: false },
+      { type: "ictihat_karar", id: "", atif: null, kaynak: null, error: "gone", isStreaming: false },
+      thinking,
+    ]);
+  });
+
   it("adds the statute citation check, and ignores a malformed one", async () => {
     const citation = { label: "TBK md. 315", kanun_no: "6098", madde_no: "315", status: "dogrulandi" };
     expect(

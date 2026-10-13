@@ -14,6 +14,7 @@ import { buildUserMcpTools } from "../../../lib/mcpConnectors";
 import { buildGoogleDriveTools } from "../../../lib/integrations/googleDrive";
 import { COURTLISTENER_TOOLS } from "./tools/courtlistenerTools";
 import { KANUN_TOOLS, buildKanunCitationsEvent } from "./tools/kanunTools";
+import { ICTIHAT_TOOLS } from "./tools/ictihatTools";
 import {
   type DocStore,
   type DocIndex,
@@ -305,6 +306,7 @@ export async function runLLMStream(params: {
   const baseTools = [
     ...conversationTools,
     ...KANUN_TOOLS,
+    ...ICTIHAT_TOOLS,
     ...researchTools,
     ...WORKFLOW_TOOLS,
   ];
@@ -618,6 +620,7 @@ export async function runLLMStream(params: {
           askInputsEvents,
           courtlistenerEvents,
           kanunEvents,
+          ictihatEvents,
           caseCitationEvents,
           mcpEvents,
         } = await runToolCalls(
@@ -705,6 +708,9 @@ export async function runLLMStream(params: {
           events.push(event);
         }
         for (const event of kanunEvents) {
+          events.push(event);
+        }
+        for (const event of ictihatEvents) {
           events.push(event);
         }
         for (const event of mcpEvents) {

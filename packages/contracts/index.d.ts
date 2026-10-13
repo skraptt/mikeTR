@@ -302,6 +302,67 @@ export type KanunCitationsEvent = {
   citations: StatuteCitation[];
 };
 
+/**
+ * mikeTR: Turkish case law from the Ministry of Justice's public decision
+ * services. `adli` searches Yargıtay and UYAP Emsal (regional courts of
+ * appeal, some first-instance courts) together.
+ */
+export type IctihatCourt = "adli" | "yargitay" | "emsal";
+
+export type IctihatHit = {
+  /** "yargitay:<n>" for Yargıtay, a bare number for UYAP Emsal. */
+  id: string;
+  kaynak_turu: "yargitay" | "emsal";
+  mahkeme: string;
+  esas_no: string;
+  karar_no: string;
+  karar_tarihi: string;
+  /** Finality as the source reports it, e.g. "KESİNLEŞTİ". */
+  durum: string | null;
+  /** Ready-made citation: "Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024". */
+  atif: string;
+  /** The decision's public page. */
+  kaynak: string;
+};
+
+export type IctihatSearchResult = {
+  total: number;
+  results: IctihatHit[];
+};
+
+/** POST /ictihat/search */
+export type IctihatSearchResponse = IctihatSearchResult & {
+  query: string;
+  court: IctihatCourt;
+  page: number;
+  /** A source that failed while the other still answered. */
+  warnings?: string[];
+};
+
+/** GET /ictihat/karar/:id */
+export type IctihatDecision = {
+  id: string;
+  kaynak: string;
+  metin: string;
+};
+
+export type IctihatSearchEvent = {
+  type: "ictihat_search";
+  query: string;
+  court: IctihatCourt;
+  total: number;
+  results: IctihatHit[];
+  error?: string;
+};
+
+export type IctihatDecisionEvent = {
+  type: "ictihat_karar";
+  id: string;
+  atif: string | null;
+  kaynak: string | null;
+  error?: string;
+};
+
 export type CourtlistenerToolEvent =
   | {
       type: "courtlistener_search_case_law";
@@ -446,6 +507,8 @@ export type AssistantEvent =
   | CourtlistenerToolEvent
   | KanunSearchEvent
   | KanunCitationsEvent
+  | IctihatSearchEvent
+  | IctihatDecisionEvent
   | McpToolEvent
   | {
       type: "case_opinions";
