@@ -1,30 +1,45 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#C08A57"/>
-      <stop offset="0.5" stop-color="#8B5A2B"/>
-      <stop offset="1" stop-color="#5C3A1A"/>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C69060"/>
+      <stop offset="0.45" stop-color="#94602F"/>
+      <stop offset="1" stop-color="#5E3A18"/>
     </linearGradient>
-    <linearGradient id="brassBand" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#B7791F"/>
-      <stop offset="0.5" stop-color="#F6CB63"/>
-      <stop offset="1" stop-color="#B7791F"/>
+    <linearGradient id="handle" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6B4320"/>
+      <stop offset="0.5" stop-color="#B07A45"/>
+      <stop offset="1" stop-color="#6B4320"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FDE68A"/>
+      <stop offset="0.5" stop-color="#E0A63A"/>
+      <stop offset="1" stop-color="#A86B12"/>
     </linearGradient>
     <linearGradient id="block" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#A9743F"/>
-      <stop offset="1" stop-color="#5C3A1A"/>
+      <stop offset="0" stop-color="#B17D4A"/>
+      <stop offset="1" stop-color="#5E3A18"/>
     </linearGradient>
   </defs>
+
   <!-- sounding block -->
-  <rect x="8" y="49" width="30" height="7" rx="2.5" fill="url(#block)"/>
-  <rect x="11" y="47" width="24" height="3" rx="1.5" fill="#C08A57"/>
-  <!-- handle -->
-  <rect x="29" y="25" width="6" height="30" rx="3" transform="rotate(-45 32 40)" fill="url(#wood)"/>
-  <!-- head -->
-  <g transform="rotate(-45 30 22)">
-    <rect x="14" y="14" width="32" height="16" rx="5" fill="url(#wood)"/>
-    <rect x="18" y="14" width="4" height="16" fill="url(#brassBand)"/>
-    <rect x="38" y="14" width="4" height="16" fill="url(#brassBand)"/>
-    <rect x="15" y="16" width="30" height="3" rx="1.5" fill="#FFFFFF" fill-opacity="0.25"/>
+  <ellipse cx="21" cy="57" rx="15" ry="3" fill="#1F2937" fill-opacity="0.15"/>
+  <rect x="7" y="49" width="28" height="7" rx="3" fill="url(#block)"/>
+  <rect x="9" y="49" width="24" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.25"/>
+
+  <!-- gavel, tilted so the handle runs down and to the right -->
+  <g transform="rotate(-40 26 20)">
+    <!-- handle -->
+    <rect x="23.5" y="24" width="5" height="32" rx="2.5" fill="url(#handle)"/>
+    <circle cx="26" cy="56" r="3" fill="#6B4320"/>
+    <!-- head body -->
+    <rect x="13" y="13" width="26" height="14" rx="2" fill="url(#wood)"/>
+    <!-- brass collars -->
+    <rect x="17" y="12.5" width="3" height="15" rx="1" fill="url(#brass)"/>
+    <rect x="32" y="12.5" width="3" height="15" rx="1" fill="url(#brass)"/>
+    <!-- striking faces -->
+    <rect x="9" y="11" width="5" height="18" rx="2" fill="url(#wood)"/>
+    <rect x="38" y="11" width="5" height="18" rx="2" fill="url(#wood)"/>
+    <!-- highlight -->
+    <rect x="10" y="13" width="32" height="2.5" rx="1.25" fill="#FFFFFF" fill-opacity="0.3"/>
   </g>
 </svg>
