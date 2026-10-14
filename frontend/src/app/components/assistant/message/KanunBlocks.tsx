@@ -9,6 +9,7 @@ import type {
 } from "@/app/components/shared/types";
 import type { CourtListenerBlockItem } from "./EventBlocks";
 import { t } from "@/shared/i18n";
+import { decisionHref } from "@/app/components/caseLaw/caseLawLinks";
 
 // mikeTR: Türk mevzuatı araması ve atıf kontrolü için sohbet blokları.
 
@@ -47,7 +48,7 @@ export function ictihatSearchItems(results: IctihatHit[]): CourtListenerBlockIte
     return results.map((hit) => ({
         caseName: hit.atif,
         citation: hit.durum,
-        url: hit.kaynak,
+        url: decisionHref(hit),
     }));
 }
 

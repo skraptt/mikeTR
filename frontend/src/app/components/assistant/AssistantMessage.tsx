@@ -27,6 +27,7 @@ import {
     ictihatSearchItems,
     kanunSearchItems,
 } from "./message/KanunBlocks";
+import { decisionHref } from "@/app/components/caseLaw/caseLawLinks";
 import {
     AskInputsBlock,
     CourtListenerBlock,
@@ -690,7 +691,7 @@ export function AssistantMessage({
                     showConnector={showConnector}
                     items={
                         !event.isStreaming && !event.error && event.kaynak
-                            ? [{ caseName: event.atif ?? null, citation: null, url: event.kaynak }]
+                            ? [{ caseName: event.atif ?? null, citation: null, url: decisionHref(event) }]
                             : undefined
                     }
                 />

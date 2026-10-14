@@ -37,6 +37,9 @@ const USER_AGENT =
 const BEDESTEN = "https://bedesten.adalet.gov.tr/emsal-karar";
 const YARGITAY_PAGE = "https://mevzuat.adalet.gov.tr/ictihat";
 const EMSAL = "https://emsal.uyap.gov.tr";
+// UYAP Emsal has no page per decision (getDokuman answers raw data), so its
+// decisions point at the search site, where the citation finds them.
+const EMSAL_SITE = `${EMSAL}/`;
 // Asılı kalan bir istek sohbeti uzun süre bekletmesin.
 const TIMEOUT_MS = 30_000;
 const YARGITAY_PREFIX = "yargitay:";
@@ -397,7 +400,7 @@ async function searchEmsalPage(
       karar_tarihi: date,
       durum: k.durum ?? null,
       atif: citation(court, esas, karar, date),
-      kaynak: `${EMSAL}/getDokuman?id=${id}`,
+      kaynak: EMSAL_SITE,
     };
   });
   return { total: body.data?.recordsTotal ?? hits.length, results: hits };
@@ -411,7 +414,7 @@ async function getEmsal(fetchFn: FetchFn, id: string): Promise<IctihatDecision> 
     { method: "GET", headers: { "User-Agent": USER_AGENT, Referer: `${EMSAL}/` } },
   )) as { data?: string };
   if (!body.data) throw new IctihatSourceError(`No UYAP Emsal decision was found for id ${id}.`);
-  return { id, kaynak: `${EMSAL}/getDokuman?id=${id}`, metin: htmlToText(body.data) };
+  return { id, kaynak: EMSAL_SITE, metin: htmlToText(body.data) };
 }
 
 // ---------------------------------------------------------------------------

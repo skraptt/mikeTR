@@ -87,6 +87,8 @@ describe("searchDecisions", () => {
         kaynak_turu: "emsal",
         durum: "KESİNLEŞTİ",
         atif: "İstanbul 18. Asliye Ticaret Mahkemesi, E.2018/253 K.2019/1099, T.19.12.2019",
+        // No page per decision on UYAP Emsal; the search site finds it.
+        kaynak: "https://emsal.uyap.gov.tr/",
       }),
     ]);
     const bodies = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls.map(
@@ -241,7 +243,11 @@ describe("getDecision", () => {
 
   it("reads a UYAP Emsal decision", async () => {
     const fetchFn = fakeFetch({ getDokuman: () => jsonResponse({ data: "<p>Karar metni</p>" }) });
-    await expect(getDecision("567892800", fetchFn)).resolves.toMatchObject({ metin: "Karar metni" });
+    await expect(getDecision("567892800", fetchFn)).resolves.toEqual({
+      id: "567892800",
+      kaynak: "https://emsal.uyap.gov.tr/",
+      metin: "Karar metni",
+    });
   });
 
   it("refuses an id that did not come from a search", async () => {

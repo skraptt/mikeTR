@@ -88,6 +88,20 @@ describe("CaseLawSearchPage", () => {
         expect(push).toHaveBeenCalledWith("/case-law?q=temerr%C3%BCt&court=yargitay");
     });
 
+    it("opens UYAP Emsal decisions in the reader, which has no official page per decision", async () => {
+        params = new URLSearchParams({ q: "temerrüt", court: "emsal" });
+        searchCaseLaw.mockResolvedValue(
+            response({
+                court: "emsal",
+                results: [{ ...hit, id: "5", kaynak_turu: "emsal", mahkeme: "Ankara BAM 4. HD", kaynak: "https://emsal.uyap.gov.tr/" }],
+            }),
+        );
+        render(<CaseLawSearchPage />);
+        const link = await screen.findByRole("link", { name: /Open in a new tab/ });
+        expect(link.getAttribute("href")).toMatch(/^\/case-law\/decision\?id=5&atif=/);
+        expect(screen.queryByRole("link", { name: /Official source/ })).not.toBeInTheDocument();
+    });
+
     it("shows why a decision could not be read", async () => {
         params = new URLSearchParams({ q: "temerrüt" });
         searchCaseLaw.mockResolvedValue(response());

@@ -321,7 +321,10 @@ export type IctihatHit = {
   durum: string | null;
   /** Ready-made citation: "Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024". */
   atif: string;
-  /** The decision's public page. */
+  /**
+   * The decision's public page for Yargıtay; for UYAP Emsal, which has no page
+   * per decision, the search site.
+   */
   kaynak: string;
 };
 

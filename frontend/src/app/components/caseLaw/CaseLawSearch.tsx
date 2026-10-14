@@ -24,6 +24,7 @@ import { userFacingApiError } from "@/app/lib/userFacingError";
 import { LIQUID_GLASS_FLAT_CLASS } from "@/app/components/ui/liquid-surface";
 import { LIQUID_GLASS_SUBTLE_CLASS } from "@/shared/ui/LiquidGlassUI";
 import { cn } from "@/app/lib/utils";
+import { decisionReaderHref } from "./caseLawLinks";
 import { t } from "@/shared/i18n";
 
 const PAGE_SIZE = 10;
@@ -160,15 +161,28 @@ function DecisionCard({ hit }: { hit: IctihatHit }) {
                         aria-hidden
                     />
                 </button>
-                <a
-                    href={hit.kaynak}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-950"
-                >
-                    {t("Official source")}
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                </a>
+                {hit.kaynak_turu === "yargitay" ? (
+                    <a
+                        href={hit.kaynak}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-950"
+                    >
+                        {t("Official source")}
+                        <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    </a>
+                ) : (
+                    // UYAP Emsal has no page per decision; open mikeTR's reader.
+                    <a
+                        href={decisionReaderHref(hit)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-950"
+                    >
+                        {t("Open in a new tab")}
+                        <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    </a>
+                )}
             </div>
             {text.status === "open" && (
                 <p className="mt-3 max-h-[28rem] overflow-y-auto whitespace-pre-line border-t border-gray-100 pt-3 text-sm leading-6 text-gray-700">
