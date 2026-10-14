@@ -28,6 +28,9 @@ describe("htmlToText", () => {
     expect(htmlToText("<style>x{}</style><p>Kira&nbsp;bedeli</p><p>&quot;6098&quot; &amp; &#252;</p>")).toBe(
       'Kira bedeli\n"6098" & ü',
     );
+    expect(htmlToText("<p>T&Uuml;RK&#x130;YE &ouml;n al\u200bım &ldquo;x&rdquo; &bogus;</p>")).toBe("TÜRKİYE ön alım “x” &bogus;");
+    // Doubly encoded HTML (Danıştay's own site) is opened first.
+    expect(htmlToText("&lt;p&gt;Karar&lt;/p&gt;&lt;p&gt;Metin&lt;/p&gt;")).toBe("Karar\nMetin");
   });
 });
 
@@ -138,7 +141,7 @@ describe("filters", () => {
   });
 
   it.each([
-    [{ daire: "99. Hukuk Dairesi" }, "Unknown Yargıtay chamber: 99. Hukuk Dairesi."],
+    [{ daire: "99. Hukuk Dairesi" }, "Unknown chamber: 99. Hukuk Dairesi."],
     [{ baslangic: "2023-02-30" }, "Dates must be YYYY-MM-DD: 2023-02-30."],
     [{ bitis: "31.12.2024" }, "Dates must be YYYY-MM-DD: 31.12.2024."],
     [{ baslangic: "2025-01-01", bitis: "2024-01-01" }, "The start date is after the end date."],
@@ -261,5 +264,149 @@ describe("getDecision", () => {
       getDocumentContent: () => jsonResponse({ data: { content: "JVBERi0=", mimeType: "application/pdf" } }),
     });
     await expect(getDecision("yargitay:1", fetchFn)).rejects.toThrow(/only available as application\/pdf/);
+  });
+});
+
+describe("Danıştay and the Constitutional Court", () => {
+  const aymRecord = {
+    id: "891e2b7d-6bf8-ccc6-91db-b18f2c4377d6",
+    basvuruNo: "2021/1240",
+    kararTarihi: "2026-09-03",
+    basvuruAdi: "T&Uuml;LAY İRİ",
+    kararKonusu: "<p>Başvuru; &ouml;n alım hakkına dayalı tapu iptali</p>",
+    kararTuruBasvuruSonucuLabel: "Esas (İhlal)",
+    kararVerenBirimLabel: "İkinci Bölüm",
+  };
+  const normRecord = {
+    id: "7c31037d-be2a-4a4b-087f-ab5ff35e0a2e",
+    esasNo: "2024/176",
+    kararNo: "2025/42",
+    kararTarihi: "2025-02-11",
+    resmiGazeteTarihi: "2025-05-06",
+    resmiGazeteSayisi: "32892",
+    kararTuruDosyaSonucuLabel: "Esas - Ret",
+  };
+
+  it("searches Danıştay through Bedesten, and a Danıştay chamber picks that court", async () => {
+    const fetchFn = fakeFetch({
+      searchDocuments: () =>
+        jsonResponse({
+          data: {
+            total: 2777,
+            emsalKararList: [
+              { documentId: "1047060500", birimAdi: "6. Daire", esasNo: "2022/6753", kararNo: "2024/316", kararTarihiStr: "16.01.2024" },
+            ],
+          },
+        }),
+    });
+    const result = await searchDecisions({ query: "imar planı", filters: { daire: "6. daire" } }, fetchFn);
+    expect(result).toMatchObject({
+      court: "danistay",
+      filters: { daire: "6. Daire" },
+      results: [
+        {
+          id: "danistay:1047060500",
+          kaynak_turu: "danistay",
+          mahkeme: "Danıştay 6. Daire",
+          atif: "Danıştay 6. Daire, E.2022/6753 K.2024/316, T.16.01.2024",
+          kaynak: "https://mevzuat.adalet.gov.tr/ictihat/1047060500",
+        },
+      ],
+    });
+    const [[, init]] = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    expect(JSON.parse((init as RequestInit).body as string).data).toMatchObject({
+      itemTypeList: ["DANISTAYKARAR"],
+      birimAdi: "6. Daire",
+    });
+  });
+
+  it("searches individual applications with dates and sort, and reads one", async () => {
+    const fetchFn = fakeFetch({
+      "/api/core/public/search": () =>
+        jsonResponse({ total: "1083", data: [{ ...aymRecord, icerik: "<p>T&Uuml;RKİYE CUMHURİYETİ ANAYASA MAHKEMESİ İKİNCİ BÖLÜM KARAR — başvuru incelendi.</p>" }] }),
+    });
+    const result = await searchDecisions(
+      { query: "mülkiyet hakkı", court: "anayasa", filters: { baslangic: "2026-01-01", siralama: "yeni" } },
+      fetchFn,
+    );
+    expect(result).toMatchObject({
+      court: "anayasa",
+      total: 1083,
+      results: [
+        {
+          id: `aym:${aymRecord.id}`,
+          kaynak_turu: "anayasa",
+          mahkeme: "Anayasa Mahkemesi İkinci Bölüm",
+          esas_no: "2021/1240",
+          karar_tarihi: "03.09.2026",
+          atif: "AYM, B. No: 2021/1240, K.T. 03.09.2026",
+          kaynak: "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/BB/2021/1240",
+          baslik: "TÜLAY İRİ",
+          sonuc: "Esas (İhlal)",
+          konu: "Başvuru; ön alım hakkına dayalı tapu iptali",
+        },
+      ],
+    });
+    const calls = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    expect(JSON.parse((calls[0][1] as RequestInit).body as string)).toEqual({
+      kararTipi: "BireyselBasvuru",
+      query: "+mülkiyet +hakkı",
+      page: 1,
+      size: 10,
+      kararTarihiStart: "2026-01-01",
+      sort: "kararTarihi",
+      order: "desc",
+    });
+
+    const decision = await getDecision(`aym:${aymRecord.id}`, fetchFn);
+    expect(decision).toMatchObject({
+      id: `aym:${aymRecord.id}`,
+      kaynak: "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/BB/2021/1240",
+    });
+    expect(decision.metin).toMatch(/^TÜRKİYE CUMHURİYETİ/);
+    expect(JSON.parse((calls[1][1] as RequestInit).body as string)).toEqual({
+      kararTipi: "BireyselBasvuru",
+      id: aymRecord.id,
+      page: 1,
+      size: 1,
+    });
+  });
+
+  it("cites constitutional review by docket and decision numbers with the Official Gazette", async () => {
+    const fetchFn = fakeFetch({ "/api/core/public/search": () => jsonResponse({ total: 1, data: [normRecord] }) });
+    const result = await searchDecisions({ query: "kira", court: "norm", filters: { siralama: "eski" } }, fetchFn);
+    expect(result.results[0]).toMatchObject({
+      id: `norm:${normRecord.id}`,
+      kaynak_turu: "norm",
+      mahkeme: "Anayasa Mahkemesi",
+      esas_no: "2024/176",
+      karar_no: "2025/42",
+      atif: "AYM, E.2024/176, K.2025/42, K.T. 11.02.2025",
+      kaynak: "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/ND/2025/42",
+      resmi_gazete: "RG 06.05.2025, S. 32892",
+      sonuc: "Esas - Ret",
+    });
+  });
+
+  it("refuses a malformed Constitutional Court id and reports a missing decision", async () => {
+    await expect(getDecision("aym:2021/1240", vi.fn() as unknown as typeof fetch)).rejects.toThrow(
+      "Use a decision id returned by the case-law search.",
+    );
+    const fetchFn = fakeFetch({ "/api/core/public/search": () => jsonResponse({ data: [] }) });
+    await expect(getDecision(`norm:${normRecord.id}`, fetchFn)).rejects.toThrow(
+      /No Constitutional Court decision was found/,
+    );
+  });
+
+  it("reads a Danıştay decision through Bedesten", async () => {
+    const fetchFn = fakeFetch({
+      getDocumentContent: () =>
+        jsonResponse({ data: { content: Buffer.from("<p>Danıştay 4. Daire</p>").toString("base64"), mimeType: "text/html" } }),
+    });
+    await expect(getDecision("danistay:1216593200", fetchFn)).resolves.toEqual({
+      id: "danistay:1216593200",
+      kaynak: "https://mevzuat.adalet.gov.tr/ictihat/1216593200",
+      metin: "Danıştay 4. Daire",
+    });
   });
 });

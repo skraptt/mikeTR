@@ -303,16 +303,23 @@ export type KanunCitationsEvent = {
 };
 
 /**
- * mikeTR: Turkish case law from the Ministry of Justice's public decision
- * services. `adli` searches Yargıtay and UYAP Emsal (regional courts of
- * appeal, some first-instance courts) together.
+ * mikeTR: Turkish case law from the courts' public decision services. `adli`
+ * searches Yargıtay and UYAP Emsal (regional courts of appeal, some
+ * first-instance courts) together; `danistay` is the Council of State;
+ * `anayasa` and `norm` are the Constitutional Court's individual applications
+ * and constitutional review.
  */
-export type IctihatCourt = "adli" | "yargitay" | "emsal";
+export type IctihatCourt = "adli" | "yargitay" | "emsal" | "danistay" | "anayasa" | "norm";
+
+export type IctihatSource = "yargitay" | "emsal" | "danistay" | "anayasa" | "norm";
 
 export type IctihatHit = {
-  /** "yargitay:<n>" for Yargıtay, a bare number for UYAP Emsal. */
+  /**
+   * "yargitay:<n>", "danistay:<n>", "aym:<uuid>", "norm:<uuid>", or a bare
+   * number for UYAP Emsal.
+   */
   id: string;
-  kaynak_turu: "yargitay" | "emsal";
+  kaynak_turu: IctihatSource;
   mahkeme: string;
   esas_no: string;
   karar_no: string;
@@ -321,6 +328,14 @@ export type IctihatHit = {
   durum: string | null;
   /** Ready-made citation: "Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024". */
   atif: string;
+  /** AYM individual application: the applicant ("ÖMER ATEŞ VE DİĞERLERİ"). */
+  baslik?: string | null;
+  /** AYM: the outcome, e.g. "İhlal", "Esas - Ret". */
+  sonuc?: string | null;
+  /** AYM: a short statement of the subject. */
+  konu?: string | null;
+  /** AYM constitutional review: the Official Gazette it was published in. */
+  resmi_gazete?: string | null;
   /**
    * The decision's public page for Yargıtay; for UYAP Emsal, which has no page
    * per decision, the search site.
@@ -335,7 +350,10 @@ export type IctihatFinality = "kesinlesti" | "kesinlesmedi";
 
 /** Optional narrowing; dates are YYYY-MM-DD decision dates, inclusive. */
 export type IctihatFilters = {
-  /** A Yargıtay chamber or board, e.g. "3. Hukuk Dairesi". Searches Yargıtay only. */
+  /**
+   * A Yargıtay chamber or board ("3. Hukuk Dairesi") or a Danıştay one
+   * ("4. Daire"); searches that court only.
+   */
   daire?: string;
   baslangic?: string;
   bitis?: string;

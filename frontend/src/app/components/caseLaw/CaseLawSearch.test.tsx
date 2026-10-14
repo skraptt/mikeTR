@@ -201,6 +201,75 @@ describe("CaseLawSearchPage", () => {
         expect(searchCaseLaw).toHaveBeenCalledWith("temerrüt", "adli", 1, { daire: "Hukuk Genel Kurulu" });
     });
 
+    it("shows Constitutional Court applications and reviews with their own details", async () => {
+        params = new URLSearchParams({ q: "mülkiyet", court: "anayasa" });
+        searchCaseLaw.mockResolvedValue(
+            response({
+                court: "anayasa",
+                results: [
+                    {
+                        ...hit,
+                        id: "aym:891e2b7d-6bf8-ccc6-91db-b18f2c4377d6",
+                        kaynak_turu: "anayasa",
+                        mahkeme: "Anayasa Mahkemesi İkinci Bölüm",
+                        esas_no: "2021/1240",
+                        karar_no: "",
+                        karar_tarihi: "03.09.2026",
+                        durum: null,
+                        baslik: "TÜLAY İRİ",
+                        sonuc: "Esas (İhlal)",
+                        konu: "Başvuru; ön alım hakkına dayalı tapu iptali",
+                        kaynak: "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/BB/2021/1240",
+                    },
+                    {
+                        ...hit,
+                        id: "norm:7c31037d-be2a-4a4b-087f-ab5ff35e0a2e",
+                        kaynak_turu: "norm",
+                        mahkeme: "Anayasa Mahkemesi",
+                        esas_no: "2024/176",
+                        karar_no: "2025/42",
+                        karar_tarihi: "11.02.2025",
+                        durum: null,
+                        sonuc: "Esas - Ret",
+                        resmi_gazete: "RG 06.05.2025, S. 32892",
+                        kaynak: "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/ND/2025/42",
+                    },
+                ],
+            }),
+        );
+        render(<CaseLawSearchPage />);
+
+        expect(await screen.findByText("– TÜLAY İRİ")).toBeInTheDocument();
+        expect(screen.getByText("Application 2021/1240 · 03.09.2026")).toBeInTheDocument();
+        expect(screen.getByText("Esas (İhlal)")).toBeInTheDocument();
+        expect(screen.getByText("Başvuru; ön alım hakkına dayalı tapu iptali")).toBeInTheDocument();
+        expect(screen.getByText(/· RG 06\.05\.2025, S\. 32892/)).toBeInTheDocument();
+        expect(screen.getAllByRole("link", { name: /Official source/ }).map((link) => link.getAttribute("href"))).toEqual([
+            "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/BB/2021/1240",
+            "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/ND/2025/42",
+        ]);
+        // No chambers or finality for the Constitutional Court.
+        expect(screen.queryByRole("combobox", { name: "Chamber" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("combobox", { name: "Finality" })).not.toBeInTheDocument();
+    });
+
+    it("offers Danıştay's chambers and keeps a Danıştay chamber from the URL", async () => {
+        params = new URLSearchParams({ q: "imar", daire: "6. Daire" });
+        searchCaseLaw.mockResolvedValue(response({ court: "danistay" }));
+        render(<CaseLawSearchPage />);
+
+        await screen.findByText("Yargıtay 12. Hukuk Dairesi");
+        expect(searchCaseLaw).toHaveBeenCalledWith("imar", "adli", 1, { daire: "6. Daire" });
+        expect(screen.getByRole("radio", { name: "Danıştay" })).toHaveAttribute("aria-checked", "true");
+        const chamber = screen.getByRole("combobox", { name: "Chamber" });
+        expect(chamber).toHaveValue("6. Daire");
+        expect(screen.getByRole("option", { name: "Vergi Dava Daireleri Kurulu" })).toBeInTheDocument();
+
+        // Switching to Yargıtay drops the Danıştay chamber.
+        fireEvent.click(screen.getByRole("radio", { name: "Yargıtay" }));
+        expect(push).toHaveBeenLastCalledWith("/case-law?q=imar&court=yargitay");
+    });
+
     it("puts a new search with its court in the URL", () => {
         render(<CaseLawSearchPage />);
         fireEvent.change(screen.getByRole("searchbox", { name: "Search Turkish case law" }), {

@@ -36,6 +36,9 @@ describe("decision links", () => {
             "/case-law/decision?id=5&atif=Ankara+BAM+4.+HD%2C+E.1+K.2%2C+T.3",
         );
         expect(decisionReaderHref({ id: "yargitay:1" })).toBe("/case-law/decision?id=yargitay%3A1");
+        expect(decisionHref({ id: "aym:x", kaynak: "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/BB/2021/1240" })).toBe(
+            "https://kararlarbilgibankasi.anayasa.gov.tr/kbb/BB/2021/1240",
+        );
     });
 });
 
@@ -70,6 +73,17 @@ describe("CaseLawDecisionPage", () => {
             "href",
             "https://mevzuat.adalet.gov.tr/ictihat/1",
         );
+    });
+
+    it.each([
+        ["danistay:1", /Danıştay decision search/],
+        ["norm:7c31037d-be2a-4a4b-087f-ab5ff35e0a2e", /Constitutional Court decisions database/],
+    ])("names the source of %s", async (id, note) => {
+        params = new URLSearchParams({ id });
+        getCaseLawDecision.mockResolvedValue({ id, kaynak: "https://example.test/page", metin: "Karar" });
+        render(<CaseLawDecisionPage />);
+        expect(await screen.findByText(note)).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: /Official source/ })).toHaveAttribute("href", "https://example.test/page");
     });
 
     it("explains a failure and retries", async () => {

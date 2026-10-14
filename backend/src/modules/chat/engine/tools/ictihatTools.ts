@@ -20,15 +20,16 @@ export const ICTIHAT_TOOL_NAMES = {
 const MAX_DECISION_CHARS = 24_000;
 
 export const ICTIHAT_SYSTEM_PROMPT = `TURKISH CASE LAW (search_ictihat, get_karar):
-search_ictihat searches published Turkish court decisions: Yargıtay (Court of Cassation) and UYAP Emsal (regional courts of appeal and some first-instance courts). get_karar returns a decision's full text.
+search_ictihat searches published Turkish court decisions: Yargıtay (Court of Cassation), UYAP Emsal (regional courts of appeal and some first-instance courts), Danıştay (Council of State, administrative and tax law) and the Anayasa Mahkemesi (Constitutional Court: individual applications and constitutional review). get_karar returns a decision's full text.
+- Choose the court by the question: civil, commercial and criminal law -> adli (or yargitay); administrative acts, zoning, public servants, tax -> danistay; fundamental rights violations -> anayasa; whether a statute is unconstitutional -> norm.
 - Use them when the user asks for case law, precedent, "Yargıtay kararı", "içtihat", or how courts apply a rule. Search with a few distinctive Turkish legal terms, not a sentence: every word must appear in the decision (e.g. "kiracının temerrüdü tahliye", "belirsiz alacak davası"). Put fixed phrases in double quotes ("ihtiyaç nedeniyle tahliye") and exclude terms with a leading minus (-ceza). If there are no results, retry with fewer or more general terms.
-- Narrow with the optional filters when the question calls for it: daire (a Yargıtay chamber, e.g. "3. Hukuk Dairesi" for tenancy, "12. Hukuk Dairesi" for enforcement), baslangic/bitis (decision date range) and siralama "yeni" for the most recent decisions. Prefer recent decisions when the law has changed. kesinlesme "kesinlesti" keeps only final decisions of the regional and first-instance courts.
+- Narrow with the optional filters when the question calls for it: daire (a Yargıtay chamber, e.g. "3. Hukuk Dairesi" for tenancy, "12. Hukuk Dairesi" for enforcement; or a Danıştay one, e.g. "4. Daire" for tax, "6. Daire" for zoning), baslangic/bitis (decision date range) and siralama "yeni" for the most recent decisions. Prefer recent decisions when the law has changed. kesinlesme "kesinlesti" keeps only final decisions of the regional and first-instance courts.
 - Before relying on or quoting a decision, read it with get_karar. Search results contain only the citation details, not the holding.
-- Cite a decision exactly by the "atif" field of the result, e.g. "(Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024)". NEVER write a court, esas/karar number or date that did not come from these tools in this conversation. Do not cite decisions from memory.
+- Cite a decision exactly by the "atif" field of the result, e.g. "(Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024)", "(Danıştay 4. Daire, E.2025/4453 K.2026/990, T.02.03.2026)", "(AYM, B. No: 2019/27727, K.T. 08.01.2025)" or "(AYM, E.2024/176, K.2025/42, K.T. 11.02.2025)". NEVER write a court, esas/karar number or date that did not come from these tools in this conversation. Do not cite decisions from memory.
 - State what the decision actually held, from its text. Note when its "durum" says it is not final (KESİNLEŞMEDİ), and that decisions of the regional courts and first-instance courts are not binding precedent.
 - Case citations go in prose only, never in the <CITATIONS> block.`;
 
-const COURT_VALUES: readonly IctihatCourt[] = ["adli", "yargitay", "emsal"];
+const COURT_VALUES: readonly IctihatCourt[] = ["adli", "yargitay", "emsal", "danistay", "anayasa", "norm"];
 
 export const ICTIHAT_TOOLS = [
   {
@@ -36,7 +37,7 @@ export const ICTIHAT_TOOLS = [
     function: {
       name: ICTIHAT_TOOL_NAMES.search,
       description:
-        "Search published Turkish court decisions (Yargıtay and UYAP Emsal). Every word must appear in the decision. Returns citation details (court, esas/karar no, date, finality) and an id for get_karar.",
+        "Search published Turkish court decisions (Yargıtay, UYAP Emsal, Danıştay, Anayasa Mahkemesi). Every word must appear in the decision. Returns citation details (court, esas/karar or application no, date, finality, outcome) and an id for get_karar.",
       parameters: {
         type: "object",
         properties: {
@@ -49,7 +50,7 @@ export const ICTIHAT_TOOLS = [
             type: "string",
             enum: COURT_VALUES,
             description:
-              "adli (default): Yargıtay and regional/first-instance courts together; yargitay: Court of Cassation only; emsal: regional courts of appeal and first-instance courts only.",
+              "adli (default): Yargıtay and regional/first-instance courts together; yargitay: Court of Cassation only; emsal: regional courts of appeal and first-instance courts only; danistay: Council of State; anayasa: Constitutional Court individual applications; norm: Constitutional Court review of statutes.",
           },
           limit: {
             type: "integer",
@@ -59,7 +60,7 @@ export const ICTIHAT_TOOLS = [
           daire: {
             type: "string",
             description:
-              'Optional Yargıtay chamber or board, e.g. "3. Hukuk Dairesi", "12. Hukuk Dairesi", "Hukuk Genel Kurulu". Searches Yargıtay only.',
+              'Optional chamber or board: Yargıtay ("3. Hukuk Dairesi", "Hukuk Genel Kurulu") or Danıştay ("4. Daire", "Vergi Dava Daireleri Kurulu"). Searches that court only.',
           },
           baslangic: { type: "string", description: "Optional earliest decision date, YYYY-MM-DD." },
           bitis: { type: "string", description: "Optional latest decision date, YYYY-MM-DD." },
@@ -88,7 +89,7 @@ export const ICTIHAT_TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          id: { type: "string", description: 'The decision id from search_ictihat, e.g. "yargitay:1065746300".' },
+          id: { type: "string", description: 'The decision id from search_ictihat, e.g. "yargitay:1065746300" or "aym:891e2b7d-…".' },
         },
         required: ["id"],
       },

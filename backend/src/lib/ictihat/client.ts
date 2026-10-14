@@ -4,8 +4,11 @@
 //   Yargıtay   bedesten.adalet.gov.tr (Mevzuat ve İçtihat Programı'nın arka ucu)
 //              POST /emsal-karar/searchDocuments, POST /emsal-karar/getDocumentContent
 //              Kararın herkese açık sayfası: mevzuat.adalet.gov.tr/ictihat/<id>
+//   Danıştay   aynı Bedesten servisi, itemType DANISTAYKARAR
 //   Emsal      emsal.uyap.gov.tr (Bölge Adliye hukuk daireleri, bazı ilk derece
 //              mahkemeleri): POST /aramalist, GET /getDokuman?id=
+//   AYM        kararlarbilgibankasi.anayasa.gov.tr: POST /api/core/public/search
+//              (bireysel başvuru ve norm denetimi; arama ve tam metin aynı uçtan)
 //
 // Künye (mahkeme, esas/karar no, tarih) yapısal gelir; model numarayı metinden
 // ayıklamak ya da hafızadan yazmak zorunda kalmaz. Servisler belgelenmiş bir API
@@ -19,6 +22,7 @@ import type {
   IctihatHit,
   IctihatSearchResult,
   IctihatSort,
+  IctihatSource,
 } from "@mike/contracts";
 import { andQuery } from "./query";
 
@@ -43,6 +47,10 @@ const EMSAL_SITE = `${EMSAL}/`;
 // Asılı kalan bir istek sohbeti uzun süre bekletmesin.
 const TIMEOUT_MS = 30_000;
 const YARGITAY_PREFIX = "yargitay:";
+const DANISTAY_PREFIX = "danistay:";
+const AYM_PREFIX = "aym:";
+const NORM_PREFIX = "norm:";
+const AYM = "https://kararlarbilgibankasi.anayasa.gov.tr";
 export const MAX_RESULTS = 20;
 
 /** Yargıtay chambers and boards Bedesten filters by, under its own names. */
@@ -55,6 +63,18 @@ export const YARGITAY_CHAMBERS: readonly string[] = [
   ...Array.from({ length: 23 }, (_, i) => `${i + 1}. Hukuk Dairesi`),
   ...Array.from({ length: 23 }, (_, i) => `${i + 1}. Ceza Dairesi`),
 ];
+
+/** Danıştay chambers and boards, under Bedesten's names. */
+export const DANISTAY_CHAMBERS: readonly string[] = [
+  "İdare Dava Daireleri Kurulu",
+  "Vergi Dava Daireleri Kurulu",
+  ...Array.from({ length: 17 }, (_, i) => `${i + 1}. Daire`),
+];
+
+function findChamber(list: readonly string[], name: string): string | undefined {
+  const wanted = name.toLocaleLowerCase("tr-TR");
+  return list.find((known) => known.toLocaleLowerCase("tr-TR") === wanted);
+}
 
 export const SORTS: readonly IctihatSort[] = ["ilgili", "yeni", "eski"];
 export const FINALITIES: readonly IctihatFinality[] = ["kesinlesti", "kesinlesmedi"];
@@ -80,10 +100,8 @@ export function normalizeFilters(filters: IctihatFilters = {}): IctihatFilters {
   const out: IctihatFilters = {};
   const daire = filters.daire?.trim();
   if (daire) {
-    const known = YARGITAY_CHAMBERS.find(
-      (name) => name.toLocaleLowerCase("tr-TR") === daire.toLocaleLowerCase("tr-TR"),
-    );
-    if (!known) throw new IctihatSourceError(`Unknown Yargıtay chamber: ${daire}.`);
+    const known = findChamber(YARGITAY_CHAMBERS, daire) ?? findChamber(DANISTAY_CHAMBERS, daire);
+    if (!known) throw new IctihatSourceError(`Unknown chamber: ${daire}.`);
     out.daire = known;
   }
   for (const key of ["baslangic", "bitis"] as const) {
@@ -109,7 +127,7 @@ export function normalizeFilters(filters: IctihatFilters = {}): IctihatFilters {
     }
     if (out.daire) {
       throw new IctihatSourceError(
-        "A chamber and a finality filter cannot be combined: chambers are Yargıtay's, and only UYAP Emsal reports finality.",
+        "A chamber and a finality filter cannot be combined: chambers are Yargıtay's and Danıştay's, and only UYAP Emsal reports finality.",
       );
     }
     out.kesinlesme = filters.kesinlesme;
@@ -160,21 +178,40 @@ async function request(
   return body;
 }
 
+// Named entities the courts' HTML uses (AYM writes Turkish letters this way).
+const NAMED_ENTITIES: Record<string, string> = {
+  nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'",
+  ouml: "ö", Ouml: "Ö", uuml: "ü", Uuml: "Ü", ccedil: "ç", Ccedil: "Ç",
+  acirc: "â", Acirc: "Â", icirc: "î", Icirc: "Î", ucirc: "û", Ucirc: "Û",
+  aacute: "á", eacute: "é", iacute: "í", oacute: "ó", uacute: "ú",
+  agrave: "à", egrave: "è", ograve: "ò", auml: "ä", Auml: "Ä",
+  ldquo: "“", rdquo: "”", lsquo: "‘", rsquo: "’", sbquo: "‚", bdquo: "„",
+  laquo: "«", raquo: "»", ndash: "–", mdash: "—", hellip: "…", bull: "•",
+  middot: "·", sect: "§", para: "¶", deg: "°", shy: "", zwnj: "", zwj: "",
+  copy: "©", reg: "®", trade: "™", times: "×", divide: "÷", euro: "€",
+};
+
+function decodeEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]*);/gi, (whole, code: string) => {
+    if (code[0] === "#") {
+      const point = code[1] === "x" || code[1] === "X" ? parseInt(code.slice(2), 16) : Number(code.slice(1));
+      return Number.isFinite(point) && point > 0 && point <= 0x10ffff ? String.fromCodePoint(point) : whole;
+    }
+    return NAMED_ENTITIES[code] ?? whole;
+  });
+}
+
 export function htmlToText(html: string): string {
-  return html
-    .replace(/<(style|script)[^>]*>[\s\S]*?<\/\1>/gi, "")
+  // Some sources encode their HTML once more ("&lt;p&gt;"); open that first.
+  const source = /&lt;\/?[a-z]/i.test(html) && !/<\/?[a-z]/i.test(html) ? decodeEntities(html) : html;
+  const stripped = source
+    .replace(/<(style|script|head)[^>]*>[\s\S]*?<\/\1>/gi, "")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|tr|li|h[1-6])>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCodePoint(parseInt(code, 16)))
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;|&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .replace(/[ \t]+/g, " ")
+    .replace(/<[^>]+>/g, "");
+  return decodeEntities(stripped)
+    .replace(/[\u200b-\u200d\ufeff]/g, "")
+    .replace(/[ \t\u00a0]+/g, " ")
     .replace(/\n[ \t]+/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
@@ -189,11 +226,6 @@ function citation(court: string, esas: string, karar: string, date: string): str
 function finality(value: string | null | undefined): string | null {
   const text = (value ?? "").trim();
   return /KES[İI]NLEŞ/i.test(text) ? text : null;
-}
-
-function yargitayCourt(unit: string | undefined): string {
-  const name = (unit ?? "").trim();
-  return !name || name.toLocaleLowerCase("tr-TR").startsWith("yargıtay") ? name : `Yargıtay ${name}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -217,8 +249,24 @@ type BedestenHit = {
   kesinlesmeDurumu?: string | null;
 };
 
-async function searchYargitay(
+type BedestenCourt = { itemType: string; prefix: string; name: string; source: IctihatSource };
+
+const YARGITAY: BedestenCourt = {
+  itemType: "YARGITAYKARARI",
+  prefix: YARGITAY_PREFIX,
+  name: "Yargıtay",
+  source: "yargitay",
+};
+const DANISTAY: BedestenCourt = {
+  itemType: "DANISTAYKARAR",
+  prefix: DANISTAY_PREFIX,
+  name: "Danıştay",
+  source: "danistay",
+};
+
+async function searchBedesten(
   fetchFn: FetchFn,
+  court: BedestenCourt,
   phrase: string,
   limit: number,
   page: number,
@@ -226,7 +274,7 @@ async function searchYargitay(
 ): Promise<IctihatSearchResult> {
   const data: Record<string, unknown> = {
     phrase,
-    itemTypeList: ["YARGITAYKARARI"],
+    itemTypeList: [court.itemType],
     pageSize: limit,
     pageNumber: page,
   };
@@ -238,48 +286,51 @@ async function searchYargitay(
     data.sortFields = ["KARAR_TARIHI"];
     data.sortDirection = filters.siralama === "yeni" ? "desc" : "ASC";
   }
-  const body = (await request(fetchFn, "Yargıtay search", `${BEDESTEN}/searchDocuments`, {
+  const body = (await request(fetchFn, `${court.name} search`, `${BEDESTEN}/searchDocuments`, {
     method: "POST",
     headers: BEDESTEN_HEADERS,
     body: JSON.stringify({ data, applicationName: "UyapMevzuat", paging: true }),
   })) as { data?: { emsalKararList?: BedestenHit[]; total?: number } };
   const hits = (body.data?.emsalKararList ?? []).map((k): IctihatHit => {
     const id = String(k.documentId ?? "");
-    const court = yargitayCourt(k.birimAdi);
+    const unit = (k.birimAdi ?? "").trim();
+    const name = !unit || unit.toLocaleLowerCase("tr-TR").startsWith(court.name.toLocaleLowerCase("tr-TR"))
+      ? unit
+      : `${court.name} ${unit}`;
     const esas = k.esasNo ?? "";
     const karar = k.kararNo ?? "";
     const date = k.kararTarihiStr ?? "";
     return {
-      id: `${YARGITAY_PREFIX}${id}`,
-      kaynak_turu: "yargitay",
-      mahkeme: court,
+      id: `${court.prefix}${id}`,
+      kaynak_turu: court.source,
+      mahkeme: name,
       esas_no: esas,
       karar_no: karar,
       karar_tarihi: date,
       durum: finality(k.kesinlesmeDurumu),
-      atif: citation(court, esas, karar, date),
+      atif: citation(name, esas, karar, date),
       kaynak: `${YARGITAY_PAGE}/${id}`,
     };
   });
   return { total: body.data?.total ?? hits.length, results: hits };
 }
 
-async function getYargitay(fetchFn: FetchFn, id: string): Promise<IctihatDecision> {
-  const body = (await request(fetchFn, "Yargıtay", `${BEDESTEN}/getDocumentContent`, {
+async function getBedesten(fetchFn: FetchFn, court: BedestenCourt, id: string): Promise<IctihatDecision> {
+  const body = (await request(fetchFn, court.name, `${BEDESTEN}/getDocumentContent`, {
     method: "POST",
     headers: BEDESTEN_HEADERS,
     body: JSON.stringify({ data: { documentId: id }, applicationName: "UyapMevzuat" }),
   })) as { data?: { content?: string; mimeType?: string } };
   const source = `${YARGITAY_PAGE}/${id}`;
   const content = body.data?.content;
-  if (!content) throw new IctihatSourceError(`No Yargıtay decision was found for id ${id}.`);
+  if (!content) throw new IctihatSourceError(`No ${court.name} decision was found for id ${id}.`);
   if (!(body.data?.mimeType ?? "text/html").includes("html")) {
     throw new IctihatSourceError(
       `This decision is only available as ${body.data?.mimeType}; read it at ${source}.`,
     );
   }
   return {
-    id: `${YARGITAY_PREFIX}${id}`,
+    id: `${court.prefix}${id}`,
     kaynak: source,
     metin: htmlToText(Buffer.from(content, "base64").toString("utf8")),
   };
@@ -418,6 +469,136 @@ async function getEmsal(fetchFn: FetchFn, id: string): Promise<IctihatDecision> 
 }
 
 // ---------------------------------------------------------------------------
+// Anayasa Mahkemesi (Kararlar Bilgi Bankası)
+
+const AYM_HEADERS = {
+  "User-Agent": USER_AGENT,
+  Accept: "application/json",
+  "Content-Type": "application/json; charset=utf-8",
+  Referer: `${AYM}/`,
+};
+
+type AymKind = { kararTipi: "BireyselBasvuru" | "NormDenetimi"; prefix: string; source: IctihatSource };
+const AYM_INDIVIDUAL: AymKind = { kararTipi: "BireyselBasvuru", prefix: AYM_PREFIX, source: "anayasa" };
+const AYM_NORM: AymKind = { kararTipi: "NormDenetimi", prefix: NORM_PREFIX, source: "norm" };
+
+type AymRecord = {
+  id?: string;
+  basvuruNo?: string;
+  esasNo?: string;
+  kararNo?: string;
+  kararTarihi?: string;
+  basvuruAdi?: string;
+  kararKonusu?: string;
+  kararTuruBasvuruSonucuLabel?: string;
+  kararTuruDosyaSonucuLabel?: string;
+  kararVerenBirimLabel?: string;
+  resmiGazeteTarihi?: string;
+  resmiGazeteSayisi?: string;
+  icerik?: string;
+};
+
+const MAX_SUBJECT_CHARS = 400;
+
+/** "2025-01-08" -> "08.01.2025", the format of the other courts' dates. */
+function aymDate(iso: string | undefined): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso ?? "");
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : (iso ?? "");
+}
+
+function plainText(html: string | undefined, max?: number): string | null {
+  const text = htmlToText(html ?? "").replace(/\s+/g, " ").trim();
+  if (!text) return null;
+  return max && text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
+}
+
+// The site's public pages live under /kbb (/BB/… redirects there over plain http).
+function aymPage(kind: AymKind, record: AymRecord): string {
+  if (kind === AYM_INDIVIDUAL) return record.basvuruNo ? `${AYM}/kbb/BB/${record.basvuruNo}` : `${AYM}/`;
+  return record.kararNo ? `${AYM}/kbb/ND/${record.kararNo}` : `${AYM}/`;
+}
+
+function aymHit(kind: AymKind, r: AymRecord): IctihatHit {
+  const date = aymDate(r.kararTarihi);
+  if (kind === AYM_INDIVIDUAL) {
+    const basvuru = (r.basvuruNo ?? "").trim();
+    const unit = plainText(r.kararVerenBirimLabel);
+    return {
+      id: `${kind.prefix}${r.id ?? ""}`,
+      kaynak_turu: kind.source,
+      mahkeme: unit ? `Anayasa Mahkemesi ${unit}` : "Anayasa Mahkemesi",
+      esas_no: basvuru,
+      karar_no: "",
+      karar_tarihi: date,
+      durum: null,
+      atif: `AYM, B. No: ${basvuru}${date ? `, K.T. ${date}` : ""}`,
+      kaynak: aymPage(kind, r),
+      baslik: plainText(r.basvuruAdi),
+      sonuc: plainText(r.kararTuruBasvuruSonucuLabel),
+      konu: plainText(r.kararKonusu, MAX_SUBJECT_CHARS),
+    };
+  }
+  const esas = (r.esasNo ?? "").trim();
+  const karar = (r.kararNo ?? "").trim();
+  const gazette =
+    r.resmiGazeteTarihi && r.resmiGazeteSayisi
+      ? `RG ${aymDate(r.resmiGazeteTarihi)}, S. ${r.resmiGazeteSayisi}`
+      : null;
+  return {
+    id: `${kind.prefix}${r.id ?? ""}`,
+    kaynak_turu: kind.source,
+    mahkeme: "Anayasa Mahkemesi",
+    esas_no: esas,
+    karar_no: karar,
+    karar_tarihi: date,
+    durum: null,
+    atif: `AYM, E.${esas}, K.${karar}${date ? `, K.T. ${date}` : ""}`,
+    kaynak: aymPage(kind, r),
+    sonuc: plainText(r.kararTuruDosyaSonucuLabel),
+    konu: plainText(r.kararKonusu, MAX_SUBJECT_CHARS),
+    resmi_gazete: gazette,
+  };
+}
+
+async function searchAym(
+  fetchFn: FetchFn,
+  kind: AymKind,
+  phrase: string,
+  limit: number,
+  page: number,
+  filters: IctihatFilters,
+): Promise<IctihatSearchResult> {
+  const payload: Record<string, unknown> = { kararTipi: kind.kararTipi, query: phrase, page, size: limit };
+  if (filters.baslangic) payload.kararTarihiStart = filters.baslangic;
+  if (filters.bitis) payload.kararTarihiEnd = filters.bitis;
+  if (filters.siralama) {
+    payload.sort = "kararTarihi";
+    payload.order = filters.siralama === "yeni" ? "desc" : "asc";
+  }
+  const body = (await request(fetchFn, "Constitutional Court search", `${AYM}/api/core/public/search`, {
+    method: "POST",
+    headers: AYM_HEADERS,
+    body: JSON.stringify(payload),
+  })) as { data?: AymRecord[]; total?: number | string };
+  const hits = (body.data ?? []).filter((r) => r.id).map((r) => aymHit(kind, r));
+  return { total: Number(body.total ?? hits.length) || hits.length, results: hits };
+}
+
+async function getAym(fetchFn: FetchFn, kind: AymKind, uuid: string): Promise<IctihatDecision> {
+  const body = (await request(fetchFn, "Constitutional Court", `${AYM}/api/core/public/search`, {
+    method: "POST",
+    headers: AYM_HEADERS,
+    body: JSON.stringify({ kararTipi: kind.kararTipi, id: uuid, page: 1, size: 1 }),
+  })) as { data?: AymRecord[] };
+  const record = body.data?.[0];
+  const text = htmlToText(record?.icerik ?? "");
+  if (!record || text.length < 60) {
+    throw new IctihatSourceError(`No Constitutional Court decision was found for id ${uuid}.`);
+  }
+  return { id: `${kind.prefix}${uuid}`, kaynak: aymPage(kind, record), metin: text };
+}
+
+// ---------------------------------------------------------------------------
 
 /**
  * Searches decisions. `adli` (the default) asks Yargıtay and UYAP Emsal together,
@@ -436,25 +617,30 @@ export async function searchDecisions(
 ): Promise<IctihatSearchResult & { court: IctihatCourt; filters: IctihatFilters; warnings?: string[] }> {
   const phrase = andQuery(params.query);
   const filters = normalizeFilters(params.filters);
+  // A chamber names its court; only UYAP Emsal reports finality.
   const court: IctihatCourt = filters.daire
-    ? "yargitay"
+    ? DANISTAY_CHAMBERS.includes(filters.daire)
+      ? "danistay"
+      : "yargitay"
     : filters.kesinlesme
       ? "emsal"
       : (params.court ?? "adli");
   const limit = Math.min(Math.max(Math.trunc(params.limit ?? 10), 1), MAX_RESULTS);
   const page = Math.max(Math.trunc(params.page ?? 1), 1);
 
-  if (court === "yargitay") {
-    return { court, filters, ...(await searchYargitay(fetchFn, phrase, limit, page, filters)) };
-  }
-  if (court === "emsal") {
-    return { court, filters, ...(await searchEmsal(fetchFn, phrase, limit, page, filters)) };
-  }
+  const single: Record<Exclude<IctihatCourt, "adli">, () => Promise<IctihatSearchResult>> = {
+    yargitay: () => searchBedesten(fetchFn, YARGITAY, phrase, limit, page, filters),
+    danistay: () => searchBedesten(fetchFn, DANISTAY, phrase, limit, page, filters),
+    emsal: () => searchEmsal(fetchFn, phrase, limit, page, filters),
+    anayasa: () => searchAym(fetchFn, AYM_INDIVIDUAL, phrase, limit, page, filters),
+    norm: () => searchAym(fetchFn, AYM_NORM, phrase, limit, page, filters),
+  };
+  if (court !== "adli") return { court, filters, ...(await single[court]()) };
 
   const yargitayLimit = Math.max(Math.ceil(limit / 2), 1);
   const emsalLimit = Math.max(limit - yargitayLimit, 1);
   const [yargitay, emsal] = await Promise.allSettled([
-    searchYargitay(fetchFn, phrase, yargitayLimit, page, filters),
+    searchBedesten(fetchFn, YARGITAY, phrase, yargitayLimit, page, filters),
     searchEmsal(fetchFn, phrase, emsalLimit, page, filters),
   ]);
   const warnings: string[] = [];
@@ -474,13 +660,20 @@ export async function searchDecisions(
   return { court, filters, total, results, ...(warnings.length ? { warnings } : {}) };
 }
 
+const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+
 /** Full text of one decision, by an id from searchDecisions. */
 export async function getDecision(id: string, fetchFn: FetchFn = fetch): Promise<IctihatDecision> {
   const trimmed = id.trim();
-  if (!/^(yargitay:)?\d+$/i.test(trimmed)) {
-    throw new IctihatSourceError("Use a decision id returned by the case-law search.");
+  const [, prefix = "", rest] = /^(?:([a-z]+):)?(.*)$/i.exec(trimmed) ?? [];
+  const kind = prefix.toLowerCase();
+  if ((kind === "" || kind === "yargitay" || kind === "danistay") && /^\d+$/.test(rest)) {
+    if (kind === "yargitay") return getBedesten(fetchFn, YARGITAY, rest);
+    if (kind === "danistay") return getBedesten(fetchFn, DANISTAY, rest);
+    return getEmsal(fetchFn, rest);
   }
-  return trimmed.toLowerCase().startsWith(YARGITAY_PREFIX)
-    ? getYargitay(fetchFn, trimmed.slice(YARGITAY_PREFIX.length))
-    : getEmsal(fetchFn, trimmed);
+  if ((kind === "aym" || kind === "norm") && UUID.test(rest)) {
+    return getAym(fetchFn, kind === "aym" ? AYM_INDIVIDUAL : AYM_NORM, rest);
+  }
+  throw new IctihatSourceError("Use a decision id returned by the case-law search.");
 }

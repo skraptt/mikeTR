@@ -1,6 +1,6 @@
-// Where a decision opens. Yargıtay decisions have a public page on
-// mevzuat.adalet.gov.tr; UYAP Emsal has no page per decision, so those open
-// in mikeTR's own reader.
+// Where a decision opens. Yargıtay and Danıştay decisions have a public page on
+// mevzuat.adalet.gov.tr, Constitutional Court ones on its decisions database;
+// UYAP Emsal has no page per decision, so those open in mikeTR's own reader.
 
 export function decisionReaderHref(decision: { id: string; atif?: string | null }): string {
     const params = new URLSearchParams({ id: decision.id });
@@ -9,7 +9,7 @@ export function decisionReaderHref(decision: { id: string; atif?: string | null 
 }
 
 export function decisionHref(decision: { id: string; atif?: string | null; kaynak?: string | null }): string {
-    return decision.id.startsWith("yargitay:") && decision.kaynak
+    return /^(yargitay|danistay|aym|norm):/.test(decision.id) && decision.kaynak
         ? decision.kaynak
         : decisionReaderHref(decision);
 }

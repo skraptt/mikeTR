@@ -50,7 +50,7 @@ infrastructure, and development workflow, including optional local integrations.
 | [AI SDK](https://github.com/vercel/ai) | Language-model integrations, streaming, and tool calls. |
 | [Model Context Protocol TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) | Connections to MCP tools and servers. |
 | [Ollama](https://github.com/ollama/ollama) | Optional local language-model inference. |
-| [turk-hukuku-ictihat-mcp](https://github.com/aydincan/turk-hukuku-ictihat-mcp) (MIT, Aydın Can Polatkan) | mikeTR: the Yargıtay (Bedesten) and UYAP Emsal endpoints and query syntax behind Turkish case-law search, ported to TypeScript. |
+| [turk-hukuku-ictihat-mcp](https://github.com/aydincan/turk-hukuku-ictihat-mcp) (MIT, Aydın Can Polatkan) | mikeTR: the Yargıtay and Danıştay (Bedesten), UYAP Emsal and Constitutional Court endpoints and query syntax behind Turkish case-law search, ported to TypeScript. |
 | [Zod](https://github.com/colinhacks/zod) | Runtime schema validation. |
 | [PostgreSQL](https://www.postgresql.org/) | Persistent application data. |
 | [Supabase](https://github.com/supabase/supabase) and [Supabase Auth](https://github.com/supabase/auth) | Database tooling, authentication, and client libraries. |

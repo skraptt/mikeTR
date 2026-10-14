@@ -50,7 +50,15 @@ export function CaseLawDecisionPage() {
     }, [id, load]);
 
     const view = !id ? null : outcome && outcome.id === id ? outcome : ({ status: "loading" } as const);
-    const fromYargitay = id.startsWith("yargitay:");
+    // Every source but UYAP Emsal has a public page per decision.
+    const hasOfficialPage = /^(yargitay|danistay|aym|norm):/.test(id);
+    const sourceNote = id.startsWith("yargitay:")
+        ? t("Source: Yargıtay decision search (mevzuat.adalet.gov.tr).")
+        : id.startsWith("danistay:")
+          ? t("Source: Danıştay decision search (mevzuat.adalet.gov.tr).")
+          : /^(aym|norm):/.test(id)
+            ? t("Source: Constitutional Court decisions database (kararlarbilgibankasi.anayasa.gov.tr).")
+            : t("Source: UYAP Emsal. It has no page per decision; search it there by the docket and decision numbers.");
 
     return (
         <div className="flex h-full min-h-0 flex-col">
@@ -100,16 +108,14 @@ export function CaseLawDecisionPage() {
                         <article className={cn("rounded-2xl px-5 py-4", LIQUID_GLASS_FLAT_CLASS)}>
                             {atif && <h2 className="font-serif text-lg text-gray-950">{atif}</h2>}
                             <p className="mt-1 flex flex-wrap items-center gap-x-1 text-xs text-gray-500">
-                                {fromYargitay
-                                    ? t("Source: Yargıtay decision search (mevzuat.adalet.gov.tr).")
-                                    : t("Source: UYAP Emsal. It has no page per decision; search it there by the docket and decision numbers.")}
+                                {sourceNote}
                                 <a
                                     href={view.decision.kaynak}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="inline-flex items-center gap-1 font-medium text-gray-600 hover:text-gray-950"
                                 >
-                                    {fromYargitay ? t("Official source") : t("Open UYAP Emsal")}
+                                    {hasOfficialPage ? t("Official source") : t("Open UYAP Emsal")}
                                     <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                                 </a>
                             </p>

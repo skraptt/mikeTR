@@ -35,8 +35,8 @@ export const trPatterns: ReadonlyArray<readonly [RegExp, string]> = [
         "Tarihler YYYY-AA-GG biçiminde olmalı: {1}.",
     ],
     [
-        /^Unknown Yargıtay chamber: (.+)\.$/,
-        "Bilinmeyen Yargıtay dairesi: {1}.",
+        /^Unknown chamber: (.+)\.$/,
+        "Bilinmeyen daire: {1}.",
     ],
     [
         /^Unknown finality: (.+)\.$/,

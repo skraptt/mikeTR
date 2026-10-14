@@ -33,14 +33,27 @@ const COURTS: { value: IctihatCourt; label: string }[] = [
     { value: "adli", label: "All civil courts" },
     { value: "yargitay", label: "Yargıtay" },
     { value: "emsal", label: "Regional and first-instance courts" },
+    { value: "danistay", label: "Danıştay" },
+    { value: "anayasa", label: "Constitutional Court: individual applications" },
+    { value: "norm", label: "Constitutional Court: review of laws" },
 ];
+
+const SOURCE_LABELS: Record<IctihatHit["kaynak_turu"], string> = {
+    yargitay: "Yargıtay",
+    emsal: "UYAP Emsal",
+    danistay: "Danıştay",
+    anayasa: "Constitutional Court: individual application",
+    norm: "Constitutional Court: review of a law",
+};
 
 function isCourt(value: string | null): value is IctihatCourt {
     return COURTS.some((court) => court.value === value);
 }
 
-// Yargıtay chambers and boards, under the names its decision service uses.
-const CHAMBERS: { group: string; names: string[] }[] = [
+type ChamberGroup = { group: string; names: string[] };
+
+// Chambers and boards, under the names the decision service uses.
+const YARGITAY_CHAMBERS: ChamberGroup[] = [
     {
         group: "Boards",
         names: [
@@ -54,6 +67,28 @@ const CHAMBERS: { group: string; names: string[] }[] = [
     { group: "Civil chambers", names: Array.from({ length: 23 }, (_, i) => `${i + 1}. Hukuk Dairesi`) },
     { group: "Criminal chambers", names: Array.from({ length: 23 }, (_, i) => `${i + 1}. Ceza Dairesi`) },
 ];
+
+const DANISTAY_CHAMBERS: ChamberGroup[] = [
+    { group: "Boards", names: ["İdare Dava Daireleri Kurulu", "Vergi Dava Daireleri Kurulu"] },
+    { group: "Chambers", names: Array.from({ length: 17 }, (_, i) => `${i + 1}. Daire`) },
+];
+
+const CHAMBERS_BY_COURT: Partial<Record<IctihatCourt, ChamberGroup[]>> = {
+    yargitay: YARGITAY_CHAMBERS,
+    danistay: DANISTAY_CHAMBERS,
+};
+
+/** The court a chamber belongs to, if it is a known one. */
+function chamberCourt(name: string): IctihatCourt | undefined {
+    return (Object.keys(CHAMBERS_BY_COURT) as IctihatCourt[]).find((court) =>
+        CHAMBERS_BY_COURT[court]!.some((group) => group.names.includes(name)),
+    );
+}
+
+// Only UYAP Emsal reports finality; adli searches it alongside Yargıtay.
+function reportsFinality(court: IctihatCourt): boolean {
+    return court === "adli" || court === "emsal";
+}
 
 const SORTS: { value: IctihatSort; label: string }[] = [
     { value: "ilgili", label: "Most relevant" },
@@ -71,7 +106,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 function filtersFrom(params: URLSearchParams): IctihatFilters {
     const filters: IctihatFilters = {};
     const daire = params.get("daire");
-    if (daire && CHAMBERS.some((group) => group.names.includes(daire))) filters.daire = daire;
+    if (daire && chamberCourt(daire)) filters.daire = daire;
     const from = params.get("from");
     if (from && ISO_DATE.test(from)) filters.baslangic = from;
     const to = params.get("to");
@@ -127,24 +162,29 @@ function DecisionCard({ hit }: { hit: IctihatHit }) {
         <article className={cn("rounded-2xl px-5 py-4", LIQUID_GLASS_FLAT_CLASS)}>
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <p className="text-xs text-gray-500">
-                        {hit.kaynak_turu === "yargitay" ? t("Yargıtay") : t("UYAP Emsal")}
-                    </p>
-                    <h3 className="mt-0.5 font-serif text-lg text-gray-950">{hit.mahkeme}</h3>
+                    <p className="text-xs text-gray-500">{t(SOURCE_LABELS[hit.kaynak_turu])}</p>
+                    <h3 className="mt-0.5 font-serif text-lg text-gray-950">
+                        {hit.mahkeme}
+                        {hit.baslik && <span className="text-gray-600"> – {hit.baslik}</span>}
+                    </h3>
                     <p className="mt-0.5 text-sm text-gray-700">
-                        {t("Docket {esas} · Decision {karar} · {date}", {
-                            esas: hit.esas_no,
-                            karar: hit.karar_no,
-                            date: hit.karar_tarihi,
-                        })}
+                        {hit.kaynak_turu === "anayasa"
+                            ? t("Application {no} · {date}", { no: hit.esas_no, date: hit.karar_tarihi })
+                            : t("Docket {esas} · Decision {karar} · {date}", {
+                                  esas: hit.esas_no,
+                                  karar: hit.karar_no,
+                                  date: hit.karar_tarihi,
+                              })}
+                        {hit.resmi_gazete && <span className="text-gray-500"> · {hit.resmi_gazete}</span>}
                     </p>
                 </div>
-                {hit.durum && (
+                {(hit.durum ?? hit.sonuc) && (
                     <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                        {hit.durum}
+                        {hit.durum ?? hit.sonuc}
                     </span>
                 )}
             </div>
+            {hit.konu && <p className="mt-2 text-sm leading-6 text-gray-700">{hit.konu}</p>}
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <button
                     type="button"
@@ -161,7 +201,7 @@ function DecisionCard({ hit }: { hit: IctihatHit }) {
                         aria-hidden
                     />
                 </button>
-                {hit.kaynak_turu === "yargitay" ? (
+                {hit.kaynak_turu !== "emsal" ? (
                     <a
                         href={hit.kaynak}
                         target="_blank"
@@ -214,18 +254,20 @@ function CaseLawSearchForm({
     // The page remounts the form (key) when the URL changes.
     const [query, setQuery] = useState(initialQuery);
     const [court, setCourt] = useState<IctihatCourt>(
-        initialFilters.daire ? "yargitay" : initialFilters.kesinlesme ? "emsal" : initialCourt,
+        (initialFilters.daire && chamberCourt(initialFilters.daire)) ||
+            (initialFilters.kesinlesme ? "emsal" : initialCourt),
     );
     const [filters, setFilters] = useState<IctihatFilters>(initialFilters);
 
     function apply(requestedCourt: IctihatCourt, nextFilters: IctihatFilters) {
         // Only UYAP Emsal reports finality, so choosing one moves the search
-        // there; a chamber belongs to Yargıtay, and other courts drop it.
+        // there; a chamber belongs to its court, and other courts drop it.
         const nextCourt = nextFilters.kesinlesme ? "emsal" : requestedCourt;
         const cleaned = {
             ...nextFilters,
-            daire: nextCourt === "yargitay" ? nextFilters.daire : undefined,
-            kesinlesme: nextCourt === "yargitay" ? undefined : nextFilters.kesinlesme,
+            daire:
+                nextFilters.daire && chamberCourt(nextFilters.daire) === nextCourt ? nextFilters.daire : undefined,
+            kesinlesme: reportsFinality(nextCourt) ? nextFilters.kesinlesme : undefined,
         };
         setCourt(nextCourt);
         setFilters(cleaned);
@@ -298,7 +340,7 @@ function CaseLawSearchForm({
                 ))}
             </div>
             <div className="flex flex-wrap items-end gap-2">
-                {court === "yargitay" && (
+                {CHAMBERS_BY_COURT[court] && (
                     <label className="flex flex-col gap-1 text-[11px] text-gray-500">
                         {t("Chamber")}
                         <select
@@ -307,7 +349,7 @@ function CaseLawSearchForm({
                             className={FIELD_CLASS}
                         >
                             <option value="">{t("All chambers")}</option>
-                            {CHAMBERS.map((group) => (
+                            {CHAMBERS_BY_COURT[court]!.map((group) => (
                                 <optgroup key={group.group} label={t(group.group)}>
                                     {group.names.map((name) => (
                                         <option key={name} value={name}>
@@ -355,7 +397,7 @@ function CaseLawSearchForm({
                         ))}
                     </select>
                 </label>
-                {court !== "yargitay" && (
+                {reportsFinality(court) && (
                     <label className="flex flex-col gap-1 text-[11px] text-gray-500">
                         {t("Finality")}
                         <select

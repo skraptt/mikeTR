@@ -1,4 +1,5 @@
-// Turkish case-law search for the İçtihat page (mikeTR).
+// Turkish case-law search for the İçtihat page (mikeTR): Yargıtay, UYAP Emsal,
+// Danıştay and the Constitutional Court.
 //
 // The chat model reaches the same sources through the search_ictihat and
 // get_karar tools (chat/engine/tools/ictihatTools.ts); this facade serves the
@@ -22,7 +23,7 @@ export type { IctihatDecision, IctihatSearchResponse } from "@mike/contracts";
 
 const DEFAULT_LIMIT = 10;
 const MAX_QUERY_LENGTH = 300;
-const COURTS: readonly IctihatCourt[] = ["adli", "yargitay", "emsal"];
+const COURTS: readonly IctihatCourt[] = ["adli", "yargitay", "emsal", "danistay", "anayasa", "norm"];
 
 export async function searchCaseLaw(
   body: unknown,
