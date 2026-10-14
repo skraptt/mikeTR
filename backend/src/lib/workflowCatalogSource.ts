@@ -5,7 +5,7 @@ import path from "path";
 import JSZip, { type JSZipObject } from "jszip";
 import { parse as parseYaml } from "yaml";
 
-const DEFAULT_REPOSITORY = "Open-Legal-Products/mike-workflows";
+const DEFAULT_REPOSITORY = "skraptt/mike-workflows-tr";
 const DEFAULT_REF = "main";
 const COMMIT_PATTERN = /^[0-9a-f]{40}$/;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
@@ -18,9 +18,9 @@ const MAX_ASSETS_PER_WORKFLOW = 50;
 const DOWNLOAD_TIMEOUT_MS = 30_000;
 
 const DEFAULT_QUICK_ACTION_PROMPT =
-  "Execute this workflow on the selected documents.";
+  "Bu iş akışını seçili belgeler üzerinde çalıştır.";
 const DEFAULT_WORD_QUICK_ACTION_PROMPT =
-  "Execute this workflow on this Word document.";
+  "Bu iş akışını bu Word belgesi üzerinde çalıştır.";
 const DEFAULT_WORKFLOWS = [
   { key: "proofread", quickAction: true, wordQuickAction: true },
   { key: "compare-documents", quickAction: true, wordQuickAction: false },

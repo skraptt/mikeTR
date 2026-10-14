@@ -96,9 +96,10 @@ variables, and the [Sentry data audit](docs/sentry-data-audit.md).
 
 ## System workflows
 
-Mike's system assistant and tabular-review workflows are maintained in the
-[`Open-Legal-Products/mike-workflows`](https://github.com/Open-Legal-Products/mike-workflows)
-repository. See [Contributing](CONTRIBUTING.md#system-workflows) for how they are
+mikeTR's system workflows come from
+[`skraptt/mike-workflows-tr`](https://github.com/skraptt/mike-workflows-tr), a
+fork of [`Open-Legal-Products/mike-workflows`](https://github.com/Open-Legal-Products/mike-workflows)
+translated into Turkish and adapted to Turkish law. See [Contributing](CONTRIBUTING.md#system-workflows) for how they are
 packaged and synchronized with this application.
 
 ## License

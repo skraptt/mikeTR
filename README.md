@@ -36,6 +36,9 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
   arşivde saklanır.
 - **Mike'ın özellikleri:** belgelerle sohbet, önerilen düzenlemeleri uygulama,
   tablo hâlinde belge inceleme, hazır iş akışları, proje ve klasörler.
+- **Türkçe iş akışları:** sözleşme incelemeleri, tablo incelemeleri, hukuki
+  araştırma notu ve ihtarname taslağı Türk hukukuna uyarlanmıştır
+  ([skraptt/mike-workflows-tr](https://github.com/skraptt/mike-workflows-tr)).
 - **Kendi anahtarınızla:** Anthropic (Claude), Google (Gemini) ya da OpenAI
   anahtarınızı Ayarlar'dan eklersiniz. İsterseniz Ollama ile modelleri tamamen
   kendi bilgisayarınızda da çalıştırabilirsiniz.
