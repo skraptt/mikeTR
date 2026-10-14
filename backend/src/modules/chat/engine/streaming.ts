@@ -14,7 +14,7 @@ import { buildUserMcpTools } from "../../../lib/mcpConnectors";
 import { buildGoogleDriveTools } from "../../../lib/integrations/googleDrive";
 import { COURTLISTENER_TOOLS } from "./tools/courtlistenerTools";
 import { KANUN_TOOLS, buildKanunCitationsEvent } from "./tools/kanunTools";
-import { ICTIHAT_TOOLS } from "./tools/ictihatTools";
+import { ICTIHAT_TOOLS, buildIctihatCitationsEvent } from "./tools/ictihatTools";
 import {
   type DocStore,
   type DocIndex,
@@ -868,6 +868,21 @@ export async function runLLMStream(params: {
     }
   } catch (err) {
     console.error("[chat/stream] statute citation check failed", err);
+  }
+  // mikeTR: and every decision citation against the decisions it found and read.
+  try {
+    const ictihatCitations = await buildIctihatCitationsEvent(
+      db,
+      fullText,
+      events,
+      conversationId,
+    );
+    if (ictihatCitations) {
+      write(`data: ${JSON.stringify(ictihatCitations)}\n\n`);
+      events.push(ictihatCitations);
+    }
+  } catch (err) {
+    console.error("[chat/stream] decision citation check failed", err);
   }
   if (params.emitDone !== false) {
     write("data: [DONE]\n\n");

@@ -493,6 +493,7 @@ export const tr: Readonly<Record<string, string>> = {
     "Decided from": "Karar tarihi (başlangıç)",
     "Decided until": "Karar tarihi (bitiş)",
     "Decision": "Karar",
+    "Decision check:": "Künye kontrolü:",
     "Decline": "Reddet",
     "Default ({column})": "Varsayılan ({column})",
     "Default Order": "Varsayılan sıralama",
@@ -1081,6 +1082,7 @@ export const tr: Readonly<Record<string, string>> = {
     "No relevant quotes.": "İlgili alıntı yok.",
     "No reviews found": "İnceleme bulunamadı",
     "No saved providers yet. Add an API key to one of the providers below.": "Henüz kayıtlı sağlayıcı yok. Aşağıdaki sağlayıcılardan birine API anahtarı ekleyin.",
+    "No search in this chat returned this decision; check the citation before relying on it.": "Bu sohbetteki hiçbir arama bu kararı döndürmedi; künyeye güvenmeden önce kontrol edin.",
     "No shared projects": "Paylaşılan proje yok",
     "No template - start from scratch": "Şablon yok - sıfırdan başla",
     "No templates yet": "Henüz şablon yok",
@@ -1672,6 +1674,7 @@ export const tr: Readonly<Record<string, string>> = {
     "The chat was not renamed": "Sohbet yeniden adlandırılmadı",
     "The check could not be started. Please try again.": "Kontrol başlatılamadı. Lütfen tekrar deneyin.",
     "The creator is always an owner": "Oluşturan kişi her zaman sahiptir",
+    "The decision came up in a search, but the assistant cited it without reading it; what it held may be misstated.": "Karar aramada çıktı ama asistan okumadan atıf yaptı; kararın içeriği yanlış aktarılmış olabilir.",
     "The decision could not be loaded": "Karar yüklenemedi",
     "The decision could not be loaded. Please try again.": "Karar yüklenemedi. Lütfen tekrar deneyin.",
     "The document could not be removed from its folder. Please try again.": "Belge klasöründen çıkarılamadı. Lütfen tekrar deneyin.",
@@ -2101,5 +2104,6 @@ export const tr: Readonly<Record<string, string>> = {
     "{searches} in {cases}": "{cases} içinde {searches}",
     "{source} will no longer exist as a separate document and its older versions will be deleted.": "{source} artık ayrı bir belge olarak bulunmayacak ve eski sürümleri silinecek.",
     "{source} will no longer exist as a separate document.": "{source} artık ayrı bir belge olarak bulunmayacak.",
+    "{verified}/{total} decision citations verified": "{verified}/{total} karar künyesi doğrulandı",
     "{verified}/{total} statute citations verified": "{verified}/{total} kanun atfı doğrulandı"
 };

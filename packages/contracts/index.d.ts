@@ -399,6 +399,28 @@ export type IctihatSearchEvent = {
   error?: string;
 };
 
+/**
+ * mikeTR: post-answer check of every decision citation in the assistant's
+ * prose against the decisions it found and read in this chat.
+ * `dogrulandi` = read with get_karar; `okunmadi` = only seen in search
+ * results; `kaynaksiz` = never returned by a search in this chat.
+ */
+export type CaseLawCitationStatus = "dogrulandi" | "okunmadi" | "kaynaksiz";
+
+export type CaseLawCitation = {
+  label: string;
+  esas_no: string | null;
+  karar_no: string | null;
+  /** Constitutional Court individual application number. */
+  basvuru_no: string | null;
+  status: CaseLawCitationStatus;
+};
+
+export type IctihatCitationsEvent = {
+  type: "ictihat_citations";
+  citations: CaseLawCitation[];
+};
+
 export type IctihatDecisionEvent = {
   type: "ictihat_karar";
   id: string;
@@ -553,6 +575,7 @@ export type AssistantEvent =
   | KanunCitationsEvent
   | IctihatSearchEvent
   | IctihatDecisionEvent
+  | IctihatCitationsEvent
   | McpToolEvent
   | {
       type: "case_opinions";

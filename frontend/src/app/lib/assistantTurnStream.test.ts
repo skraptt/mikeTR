@@ -802,6 +802,22 @@ describe("CourtListener frames", () => {
     ]);
   });
 
+  it("adds the decision citation check, and ignores a malformed one", async () => {
+    const citation = {
+      label: "Yargıtay 3. Hukuk Dairesi, E.2022/1258 K.2022/3089, T.04.04.2022",
+      esas_no: "2022/1258",
+      karar_no: "2022/3089",
+      basvuru_no: null,
+      status: "dogrulandi",
+    };
+    expect(
+      await eventsOf([
+        { type: "ictihat_citations", citations: [citation] },
+        { type: "ictihat_citations", citations: "nope" },
+      ]),
+    ).toEqual([{ type: "ictihat_citations", citations: [citation] }]);
+  });
+
   it("adds the statute citation check, and ignores a malformed one", async () => {
     const citation = { label: "TBK md. 315", kanun_no: "6098", madde_no: "315", status: "dogrulandi" };
     expect(

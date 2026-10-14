@@ -13,6 +13,7 @@ import type {
   AskInputsEvent as SharedAskInputsEvent,
 } from "@mike/contracts";
 import type {
+  CaseLawCitation,
   IctihatCourt,
   IctihatDecision,
   IctihatFilters,
@@ -31,6 +32,7 @@ import type {
 
 // mikeTR: Turkish statute and case-law search, citation checking and statute updates.
 export type {
+  CaseLawCitation,
   IctihatCourt,
   IctihatDecision,
   IctihatFilters,
@@ -246,6 +248,7 @@ export type AssistantEvent =
       isStreaming?: boolean;
     })
   | WireActivity<"kanun_citations">
+  | WireActivity<"ictihat_citations">
   | (Omit<WireActivity<"ictihat_search">, "results" | "total" | "error"> & {
       results?: IctihatHit[];
       total?: number;

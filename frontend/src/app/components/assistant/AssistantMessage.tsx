@@ -23,6 +23,7 @@ import { MarkdownContent } from "./message/MarkdownContent";
 import { CitationsBlock, buildCitationAppendix } from "./message/CitationSources";
 import { EditCardsSection } from "./message/EditCardsSection";
 import {
+    IctihatCitationCheck,
     KanunCitationCheck,
     ictihatSearchItems,
     kanunSearchItems,
@@ -196,7 +197,8 @@ export function AssistantMessage({
         event.type !== "case_citation" &&
         event.type !== "case_opinions" &&
         // Drawn below the answer instead of in the step timeline.
-        event.type !== "kanun_citations";
+        event.type !== "kanun_citations" &&
+        event.type !== "ictihat_citations";
 
     // Find the last content event so its raw text can be smoothed before
     // citation preprocessing — slicing already-preprocessed text would risk
@@ -1252,6 +1254,8 @@ export function AssistantMessage({
                     events?.map((e, i) =>
                         e.type === "kanun_citations" && e.citations.length > 0 ? (
                             <KanunCitationCheck key={`kc-${i}`} citations={e.citations} />
+                        ) : e.type === "ictihat_citations" && e.citations.length > 0 ? (
+                            <IctihatCitationCheck key={`ic-${i}`} citations={e.citations} />
                         ) : null,
                     )}
 

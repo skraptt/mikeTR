@@ -1,14 +1,21 @@
 // mikeTR: Türk içtihadı araması. Model bir karara atıf yapmadan önce kararı bu
 // araçlarla bulur ve okur; künye (mahkeme, esas/karar no, tarih) hafızadan değil
 // Adalet Bakanlığı'nın karar servislerinden gelir (lib/ictihat/client.ts).
-import type { IctihatCourt, IctihatDecisionEvent, IctihatSearchEvent } from "@mike/contracts";
+import type {
+  IctihatCitationsEvent,
+  IctihatCourt,
+  IctihatDecisionEvent,
+  IctihatSearchEvent,
+} from "@mike/contracts";
+import type { Db } from "../../../../lib/supabase";
+import { checkCaseCitations, hitKey, type RetrievedDecisions } from "../../../../lib/ictihat/citationCheck";
 import {
   MAX_RESULTS,
   getDecision,
   searchDecisions,
 } from "../../../../lib/ictihat/client";
 
-export type { IctihatDecisionEvent, IctihatSearchEvent } from "@mike/contracts";
+export type { IctihatCitationsEvent, IctihatDecisionEvent, IctihatSearchEvent } from "@mike/contracts";
 
 export const ICTIHAT_TOOL_NAMES = {
   search: "search_ictihat",
@@ -25,7 +32,7 @@ search_ictihat searches published Turkish court decisions: Yargıtay (Court of C
 - Use them when the user asks for case law, precedent, "Yargıtay kararı", "içtihat", or how courts apply a rule. Search with a few distinctive Turkish legal terms, not a sentence: every word must appear in the decision (e.g. "kiracının temerrüdü tahliye", "belirsiz alacak davası"). Put fixed phrases in double quotes ("ihtiyaç nedeniyle tahliye") and exclude terms with a leading minus (-ceza). If there are no results, retry with fewer or more general terms.
 - Narrow with the optional filters when the question calls for it: daire (a Yargıtay chamber, e.g. "3. Hukuk Dairesi" for tenancy, "12. Hukuk Dairesi" for enforcement; or a Danıştay one, e.g. "4. Daire" for tax, "6. Daire" for zoning), baslangic/bitis (decision date range) and siralama "yeni" for the most recent decisions. Prefer recent decisions when the law has changed. kesinlesme "kesinlesti" keeps only final decisions of the regional and first-instance courts.
 - Before relying on or quoting a decision, read it with get_karar. Search results contain only the citation details, not the holding.
-- Cite a decision exactly by the "atif" field of the result, e.g. "(Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024)", "(Danıştay 4. Daire, E.2025/4453 K.2026/990, T.02.03.2026)", "(AYM, B. No: 2019/27727, K.T. 08.01.2025)" or "(AYM, E.2024/176, K.2025/42, K.T. 11.02.2025)". NEVER write a court, esas/karar number or date that did not come from these tools in this conversation. Do not cite decisions from memory.
+- Cite a decision exactly by the "atif" field of the result, e.g. "(Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024)", "(Danıştay 4. Daire, E.2025/4453 K.2026/990, T.02.03.2026)", "(AYM, B. No: 2019/27727, K.T. 08.01.2025)" or "(AYM, E.2024/176, K.2025/42, K.T. 11.02.2025)". NEVER write a court, esas/karar number or date that did not come from these tools in this conversation. Do not cite decisions from memory. After the answer, every decision citation is checked against the decisions found and read in this conversation, and unread or unsourced ones are flagged to the user.
 - State what the decision actually held, from its text. Note when its "durum" says it is not final (KESİNLEŞMEDİ), and that decisions of the regional courts and first-instance courts are not binding precedent.
 - Case citations go in prose only, never in the <CITATIONS> block.`;
 
@@ -189,4 +196,65 @@ export async function runGetKarar(
       content: JSON.stringify({ ok: false, error: `Could not read the decision: ${message}` }),
     };
   }
+}
+
+type IctihatEvent = IctihatSearchEvent | IctihatDecisionEvent;
+
+function isIctihatEvent(event: unknown): event is IctihatEvent {
+  const type = (event as { type?: unknown } | null)?.type;
+  return type === "ictihat_search" || type === "ictihat_karar";
+}
+
+/** Case-law searches and reads in this chat's earlier assistant messages. */
+async function loadPriorIctihatEvents(db: Db, chatId: string): Promise<IctihatEvent[]> {
+  const { data, error } = await db
+    .from("chat_messages")
+    .select("content")
+    .eq("chat_id", chatId)
+    .eq("role", "assistant");
+  if (error) {
+    console.error("[ictihatTools] prior case-law searches could not be loaded:", error.message);
+    return [];
+  }
+  return ((data ?? []) as { content: unknown }[]).flatMap((row) =>
+    Array.isArray(row.content) ? row.content.filter(isIctihatEvent) : [],
+  );
+}
+
+/** What the model found and read, keyed by the numbers a citation uses. */
+export function retrievedDecisions(events: readonly IctihatEvent[]): RetrievedDecisions {
+  const found = new Map<string, string>();
+  const keyById = new Map<string, string>();
+  for (const event of events) {
+    if (event.type !== "ictihat_search" || !Array.isArray(event.results)) continue;
+    for (const hit of event.results) {
+      const key = hitKey(hit);
+      if (!key) continue;
+      found.set(key, hit.atif);
+      keyById.set(hit.id, key);
+    }
+  }
+  const read = new Set<string>();
+  for (const event of events) {
+    if (event.type !== "ictihat_karar" || event.error) continue;
+    const key = keyById.get(event.id);
+    if (key) read.add(key);
+  }
+  return { found, read };
+}
+
+/**
+ * Checks the decision citations in the finished answer. Returns null when the
+ * answer cites no decisions, so callers emit nothing.
+ */
+export async function buildIctihatCitationsEvent(
+  db: Db,
+  fullText: string,
+  turnEvents: readonly { type: string }[],
+  chatId?: string | null,
+): Promise<IctihatCitationsEvent | null> {
+  const prior = chatId ? await loadPriorIctihatEvents(db, chatId) : [];
+  const retrieved = retrievedDecisions([...prior, ...turnEvents.filter(isIctihatEvent)]);
+  const citations = checkCaseCitations(fullText, retrieved);
+  return citations.length > 0 ? { type: "ictihat_citations", citations } : null;
 }

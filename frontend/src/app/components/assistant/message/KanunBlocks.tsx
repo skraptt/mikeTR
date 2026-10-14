@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, XCircle } from "lucide-react";
 import type {
+    CaseLawCitation,
     IctihatHit,
     KanunSearchHit,
     StatuteCitation,
@@ -112,6 +113,75 @@ export function KanunCitationCheck({ citations }: { citations: StatuteCitation[]
                         const { Icon, className, note } = CITATION_STATUS[c.status];
                         return (
                             <li key={`${c.kanun_no ?? c.label}-${c.madde_no}`} className="flex gap-1.5">
+                                <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${className}`} aria-hidden />
+                                <span className="min-w-0 break-words">
+                                    <span className="text-gray-800">{c.label}</span>
+                                    {note && <span className="text-gray-500"> — {t(note)}</span>}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </div>
+    );
+}
+
+const CASE_CITATION_STATUS: Record<
+    CaseLawCitation["status"],
+    { Icon: typeof CheckCircle2; className: string; note?: string }
+> = {
+    dogrulandi: { Icon: CheckCircle2, className: "text-green-600" },
+    okunmadi: {
+        Icon: AlertTriangle,
+        className: "text-amber-600",
+        note: "The decision came up in a search, but the assistant cited it without reading it; what it held may be misstated.",
+    },
+    kaynaksiz: {
+        Icon: XCircle,
+        className: "text-red-600",
+        note: "No search in this chat returned this decision; check the citation before relying on it.",
+    },
+};
+
+/** Cevabın altında: metindeki her karar künyesinin doğrulama sonucu. */
+export function IctihatCitationCheck({ citations }: { citations: CaseLawCitation[] }) {
+    const verified = citations.filter((c) => c.status === "dogrulandi").length;
+    const problems = citations.length - verified;
+    const [isOpen, setIsOpen] = useState(problems > 0);
+    return (
+        <div className="mt-2 font-sans text-sm text-gray-600">
+            <button
+                type="button"
+                onClick={() => setIsOpen((v) => !v)}
+                aria-expanded={isOpen}
+                className="flex items-center gap-1.5 text-left hover:text-gray-800"
+            >
+                {problems > 0 ? (
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden />
+                ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" aria-hidden />
+                )}
+                <span className="font-medium">{t("Decision check:")}</span>
+                <span>
+                    {t("{verified}/{total} decision citations verified", {
+                        verified,
+                        total: citations.length,
+                    })}
+                    {problems > 0 &&
+                        t.plural(problems, ", {count} needs attention", ", {count} need attention")}
+                </span>
+                <ChevronDown
+                    className={`h-3.5 w-3.5 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    aria-hidden
+                />
+            </button>
+            {isOpen && (
+                <ul className="mt-1.5 flex flex-col gap-1 pl-5">
+                    {citations.map((c) => {
+                        const { Icon, className, note } = CASE_CITATION_STATUS[c.status];
+                        return (
+                            <li key={`${c.basvuru_no ?? `${c.esas_no}-${c.karar_no}`}`} className="flex gap-1.5">
                                 <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${className}`} aria-hidden />
                                 <span className="min-w-0 break-words">
                                     <span className="text-gray-800">{c.label}</span>

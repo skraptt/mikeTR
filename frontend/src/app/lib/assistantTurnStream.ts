@@ -5,6 +5,7 @@ import { readSseFrames } from "@/app/lib/sse";
 import { isPanelDocument } from "@/app/components/shared/types";
 import type {
   AssistantEvent,
+  CaseLawCitation,
   Citation,
   IctihatCourt,
   IctihatHit,
@@ -762,6 +763,16 @@ export async function consumeAssistantTurnStream(
             }),
           );
           pushThinkingPlaceholder();
+          continue;
+        }
+
+        if (data.type === "ictihat_citations") {
+          if (Array.isArray(data.citations)) {
+            pushEvent({
+              type: "ictihat_citations",
+              citations: data.citations as CaseLawCitation[],
+            });
+          }
           continue;
         }
 
