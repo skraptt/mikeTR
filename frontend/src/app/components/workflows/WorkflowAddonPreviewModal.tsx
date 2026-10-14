@@ -177,7 +177,7 @@ function DetailTabs({
           active={active === tab.id}
           onClick={() => onChange(tab.id)}
         >
-          {tab.label}
+          {t(tab.label)}
         </TabPillButtonUI>
       ))}
     </div>

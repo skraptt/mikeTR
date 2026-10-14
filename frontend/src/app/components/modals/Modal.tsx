@@ -7,6 +7,7 @@ import {
 } from "@/shared/ui/ModalUI";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { cn } from "@/app/lib/utils";
+import { t } from "@/shared/i18n";
 
 type ModalAction = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -98,11 +99,13 @@ function ModalActionButton({
   fallbackVariant: "primary" | "secondary" | "danger" | "cancel";
 }) {
   const {
-    label,
+    label: rawLabel,
     icon,
     variant = fallbackVariant === "cancel" ? "secondary" : fallbackVariant,
     ...props
   } = action;
+  // Callers pass English action words ("Use", "Back"); show them translated.
+  const label = typeof rawLabel === "string" ? t(rawLabel) : rawLabel;
 
   if (fallbackVariant === "cancel") {
     return (

@@ -9,6 +9,7 @@ import {
 import { createPortal } from "react-dom";
 import { LIQUID_GLASS_MODAL_CLASS } from "./LiquidGlassUI";
 import { CloseButton } from "./CloseButton";
+import { t } from "../i18n";
 
 export type ModalUISize = "sm" | "md" | "lg" | "xl";
 
@@ -164,7 +165,8 @@ export function ModalUI({
                                         <span
                                             className={`truncate ${index === breadcrumbs.length - 1 ? "text-gray-700" : ""}`}
                                         >
-                                            {segment}
+                                            {/* Plain-text segments are UI words; names pass through unchanged. */}
+                                            {typeof segment === "string" ? t(segment) : segment}
                                         </span>
                                     </span>
                                 ))}

@@ -215,7 +215,7 @@ export function OpenSourceWorkflowModal({
                             options={[
                                 {
                                     value: "anonymous",
-                                    label: "Anonymous",
+                                    label: t("Anonymous"),
                                     icon: EyeOff,
                                 },
                                 {

@@ -72,7 +72,7 @@ export function TableToolbar<T extends string>({
                             active={active === item.id}
                             onClick={() => onChange?.(item.id)}
                         >
-                            {item.label}
+                            {typeof item.label === "string" ? t(item.label) : item.label}
                         </TabPillButtonUI>
                     ))}
                 </div>

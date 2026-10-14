@@ -266,7 +266,7 @@ export function UseWorkflowModal({ workflow, onClose, skipSelect = false }: Prop
     const locationOptions =
         wf.metadata.type === "assistant"
             ? [
-                  { value: "workspace" as const, label: "Assistant" },
+                  { value: "workspace" as const, label: t("Assistant") },
                   { value: "project" as const, label: t("Project assistant") },
               ]
             : [

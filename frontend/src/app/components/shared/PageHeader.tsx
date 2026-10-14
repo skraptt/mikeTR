@@ -3,6 +3,7 @@
 import {
     useEffect,
     useLayoutEffect,
+    useMemo,
     useRef,
     useState,
     type ReactNode,
@@ -250,7 +251,7 @@ function PageHeaderButtonActionControl({
                 iconOnly={iconOnly}
             >
                 {action.icon}
-                {action.label}
+                {typeof action.label === "string" ? t(action.label) : action.label}
             </HeaderButtonUI>
             {action.tooltip && (
                 <div className="pointer-events-none absolute right-0 top-full mt-1.5 z-10 hidden items-center whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-lg group-hover:flex">
@@ -361,7 +362,16 @@ function PageHeaderSearchActionControl({
     );
 }
 
-function PageHeaderBreadcrumbs({ items }: { items: PageHeaderBreadcrumb[] }) {
+function PageHeaderBreadcrumbs({ items: rawItems }: { items: PageHeaderBreadcrumb[] }) {
+    // Plain-text crumbs are UI words ("Workflows"); names pass through unchanged.
+    // Memoized: the layout effect below re-measures whenever `items` changes.
+    const items = useMemo(
+        () =>
+            rawItems.map((item) =>
+                typeof item.label === "string" ? { ...item, label: t(item.label) } : item,
+            ),
+        [rawItems],
+    );
     const containerRef = useRef<HTMLDivElement>(null);
     const measurementRefs = useRef<Array<HTMLSpanElement | null>>([]);
     const ellipsisMeasurementRef = useRef<HTMLSpanElement>(null);
