@@ -1,0 +1,319 @@
+# mikeTR Türk hukuku değerlendirme seti — TASLAK
+# Açıklama ve puanlama: README.md
+# Kanun numaraları: 6098 TBK, 6100 HMK, 6102 TTK, 4721 TMK, 6502 TKHK,
+# 6698 KVKK, 5941 Çek K., 6769 SMK.
+# "incelendi: false" olan sorular bir hukukçunun onayını bekliyor.
+
+surum: 1
+tarih: 2026-10-14
+
+sorular:
+  # ---------------------------------------------------------------- Kira
+  - id: kira-01
+    alan: kira
+    soru: "Konut kiracım iki aydır kirayı ödemiyor. Sözleşmeyi feshetmek için ne yapmam gerekir?"
+    beklenen_maddeler:
+      - { kanun: "6098", madde: "315" }
+    beklenen_noktalar:
+      - "Kiraya veren kiracıya yazılı olarak süre verir ve bu sürede ödenmezse sözleşmeyi feshedeceğini bildirir (TBK md. 315)."
+      - "Konut ve çatılı işyeri kiralarında verilecek süre en az otuz gündür."
+      - "Süre, yazılı bildirimin yapıldığı tarihi izleyen günden işlemeye başlar."
+    tuzaklar:
+      - "TBK md. 315'i hiç anmadan yalnızca md. 352'deki iki haklı ihtara dayanmak."
+      - "Süreyi on gün olarak söylemek (on gün konut ve çatılı işyeri dışındaki kiralar içindir)."
+    kapsam_disi_not: "İcra yoluyla tahliye (İİK) veritabanında yok; değinilirse doğrulanmadığı belirtilmeli."
+    incelendi: false
+
+  - id: kira-02
+    alan: kira
+    soru: "Yenilenen konut kira döneminde kirayı en fazla ne kadar artırabilirim?"
+    beklenen_maddeler:
+      - { kanun: "6098", madde: "344" }
+    beklenen_noktalar:
+      - "Artış, bir önceki kira yılında TÜFE'nin on iki aylık ortalamalarına göre değişim oranını geçemez."
+      - "Bu sınır bir yıldan uzun süreli sözleşmelerde de uygulanır."
+      - "Beş yıldan uzun süreli veya beş yıldan sonra yenilenen sözleşmelerde kira bedeli hâkim tarafından hakkaniyete göre belirlenebilir."
+    tuzaklar:
+      - "Geçici %25 sınırını hâlâ yürürlükteymiş gibi sunmak (hukukçu doğrulamalı: 7409 s. K. ile getirilen sınırın sona erdiği tarih)."
+    guncellik: true
+    incelendi: false
+
+  - id: kira-03
+    alan: kira
+    soru: "Kiraladığım evde oğlumun oturması için kiracıyı ihtiyaç nedeniyle çıkarabilir miyim? Yargıtay bu konuda ne arıyor?"
+    beklenen_maddeler:
+      - { kanun: "6098", madde: "350" }
+    beklenen_noktalar:
+      - "Kiraya veren altsoyu için konut gereksinimi sebebiyle sözleşmeyi dava yoluyla sona erdirebilir (TBK md. 350/1)."
+      - "Dava, belirli süreli sözleşmelerde sürenin sonundan itibaren bir ay içinde açılmalıdır."
+      - "Yargıtay ihtiyacın gerçek, samimi ve zorunlu olmasını arar; bu, okunan bir karardan aktarılmalıdır."
+    ictihat:
+      mahkeme: yargitay
+      onerilen_filtreler: { daire: "3. Hukuk Dairesi" }
+      beklenen: "En az bir kararı get_karar ile okuyup künyesini sonuçtaki atif alanından aktarmak."
+    tuzaklar:
+      - "Okunmamış bir kararın künyesini vermek ya da künye uydurmak."
+      - "Bir aylık dava açma süresini atlamak."
+    incelendi: false
+
+  - id: kira-04
+    alan: kira
+    soru: "Ev sahibi benden dört aylık kira tutarında depozito istiyor. Bu mümkün mü, depozito nerede tutulmalı?"
+    beklenen_maddeler:
+      - { kanun: "6098", madde: "342" }
+    beklenen_noktalar:
+      - "Konut ve çatılı işyeri kiralarında güvence üç aylık kira bedelini aşamaz."
+      - "Para güvencesi kiraya verenin onayı olmadan çekilmemek üzere vadeli tasarruf hesabına yatırılır."
+      - "Banka güvenceyi iki tarafın rızasıyla, kesinleşmiş icra takibi veya kesinleşmiş mahkeme kararıyla geri verebilir."
+    tuzaklar:
+      - "Depozitonun doğrudan ev sahibine nakit ödenebileceğini kuralmış gibi sunmak."
+    incelendi: false
+
+  - id: kira-05
+    alan: kira
+    soru: "Bir yıllık konut kira sözleşmesinin süresi doldu. Ev sahibi olarak süre bitti diye kiracıyı çıkarabilir miyim?"
+    beklenen_maddeler:
+      - { kanun: "6098", madde: "347" }
+    beklenen_noktalar:
+      - "Kiraya veren, sözleşme süresinin bitimine dayanarak sözleşmeyi sona erdiremez."
+      - "Kiracı süre bitiminden en az on beş gün önce bildirimde bulunmazsa sözleşme bir yıl uzar."
+      - "On yıllık uzama süresinden sonra kiraya veren, her uzama yılının bitiminden en az üç ay önce bildirimle sebep göstermeden sona erdirebilir."
+    tuzaklar:
+      - "Kiraya verenin süre bitiminde serbestçe tahliye edebileceğini söylemek."
+    incelendi: false
+
+  # ----------------------------------------------------------- Tüketici
+  - id: tuketici-01
+    alan: tüketici
+    soru: "Aldığım çamaşır makinesi bir hafta sonra bozuldu. Satıcıdan neler isteyebilirim?"
+    beklenen_maddeler:
+      - { kanun: "6502", madde: "11" }
+    beklenen_noktalar:
+      - "Dört seçimlik hak: sözleşmeden dönme, bedelden indirim, ücretsiz onarım, ayıpsız misliyle değiştirme."
+      - "Seçim tüketiciye aittir; satıcı tercih edilen talebi yerine getirmekle yükümlüdür."
+      - "Ücretsiz onarım ve değiştirme üretici veya ithalatçıya karşı da kullanılabilir."
+    tuzaklar:
+      - "Seçimi satıcıya bırakmak ya da önce onarımın zorunlu olduğunu söylemek."
+    incelendi: false
+
+  - id: tuketici-02
+    alan: tüketici
+    soru: "İnternetten aldığım ürünü iade etmek istiyorum, kaç gün içinde cayabilirim?"
+    beklenen_maddeler:
+      - { kanun: "6502", madde: "48" }
+    beklenen_noktalar:
+      - "İnternetten yapılan satış mesafeli sözleşmedir (TKHK md. 48)."
+      - "Cayma süresinin ayrıntısı Mesafeli Sözleşmeler Yönetmeliği'ndedir; yönetmelik veritabanında olmadığı için bu kısım doğrulanmadı notuyla verilmelidir."
+    kapsam_disi: true
+    kapsam_disi_not: "Mesafeli Sözleşmeler Yönetmeliği veritabanında yok."
+    tuzaklar:
+      - "Cayma süresini veritabanındaki bir maddeye dayanıyormuş gibi bir madde numarasıyla vermek."
+    incelendi: false
+
+  # --------------------------------------------------------------- Aile
+  - id: aile-01
+    alan: aile
+    soru: "Eşim, tapusu kendi adına olan ve birlikte oturduğumuz evi benden habersiz satabilir mi?"
+    beklenen_maddeler:
+      - { kanun: "4721", madde: "194" }
+    beklenen_noktalar:
+      - "Eşlerden biri diğerinin açık rızası olmadan aile konutunu devredemez, üzerindeki hakları sınırlayamaz."
+      - "Malik olmayan eş tapu kütüğüne aile konutu şerhi verilmesini isteyebilir."
+      - "Rıza vermeyen eşe karşı hâkimin müdahalesi istenebilir."
+    tuzaklar:
+      - "Malik eşin tek başına satabileceğini söylemek."
+    incelendi: false
+
+  - id: aile-02
+    alan: aile
+    soru: "Evlilikte mal rejimi sözleşmesi yapmadıysak hangi mal rejimi geçerli olur?"
+    beklenen_maddeler:
+      - { kanun: "4721", madde: "202" }
+    beklenen_noktalar:
+      - "Yasal mal rejimi edinilmiş mallara katılmadır."
+      - "Eşler mal rejimi sözleşmesiyle kanundaki diğer rejimlerden birini seçebilir."
+    tuzaklar:
+      - "Mal ayrılığını yasal rejim olarak söylemek."
+    incelendi: false
+
+  # ---------------------------------------------------------------- Usul
+  - id: usul-01
+    alan: usul
+    soru: "Alacağımın miktarını tam bilmiyorum. Belirsiz alacak davası açabilir miyim?"
+    beklenen_maddeler:
+      - { kanun: "6100", madde: "107" }
+    beklenen_noktalar:
+      - "HMK md. 107 (belirsiz alacak davası) 16/7/2026 tarihli 7589 sayılı Kanunla yürürlükten kaldırılmıştır (mülga)."
+      - "Cevap, belirsiz alacak davasını hâlâ yürürlükte bir kurum gibi anlatmamalı; geçiş hükümleri için güncel mevzuatın kontrol edilmesini önermeli."
+    guncellik: true
+    tuzaklar:
+      - "Mülga olduğunu fark etmeden md. 107'nin eski içeriğini anlatmak."
+    incelendi: false
+
+  - id: usul-02
+    alan: usul
+    soru: "Borçlu malını kaçırıyor. Dava açmadan önce ihtiyati tedbir isteyebilir miyim, şartları nelerdir?"
+    beklenen_maddeler:
+      - { kanun: "6100", madde: "389" }
+      - { kanun: "6100", madde: "390" }
+    beklenen_noktalar:
+      - "Hakkın elde edilmesinin önemli ölçüde zorlaşacağı veya imkânsızlaşacağı ya da gecikmede ciddi zarar doğacağı endişesi gerekir (md. 389)."
+      - "Dava açılmadan önce esas hakkında görevli ve yetkili mahkemeden istenebilir (md. 390/1)."
+      - "Talep eden tedbir sebebini ve türünü belirtmeli, haklılığını yaklaşık olarak ispat etmelidir (md. 390/3)."
+    tuzaklar:
+      - "Para alacağı için ihtiyati haciz (İİK) ile ihtiyati tedbiri karıştırıp İİK'yı doğrulanmış gibi anlatmak."
+    kapsam_disi_not: "İhtiyati haciz İİK'dadır ve veritabanında yoktur; değinilirse doğrulanmadığı belirtilmeli."
+    incelendi: false
+
+  # ------------------------------------------------------------ Borçlar
+  - id: borclar-01
+    alan: borçlar
+    soru: "Bir trafik kazasında aracım hasar gördü. Karşı taraftan tazminat istemek için ne kadar sürem var?"
+    beklenen_maddeler:
+      - { kanun: "6098", madde: "72" }
+    beklenen_noktalar:
+      - "Zararı ve tazminat yükümlüsünü öğrenmeden itibaren iki yıl, her hâlde fiilden itibaren on yıl."
+      - "Fiil ceza kanunlarında daha uzun zamanaşımı öngörülen bir suçsa o süre uygulanır."
+    tuzaklar:
+      - "Genel on yıllık süreyi (TBK md. 146) haksız fiil için esas almak."
+    kapsam_disi_not: "Karayolları Trafik Kanunu ve sigorta mevzuatı veritabanında yok."
+    incelendi: false
+
+  - id: borclar-02
+    alan: borçlar
+    soru: "Eski kiracımdan altı yıl önceki ödenmemiş kira bedellerini isteyebilir miyim?"
+    beklenen_maddeler:
+      - { kanun: "6098", madde: "147" }
+    beklenen_noktalar:
+      - "Kira bedelleri beş yıllık zamanaşımına tabidir (TBK md. 147/1)."
+      - "Zamanaşımı def'i olarak ileri sürülmelidir; borçlu ileri sürmezse hâkim kendiliğinden dikkate almaz (bu nokta hukukçu tarafından doğrulanmalı; dayanak TBK genel hükümleridir)."
+    tuzaklar:
+      - "On yıllık genel süreyi uygulamak."
+    incelendi: false
+
+  # ------------------------------------------------------- Ticaret / Çek
+  - id: ticaret-01
+    alan: ticaret
+    soru: "Tedarikçi şirketimizi temerrüde düşürmek için e-posta ile ihtar göndermem yeterli mi?"
+    beklenen_maddeler:
+      - { kanun: "6102", madde: "18" }
+    beklenen_noktalar:
+      - "Tacirler arasında temerrüt, fesih ve dönme ihbarları noter, taahhütlü mektup, telgraf veya güvenli elektronik imzalı KEP ile yapılır (TTK md. 18/3)."
+      - "Düz e-posta bu şekil şartlarından biri değildir."
+    tuzaklar:
+      - "Düz e-postanın yeterli olduğunu söylemek."
+    incelendi: false
+
+  - id: cek-01
+    alan: çek
+    soru: "Bana verilen çek karşılıksız çıktı. Keşideciye ne gibi bir yaptırım uygulanır?"
+    beklenen_maddeler:
+      - { kanun: "5941", madde: "5" }
+    beklenen_noktalar:
+      - "Hamilin şikâyeti üzerine her bir çek için bin beş yüz güne kadar adli para cezası."
+      - "Adli para cezası çek bedelinin karşılıksız kalan miktarından az olamaz."
+      - "Mahkeme çek düzenleme ve çek hesabı açma yasağına da hükmeder."
+    tuzaklar:
+      - "Hapis cezasını genel kural olarak söylemek (hukukçu doğrulamalı: ödeme yapılmazsa adli para cezasının hapse çevrilmesi ayrı bir konudur)."
+    incelendi: false
+
+  # --------------------------------------------------------------- KVKK
+  - id: kvkk-01
+    alan: kvkk
+    soru: "Müşteri verilerimizi ABD'deki bir bulut sağlayıcısında tutmak istiyoruz. KVKK'ya göre ne yapmamız gerekir?"
+    beklenen_maddeler:
+      - { kanun: "6698", madde: "9" }
+    beklenen_noktalar:
+      - "Aktarım için md. 5 veya 6'daki şartlardan biri ve aktarılacak ülke için yeterlilik kararı gerekir (md. 9/1, 2024 değişikliği)."
+      - "Yeterlilik kararı yoksa md. 9'da sayılan uygun güvencelerden biri (ör. standart sözleşme) sağlanmalıdır; standart sözleşmenin Kuruma bildirimi gibi süreler maddeden aktarılmalıdır."
+      - "Cevap 2024'teki 7499 sayılı Kanun değişikliğini yansıtmalı; eski 'açık rıza ile aktarım' rejimini güncel kural gibi sunmamalı."
+    guncellik: true
+    tuzaklar:
+      - "Yalnızca açık rıza ile yurt dışına aktarımın yeterli olduğunu söylemek (eski düzen)."
+    incelendi: false
+
+  - id: kvkk-02
+    alan: kvkk
+    soru: "Çalışanlarımızın sağlık raporlarını hangi şartlarla işleyebiliriz?"
+    beklenen_maddeler:
+      - { kanun: "6698", madde: "6" }
+    beklenen_noktalar:
+      - "Sağlık verisi özel nitelikli kişisel veridir; işlenmesi yasaktır, ancak md. 6/3'te sayılan hâllerde işlenebilir."
+      - "Md. 6, 2024'te 7499 sayılı Kanunla değiştirilmiştir; ikinci fıkra mülgadır."
+    guncellik: true
+    tuzaklar:
+      - "Eski md. 6/2-3 ayrımını (sağlık verisinin yalnızca belirli kişilerce işlenebilmesi) güncel metin gibi aktarmak."
+    incelendi: false
+
+  # ---------------------------------------------------------- Fikrî mülkiyet
+  - id: smk-01
+    alan: fikrî ve sınaî haklar
+    soru: "Tescilli markamıza benzeyen bir işareti rakip firma benzer ürünlerde kullanıyor. Hangi haklarımız var?"
+    beklenen_maddeler:
+      - { kanun: "6769", madde: "7" }
+    beklenen_noktalar:
+      - "Marka koruması tescille elde edilir; haklar münhasıran marka sahibine aittir."
+      - "Benzer işaretin aynı/benzer mal ve hizmetlerde karıştırılma ihtimali doğuracak şekilde kullanılmasının önlenmesi istenebilir (md. 7/2-b)."
+    tuzaklar:
+      - "Karıştırılma ihtimali ölçütünü atlamak."
+    incelendi: false
+
+  # -------------------------------------------- Kapsam dışı (veritabanında yok)
+  - id: kapsam-01
+    alan: iş hukuku
+    soru: "Beş yıl çalıştığım işyerinden haklı nedenle istifa ettim. Kıdem tazminatı alabilir miyim?"
+    beklenen_maddeler: []
+    kapsam_disi: true
+    kapsam_disi_not: "İş Kanunu (4857) ve 1475 s. K. md. 14 veritabanında yok."
+    beklenen_noktalar:
+      - "İş hukuku mevzuatının veritabanında olmadığını açıkça belirtir."
+      - "Genel bilgi verirse 'Not: Bu bölüm, veritabanındaki kanun metinleriyle doğrulanmamıştır…' uyarısını ekler."
+    tuzaklar:
+      - "İş Kanunu ya da 1475 s. K. için doğrulanmış gibi madde numarası vermek."
+      - "TBK'daki hizmet sözleşmesi hükümlerini kıdem tazminatının dayanağıymış gibi göstermek."
+    incelendi: false
+
+  - id: kapsam-02
+    alan: icra
+    soru: "Borçlu ödeme emrine itiraz etti. İtirazın iptali davasını ne kadar sürede açmalıyım?"
+    beklenen_maddeler: []
+    kapsam_disi: true
+    kapsam_disi_not: "İcra ve İflas Kanunu (md. 67) veritabanında yok."
+    beklenen_noktalar:
+      - "İİK'nın veritabanında olmadığını açıkça belirtir; süreyi verirse doğrulanmadığını not eder."
+    tuzaklar:
+      - "İİK md. 67'yi doğrulanmış bir atıf gibi sunmak."
+    incelendi: false
+
+  # ------------------------------------------------- İdare / Anayasa içtihadı
+  - id: idare-01
+    alan: idare
+    soru: "Belediyenin onayladığı imar planı değişikliği mülkümü etkiliyor. Danıştay bu tür planların iptalinde neye bakıyor?"
+    beklenen_maddeler: []
+    kapsam_disi: true
+    kapsam_disi_not: "İmar Kanunu ve İYUK veritabanında yok; cevap Danıştay kararlarına dayanmalı."
+    ictihat:
+      mahkeme: danistay
+      onerilen_filtreler: { daire: "6. Daire", siralama: "yeni" }
+      beklenen: "Danıştay'da arayıp en az bir kararı okumak; planlama ilkeleri ve kamu yararı gibi ölçütleri karardan aktarmak."
+    tuzaklar:
+      - "İYUK'taki dava açma süresini doğrulanmış bir atıf gibi vermek."
+      - "Okunmamış karar künyesi vermek."
+    incelendi: false
+
+  - id: aym-01
+    alan: anayasa
+    soru: "Davam sekiz yıldır sürüyor. Anayasa Mahkemesi makul sürede yargılanma hakkı ihlali konusunda nasıl karar veriyor?"
+    beklenen_maddeler: []
+    ictihat:
+      mahkeme: anayasa
+      onerilen_filtreler: { siralama: "yeni" }
+      beklenen: "AYM bireysel başvuru kararlarında arayıp okumak; künyeyi 'AYM, B. No: …, K.T. …' biçiminde sonuçtan aktarmak."
+    beklenen_noktalar:
+      - "Okunan bir AYM kararına dayanarak ihlal değerlendirmesinin ölçütlerini aktarır."
+      - "Uzun yargılama şikâyetleri için başvuru yolları ve Tazminat Komisyonu gibi ayrıntılar veritabanında yoksa doğrulanmadığını belirtir."
+    kapsam_disi_not: "Anayasa ve 6384 s. Tazminat Komisyonu Kanunu veritabanında yok."
+    tuzaklar:
+      - "AYM kararı künyesi uydurmak."
+      - "Anayasa md. 36'yı doğrulanmış bir atıf gibi sunmak."
+    incelendi: false
