@@ -88,7 +88,7 @@ const ACCESS_FILTER_OPTIONS: TableFilterOption<AccessFilter>[] = [
 
 function workflowFilterOptions(
   values: (string | null | undefined)[],
-  labelForValue: (value: string) => string = (value) => value,
+  labelForValue: (value: string) => string = (value) => t(value),
 ): TableFilterOption<string>[] {
   return Array.from(
     new Set(
@@ -97,7 +97,7 @@ function workflowFilterOptions(
         .filter((value): value is string => !!value),
     ),
   )
-    .sort((a, b) => a.localeCompare(b))
+    .sort((a, b) => labelForValue(a).localeCompare(labelForValue(b), "tr"))
     .map((value) => ({ value, label: labelForValue(value) }));
 }
 
@@ -1047,10 +1047,10 @@ function WorkflowTable({
                     {(workflow.metadata.practice && t(workflow.metadata.practice)) || "—"}
                   </TableCell>
                   <TableCell className="w-40 truncate text-xs text-gray-600">
-                    {workflow.metadata.jurisdictions?.join(", ") || "—"}
+                    {workflow.metadata.jurisdictions?.map((j) => t(j)).join(", ") || "—"}
                   </TableCell>
                   <TableCell className="w-28 text-xs text-gray-600">
-                    {workflow.metadata.language || "—"}
+                    {(workflow.metadata.language && t(workflow.metadata.language)) || "—"}
                   </TableCell>
                   <div
                     className="flex w-8 shrink-0 justify-end"
@@ -1315,10 +1315,10 @@ function AddonTable({
           {(addon.practice && t(addon.practice)) || "—"}
         </TableCell>
         <TableCell className="w-40 truncate text-xs text-gray-600">
-          {addon.jurisdictions?.join(", ") || "—"}
+          {addon.jurisdictions?.map((j) => t(j)).join(", ") || "—"}
         </TableCell>
         <TableCell className="w-28 text-xs text-gray-600">
-          {addon.language || "—"}
+          {(addon.language && t(addon.language)) || "—"}
         </TableCell>
         <TableCell className="flex w-8 justify-end">
           {renderImportButton([addon])}

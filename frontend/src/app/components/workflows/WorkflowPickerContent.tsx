@@ -191,7 +191,7 @@ export function WorkflowPickerContent({
                                         ) : !selected &&
                                           workflow.metadata.practice ? (
                                             <span className="shrink-0 text-xs text-gray-400">
-                                                {workflow.metadata.practice}
+                                                {t(workflow.metadata.practice)}
                                             </span>
                                         ) : null}
                                     </button>

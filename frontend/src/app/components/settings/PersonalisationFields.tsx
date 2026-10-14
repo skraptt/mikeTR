@@ -256,8 +256,8 @@ export function PersonalisationFields({
           options={[
             ...COUNTRY_OPTIONS.map((country) => ({
               value: country,
-              label: country,
-            })),
+              label: t(country),
+            })).sort((a, b) => a.label.localeCompare(b.label, "tr")),
             {
               value: OTHER_JURISDICTION_OPTION,
               label: OTHER_JURISDICTION_OPTION,

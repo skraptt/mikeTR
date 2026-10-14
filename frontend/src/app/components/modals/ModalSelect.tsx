@@ -14,6 +14,7 @@ import {
     LIQUID_GLASS_HOVER_CLASS,
     LIQUID_GLASS_SELECTED_CLASS,
 } from "@/shared/ui/LiquidGlassUI";
+import { t } from "@/shared/i18n";
 
 export type ModalSelectOption =
     | string
@@ -39,8 +40,9 @@ interface ModalSelectProps {
 }
 
 function normalizeOption(option: ModalSelectOption) {
+    // Plain string options are English source values; show them translated.
     return typeof option === "string"
-        ? { value: option, label: option }
+        ? { value: option, label: t(option) }
         : option;
 }
 
@@ -50,7 +52,7 @@ export function ModalSelect({
     value,
     options,
     onChange,
-    placeholder = "Select...",
+    placeholder,
     disabled = false,
     open,
     onOpenChange,
@@ -106,7 +108,7 @@ export function ModalSelect({
                             )}
                         >
                             {selected?.label ??
-                                (hasValue ? value : placeholder)}
+                                (hasValue ? t(value) : (placeholder ?? t("Select...")))}
                         </span>
                     </span>
                     <ChevronDown

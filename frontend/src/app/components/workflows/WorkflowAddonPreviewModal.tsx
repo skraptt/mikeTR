@@ -355,7 +355,7 @@ function WorkflowAddonPreviewDialog({
                   .map((contributor) => contributor.name)
                   .join(", ")}
               />
-              <MetadataItem label={t("Language")} value={addon.language || "—"} />
+              <MetadataItem label={t("Language")} value={(addon.language && t(addon.language)) || "—"} />
               <MetadataItem label={t("Version")} value={addon.version || "—"} />
               <MetadataItem
                 label={t("Practice")}
@@ -363,7 +363,7 @@ function WorkflowAddonPreviewDialog({
               />
               <MetadataItem
                 label={t("Jurisdiction")}
-                value={addon.jurisdictions?.join(", ") || "—"}
+                value={addon.jurisdictions?.map((j) => t(j)).join(", ") || "—"}
               />
             </div>
             {addon.description && (

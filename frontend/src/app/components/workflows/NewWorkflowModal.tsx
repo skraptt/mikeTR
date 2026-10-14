@@ -36,7 +36,7 @@ import {
 } from "../modals/CreateAccessStep";
 import { t } from "@/shared/i18n";
 
-const DEFAULT_LANGUAGE = "English";
+const DEFAULT_LANGUAGE = "Turkish";
 const DEFAULT_PRACTICE = "";
 const DEFAULT_JURISDICTION = "";
 const PERSONAL_WORKSPACE = "__personal__";
@@ -82,6 +82,17 @@ const LANGUAGE_OPTIONS = [
     "Swahili",
     "Other",
 ] as const;
+// Options are English values shown translated, so order them by what the
+// reader sees; "Other" stays last.
+function byTranslatedLabel(options: readonly string[]): string[] {
+    return [...options].sort((a, b) =>
+        a === "Other"
+            ? 1
+            : b === "Other"
+              ? -1
+              : t(a).localeCompare(t(b), "tr"),
+    );
+}
 const JURISDICTION_OPTIONS = [
     ...COUNTRY_OPTIONS,
     OTHER_JURISDICTION_OPTION,
@@ -231,17 +242,18 @@ export function NewWorkflowModal({
     const effectiveJurisdiction = isOtherJurisdiction
         ? customJurisdiction.trim()
         : jurisdictionRegion.trim() || jurisdiction;
-    const languageOptions = (
+    const languageOptions = byTranslatedLabel(
         (LANGUAGE_OPTIONS as readonly string[]).includes(language)
             ? LANGUAGE_OPTIONS
-            : [language, ...LANGUAGE_OPTIONS]
+            : [language, ...LANGUAGE_OPTIONS],
     ).filter(Boolean);
     const baseJurisdictionOptions = (
         JURISDICTION_OPTIONS as readonly string[]
     ).includes(jurisdiction)
         ? JURISDICTION_OPTIONS
         : [jurisdiction, ...JURISDICTION_OPTIONS];
-    const jurisdictionOptions = baseJurisdictionOptions.filter(Boolean);
+    const jurisdictionOptions =
+        byTranslatedLabel(baseJurisdictionOptions).filter(Boolean);
     const jurisdictionRegionOptions =
         jurisdiction === "United States"
             ? US_STATE_OPTIONS
@@ -944,7 +956,7 @@ export function NewWorkflowModal({
                                 <ModalSelect
                                     id="workflow-practice"
                                     value={practice}
-                                    options={PRACTICE_OPTIONS}
+                                    options={byTranslatedLabel(PRACTICE_OPTIONS)}
                                     placeholder={t("Select practice area")}
                                     disabled={viewOnly}
                                     open={openDropdown === "practice"}
