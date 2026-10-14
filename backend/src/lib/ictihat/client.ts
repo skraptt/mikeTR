@@ -15,6 +15,7 @@ import type {
   IctihatCourt,
   IctihatDecision,
   IctihatFilters,
+  IctihatFinality,
   IctihatHit,
   IctihatSearchResult,
   IctihatSort,
@@ -28,6 +29,7 @@ export type {
   IctihatHit,
   IctihatSearchResult,
   IctihatSort,
+  IctihatFinality,
 } from "@mike/contracts";
 
 const USER_AGENT =
@@ -52,6 +54,17 @@ export const YARGITAY_CHAMBERS: readonly string[] = [
 ];
 
 export const SORTS: readonly IctihatSort[] = ["ilgili", "yeni", "eski"];
+export const FINALITIES: readonly IctihatFinality[] = ["kesinlesti", "kesinlesmedi"];
+
+// UYAP Emsal cannot filter by finality and answers at most 10 decisions a
+// page, so a finality filter reads pages until it has enough matches, up to
+// this many requests per search.
+const FINALITY_SCAN_PAGES = 10;
+const EMSAL_PAGE_SIZE = 10;
+const FINALITY_LABEL: Record<IctihatFinality, string> = {
+  kesinlesti: "KESİNLEŞTİ",
+  kesinlesmedi: "KESİNLEŞMEDİ",
+};
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -86,6 +99,17 @@ export function normalizeFilters(filters: IctihatFilters = {}): IctihatFilters {
   if (filters.siralama && filters.siralama !== "ilgili") {
     if (!SORTS.includes(filters.siralama)) throw new IctihatSourceError(`Unknown sort: ${filters.siralama}.`);
     out.siralama = filters.siralama;
+  }
+  if (filters.kesinlesme) {
+    if (!FINALITIES.includes(filters.kesinlesme)) {
+      throw new IctihatSourceError(`Unknown finality: ${filters.kesinlesme}.`);
+    }
+    if (out.daire) {
+      throw new IctihatSourceError(
+        "A chamber and a finality filter cannot be combined: chambers are Yargıtay's, and only UYAP Emsal reports finality.",
+      );
+    }
+    out.kesinlesme = filters.kesinlesme;
   }
   return out;
 }
@@ -287,6 +311,48 @@ async function searchEmsal(
   page: number,
   filters: IctihatFilters,
 ): Promise<IctihatSearchResult> {
+  if (filters.kesinlesme) return searchEmsalByFinality(fetchFn, phrase, limit, page, filters);
+  return searchEmsalPage(fetchFn, phrase, limit, page, filters);
+}
+
+/**
+ * The `page`-th block of `limit` decisions with the requested finality, read
+ * from consecutive source pages. Exact when the source runs out within the
+ * scan; otherwise a lower bound, flagged `approximate`.
+ */
+async function searchEmsalByFinality(
+  fetchFn: FetchFn,
+  phrase: string,
+  limit: number,
+  page: number,
+  filters: IctihatFilters,
+): Promise<IctihatSearchResult> {
+  const wanted = FINALITY_LABEL[filters.kesinlesme!];
+  const matches: IctihatHit[] = [];
+  const needed = page * limit + 1; // one extra tells whether a next page exists
+  let exhausted = false;
+  for (let sourcePage = 1; sourcePage <= FINALITY_SCAN_PAGES; sourcePage++) {
+    const chunk = await searchEmsalPage(fetchFn, phrase, EMSAL_PAGE_SIZE, sourcePage, filters);
+    matches.push(...chunk.results.filter((hit) => hit.durum?.toLocaleUpperCase("tr-TR") === wanted));
+    if (chunk.results.length < EMSAL_PAGE_SIZE || sourcePage * EMSAL_PAGE_SIZE >= chunk.total) {
+      exhausted = true;
+      break;
+    }
+    if (matches.length >= needed) break;
+  }
+  const results = matches.slice((page - 1) * limit, page * limit);
+  return exhausted
+    ? { total: matches.length, results }
+    : { total: matches.length, results, approximate: true };
+}
+
+async function searchEmsalPage(
+  fetchFn: FetchFn,
+  phrase: string,
+  limit: number,
+  page: number,
+  filters: IctihatFilters,
+): Promise<IctihatSearchResult> {
   const detailed = !!(filters.baslangic || filters.bitis || filters.siralama);
   const data: Record<string, unknown> = detailed
     ? {
@@ -367,7 +433,11 @@ export async function searchDecisions(
 ): Promise<IctihatSearchResult & { court: IctihatCourt; filters: IctihatFilters; warnings?: string[] }> {
   const phrase = andQuery(params.query);
   const filters = normalizeFilters(params.filters);
-  const court: IctihatCourt = filters.daire ? "yargitay" : (params.court ?? "adli");
+  const court: IctihatCourt = filters.daire
+    ? "yargitay"
+    : filters.kesinlesme
+      ? "emsal"
+      : (params.court ?? "adli");
   const limit = Math.min(Math.max(Math.trunc(params.limit ?? 10), 1), MAX_RESULTS);
   const page = Math.max(Math.trunc(params.page ?? 1), 1);
 

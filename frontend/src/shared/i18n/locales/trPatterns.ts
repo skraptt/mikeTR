@@ -38,4 +38,8 @@ export const trPatterns: ReadonlyArray<readonly [RegExp, string]> = [
         /^Unknown Yargıtay chamber: (.+)\.$/,
         "Bilinmeyen Yargıtay dairesi: {1}.",
     ],
+    [
+        /^Unknown finality: (.+)\.$/,
+        "Bilinmeyen kesinleşme durumu: {1}.",
+    ],
 ];

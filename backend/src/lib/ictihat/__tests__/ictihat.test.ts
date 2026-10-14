@@ -173,6 +173,48 @@ describe("filters", () => {
     });
   });
 
+  it("rejects a finality filter with a chamber, and an unknown finality", () => {
+    expect(() => normalizeFilters({ daire: "3. Hukuk Dairesi", kesinlesme: "kesinlesti" })).toThrow(
+      /cannot be combined/,
+    );
+    expect(() => normalizeFilters({ kesinlesme: "belki" as never })).toThrow("Unknown finality: belki.");
+  });
+
+  it("reads UYAP Emsal pages until it has a page of decisions with the wanted finality", async () => {
+    const decision = (n: number, durum: string) => ({
+      id: String(n),
+      daire: "Ankara BAM 4. HD",
+      esasNo: `2024/${n}`,
+      kararNo: `2024/${n}`,
+      kararTarihi: "01.01.2024",
+      durum,
+    });
+    // Source pages of 10: every third decision is final; 25 decisions in all.
+    const all = Array.from({ length: 25 }, (_, i) => decision(i + 1, i % 3 === 0 ? "KESİNLEŞTİ" : "KESİNLEŞMEDİ"));
+    const fetchFn = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
+      const { pageNumber, pageSize } = JSON.parse(init!.body as string).data;
+      const rows = all.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+      return jsonResponse({ data: { recordsTotal: all.length, data: rows } });
+    }) as unknown as typeof fetch;
+
+    const first = await searchDecisions(
+      { query: "kira", court: "yargitay", limit: 3, filters: { kesinlesme: "kesinlesti" } },
+      fetchFn,
+    );
+    expect(first.court).toBe("emsal");
+    expect(first.results.map((hit) => hit.id)).toEqual(["1", "4", "7"]);
+    // Four matches by page 2 were enough to know a next page exists.
+    expect(first).toMatchObject({ total: 4, approximate: true });
+
+    const last = await searchDecisions(
+      { query: "kira", limit: 3, page: 3, filters: { kesinlesme: "kesinlesti" } },
+      fetchFn,
+    );
+    // The source ran out, so the count is exact: decisions 1, 4, ..., 25.
+    expect(last).toMatchObject({ total: 9, results: [{ id: "19" }, { id: "22" }, { id: "25" }] });
+    expect(last.approximate).toBeUndefined();
+  });
+
   it("narrows a chamber search to Yargıtay", async () => {
     const fetchFn = fakeFetch({ searchDocuments: () => jsonResponse(bedestenSearch) });
     const result = await searchDecisions({ query: "kira", court: "emsal", filters: { daire: "Hukuk Genel Kurulu" } }, fetchFn);

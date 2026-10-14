@@ -327,6 +327,9 @@ export type IctihatHit = {
 
 export type IctihatSort = "ilgili" | "yeni" | "eski";
 
+/** Finality as UYAP Emsal reports it; Yargıtay results carry no finality. */
+export type IctihatFinality = "kesinlesti" | "kesinlesmedi";
+
 /** Optional narrowing; dates are YYYY-MM-DD decision dates, inclusive. */
 export type IctihatFilters = {
   /** A Yargıtay chamber or board, e.g. "3. Hukuk Dairesi". Searches Yargıtay only. */
@@ -335,11 +338,18 @@ export type IctihatFilters = {
   bitis?: string;
   /** ilgili (relevance, the default), yeni (newest first), eski (oldest first). */
   siralama?: IctihatSort;
+  /** Searches UYAP Emsal only: the one source that reports finality. */
+  kesinlesme?: IctihatFinality;
 };
 
 export type IctihatSearchResult = {
   total: number;
   results: IctihatHit[];
+  /**
+   * The total is a lower bound: a finality filter scans a bounded number of
+   * source pages, and more matches may lie beyond them.
+   */
+  approximate?: boolean;
 };
 
 /** POST /ictihat/search */

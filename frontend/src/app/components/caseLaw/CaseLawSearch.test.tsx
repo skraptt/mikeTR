@@ -156,6 +156,37 @@ describe("CaseLawSearchPage", () => {
         expect(push).toHaveBeenCalledWith("/case-law?q=temerr%C3%BCt&court=yargitay&daire=Hukuk+Genel+Kurulu");
     });
 
+    it("moves a finality search to UYAP Emsal and shows a lower-bound count", async () => {
+        params = new URLSearchParams({ q: "temerrüt", final: "kesinlesti" });
+        searchCaseLaw.mockResolvedValue(response({ court: "emsal", total: 11, approximate: true }));
+        render(<CaseLawSearchPage />);
+
+        expect(await screen.findByText("At least 11 decisions found")).toBeInTheDocument();
+        expect(searchCaseLaw).toHaveBeenCalledWith("temerrüt", "adli", 1, { kesinlesme: "kesinlesti" });
+        expect(screen.getByRole("radio", { name: "Regional and first-instance courts" })).toHaveAttribute(
+            "aria-checked",
+            "true",
+        );
+        expect(screen.getByText(/so this filter searches their decisions only/)).toBeInTheDocument();
+        // A lower bound always offers the next page.
+        expect(screen.getByRole("button", { name: "Next page" })).toBeEnabled();
+
+        fireEvent.change(screen.getByRole("combobox", { name: "Finality" }), { target: { value: "kesinlesmedi" } });
+        expect(push).toHaveBeenLastCalledWith("/case-law?q=temerr%C3%BCt&court=emsal&final=kesinlesmedi");
+
+        fireEvent.click(screen.getByRole("radio", { name: "Yargıtay" }));
+        expect(push).toHaveBeenLastCalledWith("/case-law?q=temerr%C3%BCt&court=yargitay");
+        expect(screen.queryByRole("combobox", { name: "Finality" })).not.toBeInTheDocument();
+    });
+
+    it("ignores a finality in the URL next to a chamber", async () => {
+        params = new URLSearchParams({ q: "temerrüt", daire: "Hukuk Genel Kurulu", final: "kesinlesti" });
+        searchCaseLaw.mockResolvedValue(response());
+        render(<CaseLawSearchPage />);
+        await screen.findByText("Yargıtay 12. Hukuk Dairesi");
+        expect(searchCaseLaw).toHaveBeenCalledWith("temerrüt", "adli", 1, { daire: "Hukuk Genel Kurulu" });
+    });
+
     it("puts a new search with its court in the URL", () => {
         render(<CaseLawSearchPage />);
         fireEvent.change(screen.getByRole("searchbox", { name: "Search Turkish case law" }), {

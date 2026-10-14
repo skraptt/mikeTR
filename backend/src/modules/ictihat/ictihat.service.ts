@@ -49,7 +49,7 @@ export async function searchCaseLaw(
 
   const rawFilters = (input.filters ?? {}) as Record<string, unknown>;
   const filters: IctihatFilters = {};
-  for (const key of ["daire", "baslangic", "bitis", "siralama"] as const) {
+  for (const key of ["daire", "baslangic", "bitis", "siralama", "kesinlesme"] as const) {
     if (typeof rawFilters[key] === "string" && rawFilters[key]) {
       (filters as Record<string, string>)[key] = rawFilters[key] as string;
     }

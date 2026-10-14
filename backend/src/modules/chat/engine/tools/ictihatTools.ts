@@ -22,7 +22,7 @@ const MAX_DECISION_CHARS = 24_000;
 export const ICTIHAT_SYSTEM_PROMPT = `TURKISH CASE LAW (search_ictihat, get_karar):
 search_ictihat searches published Turkish court decisions: Yargıtay (Court of Cassation) and UYAP Emsal (regional courts of appeal and some first-instance courts). get_karar returns a decision's full text.
 - Use them when the user asks for case law, precedent, "Yargıtay kararı", "içtihat", or how courts apply a rule. Search with a few distinctive Turkish legal terms, not a sentence: every word must appear in the decision (e.g. "kiracının temerrüdü tahliye", "belirsiz alacak davası"). Put fixed phrases in double quotes ("ihtiyaç nedeniyle tahliye") and exclude terms with a leading minus (-ceza). If there are no results, retry with fewer or more general terms.
-- Narrow with the optional filters when the question calls for it: daire (a Yargıtay chamber, e.g. "3. Hukuk Dairesi" for tenancy, "12. Hukuk Dairesi" for enforcement), baslangic/bitis (decision date range) and siralama "yeni" for the most recent decisions. Prefer recent decisions when the law has changed.
+- Narrow with the optional filters when the question calls for it: daire (a Yargıtay chamber, e.g. "3. Hukuk Dairesi" for tenancy, "12. Hukuk Dairesi" for enforcement), baslangic/bitis (decision date range) and siralama "yeni" for the most recent decisions. Prefer recent decisions when the law has changed. kesinlesme "kesinlesti" keeps only final decisions of the regional and first-instance courts.
 - Before relying on or quoting a decision, read it with get_karar. Search results contain only the citation details, not the holding.
 - Cite a decision exactly by the "atif" field of the result, e.g. "(Yargıtay 12. Hukuk Dairesi, E.2023/8563 K.2024/4902, T.16.05.2024)". NEVER write a court, esas/karar number or date that did not come from these tools in this conversation. Do not cite decisions from memory.
 - State what the decision actually held, from its text. Note when its "durum" says it is not final (KESİNLEŞMEDİ), and that decisions of the regional courts and first-instance courts are not binding precedent.
@@ -67,6 +67,12 @@ export const ICTIHAT_TOOLS = [
             type: "string",
             enum: ["ilgili", "yeni", "eski"],
             description: "ilgili (relevance, default), yeni (newest first) or eski (oldest first).",
+          },
+          kesinlesme: {
+            type: "string",
+            enum: ["kesinlesti", "kesinlesmedi"],
+            description:
+              "Optional finality: kesinlesti (final) or kesinlesmedi (not final). Searches regional and first-instance courts only, the one source that reports finality; cannot be combined with daire.",
           },
         },
         required: ["query"],
@@ -119,7 +125,7 @@ export async function runIctihatSearch(
   try {
     if (!query) throw new Error("query is required");
     const filters = Object.fromEntries(
-      (["daire", "baslangic", "bitis", "siralama"] as const)
+      (["daire", "baslangic", "bitis", "siralama", "kesinlesme"] as const)
         .filter((key) => typeof args[key] === "string" && args[key])
         .map((key) => [key, args[key] as string]),
     );
@@ -133,6 +139,7 @@ export async function runIctihatSearch(
         court: result.court,
         filters: result.filters,
         total: result.total,
+        ...(result.approximate ? { total_is_lower_bound: true } : {}),
         results: result.results.map(({ kaynak_turu: _source, ...hit }) => hit),
         warnings: result.warnings,
         note:

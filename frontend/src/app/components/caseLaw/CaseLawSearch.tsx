@@ -14,6 +14,7 @@ import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import type {
     IctihatCourt,
     IctihatFilters,
+    IctihatFinality,
     IctihatHit,
     IctihatSearchResponse,
     IctihatSort,
@@ -59,6 +60,11 @@ const SORTS: { value: IctihatSort; label: string }[] = [
     { value: "eski", label: "Oldest first" },
 ];
 
+const FINALITIES: { value: IctihatFinality; label: string }[] = [
+    { value: "kesinlesti", label: "Final" },
+    { value: "kesinlesmedi", label: "Not final" },
+];
+
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function filtersFrom(params: URLSearchParams): IctihatFilters {
@@ -71,11 +77,14 @@ function filtersFrom(params: URLSearchParams): IctihatFilters {
     if (to && ISO_DATE.test(to)) filters.bitis = to;
     const sort = params.get("sort");
     if (sort === "yeni" || sort === "eski") filters.siralama = sort;
+    const final = params.get("final");
+    // Finality and a chamber exclude each other; the chamber wins.
+    if (!filters.daire && (final === "kesinlesti" || final === "kesinlesmedi")) filters.kesinlesme = final;
     return filters;
 }
 
 function filtersKey(filters: IctihatFilters): string {
-    return [filters.daire, filters.baslangic, filters.bitis, filters.siralama].join("|");
+    return [filters.daire, filters.baslangic, filters.bitis, filters.siralama, filters.kesinlesme].join("|");
 }
 
 const FIELD_CLASS =
@@ -190,12 +199,20 @@ function CaseLawSearchForm({
 }) {
     // The page remounts the form (key) when the URL changes.
     const [query, setQuery] = useState(initialQuery);
-    const [court, setCourt] = useState<IctihatCourt>(initialFilters.daire ? "yargitay" : initialCourt);
+    const [court, setCourt] = useState<IctihatCourt>(
+        initialFilters.daire ? "yargitay" : initialFilters.kesinlesme ? "emsal" : initialCourt,
+    );
     const [filters, setFilters] = useState<IctihatFilters>(initialFilters);
 
-    function apply(nextCourt: IctihatCourt, nextFilters: IctihatFilters) {
-        // A chamber belongs to Yargıtay; another court drops it.
-        const cleaned = nextCourt === "yargitay" ? nextFilters : { ...nextFilters, daire: undefined };
+    function apply(requestedCourt: IctihatCourt, nextFilters: IctihatFilters) {
+        // Only UYAP Emsal reports finality, so choosing one moves the search
+        // there; a chamber belongs to Yargıtay, and other courts drop it.
+        const nextCourt = nextFilters.kesinlesme ? "emsal" : requestedCourt;
+        const cleaned = {
+            ...nextFilters,
+            daire: nextCourt === "yargitay" ? nextFilters.daire : undefined,
+            kesinlesme: nextCourt === "yargitay" ? undefined : nextFilters.kesinlesme,
+        };
         setCourt(nextCourt);
         setFilters(cleaned);
         // Once there is a query, a filter change searches again right away.
@@ -213,7 +230,13 @@ function CaseLawSearchForm({
         if (trimmed && !busy) onSearch(trimmed, court, filters);
     }
 
-    const hasFilters = !!(filters.daire || filters.baslangic || filters.bitis || filters.siralama);
+    const hasFilters = !!(
+        filters.daire ||
+        filters.baslangic ||
+        filters.bitis ||
+        filters.siralama ||
+        filters.kesinlesme
+    );
 
     return (
         <form role="search" onSubmit={submit} className="flex w-full flex-col gap-2">
@@ -242,7 +265,13 @@ function CaseLawSearchForm({
                         type="button"
                         role="radio"
                         aria-checked={court === option.value}
-                        onClick={() => apply(option.value, filters)}
+                        onClick={() =>
+                            // Leaving UYAP Emsal drops the finality filter with it.
+                            apply(
+                                option.value,
+                                option.value === "emsal" ? filters : { ...filters, kesinlesme: undefined },
+                            )
+                        }
                         className={cn(
                             "rounded-full px-3 py-1 text-xs font-medium",
                             court === option.value
@@ -312,6 +341,25 @@ function CaseLawSearchForm({
                         ))}
                     </select>
                 </label>
+                {court !== "yargitay" && (
+                    <label className="flex flex-col gap-1 text-[11px] text-gray-500">
+                        {t("Finality")}
+                        <select
+                            value={filters.kesinlesme ?? ""}
+                            onChange={(event) =>
+                                setFilter("kesinlesme", event.target.value as IctihatFinality | "")
+                            }
+                            className={FIELD_CLASS}
+                        >
+                            <option value="">{t("Any")}</option>
+                            {FINALITIES.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {t(option.label)}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                )}
                 {hasFilters && (
                     <button
                         type="button"
@@ -322,6 +370,13 @@ function CaseLawSearchForm({
                     </button>
                 )}
             </div>
+            {filters.kesinlesme && (
+                <p className="text-[11px] text-gray-500">
+                    {t(
+                        "Only the regional courts of appeal and first-instance courts report finality, so this filter searches their decisions only.",
+                    )}
+                </p>
+            )}
         </form>
     );
 }
@@ -397,12 +452,15 @@ export function CaseLawSearchPage() {
         if (key.filters.baslangic) params.set("from", key.filters.baslangic);
         if (key.filters.bitis) params.set("to", key.filters.bitis);
         if (key.filters.siralama) params.set("sort", key.filters.siralama);
+        if (key.filters.kesinlesme) params.set("final", key.filters.kesinlesme);
         if (key.page > 1) params.set("page", String(key.page));
         router.push(`/case-law?${params.toString()}`);
     }
 
     const hasNextPage =
-        view.status === "done" && view.response.results.length > 0 && view.page * PAGE_SIZE < view.response.total;
+        view.status === "done" &&
+        view.response.results.length > 0 &&
+        (view.page * PAGE_SIZE < view.response.total || !!view.response.approximate);
 
     return (
         <div className="flex h-full min-h-0 flex-col">
@@ -465,7 +523,9 @@ export function CaseLawSearchPage() {
                     {view.status === "done" && view.response.results.length > 0 && (
                         <section aria-label={t("Search results")} className="flex flex-col gap-3">
                             <p className="text-xs text-gray-500">
-                                {t.plural(view.response.total, "{count} decision found", "{count} decisions found")}
+                                {view.response.approximate
+                                    ? t("At least {count} decisions found", { count: view.response.total })
+                                    : t.plural(view.response.total, "{count} decision found", "{count} decisions found")}
                             </p>
                             {view.response.warnings?.map((warning) => (
                                 <p key={warning} className="text-xs text-amber-700">
