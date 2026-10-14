@@ -225,7 +225,7 @@ sorular:
       - { kanun: "6698", madde: "9" }
     beklenen_noktalar:
       - "Aktarım için md. 5 veya 6'daki şartlardan biri ve aktarılacak ülke için yeterlilik kararı gerekir (md. 9/1, 2024 değişikliği)."
-      - "Yeterlilik kararı yoksa md. 9'da sayılan uygun güvencelerden biri (ör. standart sözleşme) sağlanmalıdır; standart sözleşmenin Kuruma bildirimi gibi süreler maddeden aktarılmalıdır."
+      - "Yeterlilik kararı yoksa md. 9'da sayılan uygun güvencelerden biri (ör. standart sözleşme) sağlanmalıdır; standart sözleşmenin Kuruma bildirim süresi maddeden aktarılmalıdır (hukukçu doğrulamalı: bildirim süresi)."
       - "Cevap 2024'teki 7499 sayılı Kanun değişikliğini yansıtmalı; eski 'açık rıza ile aktarım' rejimini güncel kural gibi sunmamalı."
     guncellik: true
     tuzaklar:
