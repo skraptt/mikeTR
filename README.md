@@ -15,6 +15,8 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 
 ![Güncellemeler: her kanunun mevzuat.gov.tr ile son karşılaştırılma tarihi](docs/assets/miketr-guncellemeler.jpg)
 
+![İş akışları: Türk hukukuna uyarlanmış hazır iş akışları](docs/assets/miketr-is-akislari.jpg)
+
 ## Özellikler
 
 - **Türkçe arayüz:** Mike'ın tüm ekranları Türkçeye çevrildi.
