@@ -2271,5 +2271,10 @@ export const tr: Readonly<Record<string, string>> = {
     "Vatican City": "Vatikan",
     "Zambia": "Zambiya",
     "Zimbabwe": "Zimbabve",
-    "Select...": "Seçin..."
+    "Select...": "Seçin...",
+    "{count} workflow": "{count} iş akışı",
+    "{count} workflows": "{count} iş akışı",
+    "Delete {count} workflows": "{count} iş akışını sil",
+    "No assistant workflows found": "Asistan iş akışı bulunamadı",
+    "No tabular workflows found": "Tablo iş akışı bulunamadı"
 };

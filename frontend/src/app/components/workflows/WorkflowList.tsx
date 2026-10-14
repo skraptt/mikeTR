@@ -440,7 +440,7 @@ export function WorkflowList({
               : undefined
         }
         deleteLabel={
-          appliesToSelection ? `Delete ${actionIds.length} workflows` : undefined
+          appliesToSelection ? t("Delete {count} workflows", { count: actionIds.length }) : undefined
         }
       />
     );
@@ -1510,8 +1510,12 @@ function AddonTable({
                       {t("Pack")}
                     </TableCell>
                     <TableCell className="w-52 text-xs text-gray-600">
-                      {pack.addons.length} workflow
-                      {pack.addons.length === 1 ? "" : "s"}
+                      {t(
+                        pack.addons.length === 1
+                          ? "{count} workflow"
+                          : "{count} workflows",
+                        { count: pack.addons.length },
+                      )}
                     </TableCell>
                     <TableCell className="w-40 text-xs text-gray-600">
                       —

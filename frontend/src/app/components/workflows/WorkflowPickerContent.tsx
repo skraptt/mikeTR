@@ -101,7 +101,9 @@ export function WorkflowPickerContent({
             ? t("No matches found")
             : workflowType === "all"
               ? t("No workflows found")
-              : `No ${workflowType} workflows found`);
+              : workflowType === "tabular"
+                ? t("No tabular workflows found")
+                : t("No assistant workflows found"));
     const handleSelectWorkflow = (workflow: Workflow | null) => {
         onSelect(workflow);
         setMobilePane(workflow ? "details" : "list");
