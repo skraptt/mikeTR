@@ -600,6 +600,20 @@ async function getAym(fetchFn: FetchFn, kind: AymKind, uuid: string): Promise<Ic
 
 // ---------------------------------------------------------------------------
 
+// The services sometimes list one decision twice (for example once per
+// publication); a decision is its court with its docket and decision numbers.
+function uniqueHits(hits: IctihatHit[]): IctihatHit[] {
+  const seen = new Set<string>();
+  return hits.filter((hit) => {
+    const key = hit.esas_no
+      ? `${hit.mahkeme}|${hit.esas_no}|${hit.karar_no}`
+      : hit.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /**
  * Searches decisions. `adli` (the default) asks Yargıtay and UYAP Emsal together,
  * splitting the limit, and still answers when one of them fails. A chamber
@@ -635,7 +649,10 @@ export async function searchDecisions(
     anayasa: () => searchAym(fetchFn, AYM_INDIVIDUAL, phrase, limit, page, filters),
     norm: () => searchAym(fetchFn, AYM_NORM, phrase, limit, page, filters),
   };
-  if (court !== "adli") return { court, filters, ...(await single[court]()) };
+  if (court !== "adli") {
+    const result = await single[court]();
+    return { court, filters, ...result, results: uniqueHits(result.results) };
+  }
 
   const yargitayLimit = Math.max(Math.ceil(limit / 2), 1);
   const emsalLimit = Math.max(limit - yargitayLimit, 1);
@@ -657,7 +674,13 @@ export async function searchDecisions(
     }
   }
   if (!results.length && warnings.length) throw new IctihatSourceError(warnings.join(" "));
-  return { court, filters, total, results, ...(warnings.length ? { warnings } : {}) };
+  return {
+    court,
+    filters,
+    total,
+    results: uniqueHits(results),
+    ...(warnings.length ? { warnings } : {}),
+  };
 }
 
 const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;

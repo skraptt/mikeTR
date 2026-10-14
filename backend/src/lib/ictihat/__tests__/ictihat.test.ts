@@ -220,6 +220,14 @@ describe("filters", () => {
     expect(last.approximate).toBeUndefined();
   });
 
+  it("lists a decision the service returns twice only once", async () => {
+    const [hit] = bedestenSearch.data.emsalKararList;
+    const twice = { ...bedestenSearch, data: { total: 2, emsalKararList: [hit, { ...hit, documentId: "1065746301" }] } };
+    const fetchFn = fakeFetch({ searchDocuments: () => jsonResponse(twice) });
+    const result = await searchDecisions({ query: "kira", court: "yargitay" }, fetchFn);
+    expect(result.results.map((r) => r.id)).toEqual(["yargitay:1065746300"]);
+  });
+
   it("narrows a chamber search to Yargıtay", async () => {
     const fetchFn = fakeFetch({ searchDocuments: () => jsonResponse(bedestenSearch) });
     const result = await searchDecisions({ query: "kira", court: "emsal", filters: { daire: "Hukuk Genel Kurulu" } }, fetchFn);
