@@ -15,8 +15,10 @@ import type {
 import type {
   IctihatCourt,
   IctihatDecision,
+  IctihatFilters,
   IctihatHit,
   IctihatSearchResponse,
+  IctihatSort,
   KanunArticle,
   KanunSearchHit,
   KanunSearchResponse,
@@ -30,8 +32,10 @@ import type {
 export type {
   IctihatCourt,
   IctihatDecision,
+  IctihatFilters,
   IctihatHit,
   IctihatSearchResponse,
+  IctihatSort,
   KanunArticle,
   KanunSearchHit,
   KanunSearchResponse,

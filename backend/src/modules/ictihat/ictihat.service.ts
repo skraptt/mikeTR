@@ -4,10 +4,16 @@
 // get_karar tools (chat/engine/tools/ictihatTools.ts); this facade serves the
 // direct search page, so a person can look decisions up without a chat.
 
-import type { IctihatCourt, IctihatDecision, IctihatSearchResponse } from "@mike/contracts";
+import type {
+  IctihatCourt,
+  IctihatDecision,
+  IctihatFilters,
+  IctihatSearchResponse,
+} from "@mike/contracts";
 import {
   IctihatSourceError,
   getDecision,
+  normalizeFilters,
   searchDecisions,
 } from "../../lib/ictihat/client";
 import { failure, internalFailure, ok, type ServiceResult } from "../../lib/serviceResult";
@@ -22,7 +28,13 @@ export async function searchCaseLaw(
   body: unknown,
   fetchFn: typeof fetch = fetch,
 ): Promise<ServiceResult<IctihatSearchResponse>> {
-  const input = (body ?? {}) as { query?: unknown; court?: unknown; limit?: unknown; page?: unknown };
+  const input = (body ?? {}) as {
+    query?: unknown;
+    court?: unknown;
+    limit?: unknown;
+    page?: unknown;
+    filters?: unknown;
+  };
   const query = typeof input.query === "string" ? input.query.trim() : "";
   if (!query) return failure("validation", "Enter a search query.");
   if (query.length > MAX_QUERY_LENGTH) return failure("validation", "The search query is too long.");
@@ -35,9 +47,24 @@ export async function searchCaseLaw(
   const pageRaw = Number(input.page ?? 1);
   const page = Number.isFinite(pageRaw) ? Math.max(Math.trunc(pageRaw), 1) : 1;
 
+  const rawFilters = (input.filters ?? {}) as Record<string, unknown>;
+  const filters: IctihatFilters = {};
+  for (const key of ["daire", "baslangic", "bitis", "siralama"] as const) {
+    if (typeof rawFilters[key] === "string" && rawFilters[key]) {
+      (filters as Record<string, string>)[key] = rawFilters[key] as string;
+    }
+  }
+
+  // A bad filter is the caller's mistake, not the source's.
   try {
-    const result = await searchDecisions({ query, court, limit, page }, fetchFn);
-    return ok({ query, court, page, ...result });
+    normalizeFilters(filters);
+  } catch (error) {
+    return failure("validation", (error as Error).message);
+  }
+
+  try {
+    const result = await searchDecisions({ query, court, limit, page, filters }, fetchFn);
+    return ok({ query, page, ...result });
   } catch (error) {
     if (error instanceof IctihatSourceError) return failure("unavailable", error.message);
     return internalFailure(error);

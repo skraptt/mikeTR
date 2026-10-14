@@ -11,10 +11,24 @@
 // ayıklamak ya da hafızadan yazmak zorunda kalmaz. Servisler belgelenmiş bir API
 // değildir; uç noktalar aydincan/turk-hukuku-ictihat-mcp (MIT) projesinden alındı.
 
-import type { IctihatCourt, IctihatDecision, IctihatHit, IctihatSearchResult } from "@mike/contracts";
+import type {
+  IctihatCourt,
+  IctihatDecision,
+  IctihatFilters,
+  IctihatHit,
+  IctihatSearchResult,
+  IctihatSort,
+} from "@mike/contracts";
 import { andQuery } from "./query";
 
-export type { IctihatCourt, IctihatDecision, IctihatHit, IctihatSearchResult } from "@mike/contracts";
+export type {
+  IctihatCourt,
+  IctihatDecision,
+  IctihatFilters,
+  IctihatHit,
+  IctihatSearchResult,
+  IctihatSort,
+} from "@mike/contracts";
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
@@ -25,6 +39,62 @@ const EMSAL = "https://emsal.uyap.gov.tr";
 const TIMEOUT_MS = 30_000;
 const YARGITAY_PREFIX = "yargitay:";
 export const MAX_RESULTS = 20;
+
+/** Yargıtay chambers and boards Bedesten filters by, under its own names. */
+export const YARGITAY_CHAMBERS: readonly string[] = [
+  "Hukuk Genel Kurulu",
+  "Ceza Genel Kurulu",
+  "Büyük Genel Kurulu",
+  "Hukuk Daireleri Başkanlar Kurulu",
+  "Ceza Daireleri Başkanlar Kurulu",
+  ...Array.from({ length: 23 }, (_, i) => `${i + 1}. Hukuk Dairesi`),
+  ...Array.from({ length: 23 }, (_, i) => `${i + 1}. Ceza Dairesi`),
+];
+
+export const SORTS: readonly IctihatSort[] = ["ilgili", "yeni", "eski"];
+
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/**
+ * Keeps only filters the services understand: a known chamber, real calendar
+ * dates and a known sort. Throws on anything else so a typo is not silently
+ * dropped into a broader search.
+ */
+export function normalizeFilters(filters: IctihatFilters = {}): IctihatFilters {
+  const out: IctihatFilters = {};
+  const daire = filters.daire?.trim();
+  if (daire) {
+    const known = YARGITAY_CHAMBERS.find(
+      (name) => name.toLocaleLowerCase("tr-TR") === daire.toLocaleLowerCase("tr-TR"),
+    );
+    if (!known) throw new IctihatSourceError(`Unknown Yargıtay chamber: ${daire}.`);
+    out.daire = known;
+  }
+  for (const key of ["baslangic", "bitis"] as const) {
+    const value = filters[key]?.trim();
+    if (!value) continue;
+    const match = ISO_DATE.exec(value);
+    const date = match ? new Date(`${value}T00:00:00Z`) : null;
+    if (!date || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+      throw new IctihatSourceError(`Dates must be YYYY-MM-DD: ${value}.`);
+    }
+    out[key] = value;
+  }
+  if (out.baslangic && out.bitis && out.baslangic > out.bitis) {
+    throw new IctihatSourceError("The start date is after the end date.");
+  }
+  if (filters.siralama && filters.siralama !== "ilgili") {
+    if (!SORTS.includes(filters.siralama)) throw new IctihatSourceError(`Unknown sort: ${filters.siralama}.`);
+    out.siralama = filters.siralama;
+  }
+  return out;
+}
+
+/** "2024-05-16" -> "16.05.2024" */
+function dottedDate(iso: string): string {
+  const [year, month, day] = iso.split("-");
+  return `${day}.${month}.${year}`;
+}
 
 /** The service could not answer; the message is safe to show and to give the model. */
 export class IctihatSourceError extends Error {}
@@ -125,15 +195,26 @@ async function searchYargitay(
   phrase: string,
   limit: number,
   page: number,
+  filters: IctihatFilters,
 ): Promise<IctihatSearchResult> {
+  const data: Record<string, unknown> = {
+    phrase,
+    itemTypeList: ["YARGITAYKARARI"],
+    pageSize: limit,
+    pageNumber: page,
+  };
+  if (filters.daire) data.birimAdi = filters.daire;
+  if (filters.baslangic) data.kararTarihiStart = `${filters.baslangic}T00:00:00.000Z`;
+  if (filters.bitis) data.kararTarihiEnd = `${filters.bitis}T23:59:59.999Z`;
+  // Without sortFields Bedesten ranks by relevance.
+  if (filters.siralama) {
+    data.sortFields = ["KARAR_TARIHI"];
+    data.sortDirection = filters.siralama === "yeni" ? "desc" : "ASC";
+  }
   const body = (await request(fetchFn, "Yargıtay search", `${BEDESTEN}/searchDocuments`, {
     method: "POST",
     headers: BEDESTEN_HEADERS,
-    body: JSON.stringify({
-      data: { phrase, itemTypeList: ["YARGITAYKARARI"], pageSize: limit, pageNumber: page },
-      applicationName: "UyapMevzuat",
-      paging: true,
-    }),
+    body: JSON.stringify({ data, applicationName: "UyapMevzuat", paging: true }),
   })) as { data?: { emsalKararList?: BedestenHit[]; total?: number } };
   const hits = (body.data?.emsalKararList ?? []).map((k): IctihatHit => {
     const id = String(k.documentId ?? "");
@@ -196,18 +277,44 @@ type EmsalHit = {
   durum?: string | null;
 };
 
+// UYAP Emsal's detailed search sorts by a numbered column: 3 is the decision date.
+const EMSAL_DATE_COLUMN = "3";
+
 async function searchEmsal(
   fetchFn: FetchFn,
   phrase: string,
   limit: number,
   page: number,
+  filters: IctihatFilters,
 ): Promise<IctihatSearchResult> {
-  const body = (await request(fetchFn, "UYAP Emsal search", `${EMSAL}/aramalist`, {
+  const detailed = !!(filters.baslangic || filters.bitis || filters.siralama);
+  const data: Record<string, unknown> = detailed
+    ? {
+        // The detailed form takes every field, empty when unused, and its
+        // dates in DD.MM.YYYY.
+        arananKelime: phrase,
+        "Bam Hukuk Mahkemeleri": "",
+        "Hukuk Mahkemeleri": "",
+        birimHukukMah: "",
+        esasYil: "",
+        esasIlkSiraNo: "",
+        esasSonSiraNo: "",
+        kararYil: "",
+        kararIlkSiraNo: "",
+        kararSonSiraNo: "",
+        ...(filters.baslangic ? { baslangicTarihi: dottedDate(filters.baslangic) } : {}),
+        ...(filters.bitis ? { bitisTarihi: dottedDate(filters.bitis) } : {}),
+        siralama: EMSAL_DATE_COLUMN,
+        siralamaDirection: filters.siralama === "eski" ? "asc" : "desc",
+        pageSize: limit,
+        pageNumber: page,
+      }
+    : { aranan: phrase, arananKelime: phrase, pageSize: limit, pageNumber: page };
+  const endpoint = detailed ? "aramadetaylist" : "aramalist";
+  const body = (await request(fetchFn, "UYAP Emsal search", `${EMSAL}/${endpoint}`, {
     method: "POST",
     headers: EMSAL_HEADERS,
-    body: JSON.stringify({
-      data: { aranan: phrase, arananKelime: phrase, pageSize: limit, pageNumber: page },
-    }),
+    body: JSON.stringify({ data }),
   })) as { data?: { data?: EmsalHit[]; recordsTotal?: number } };
   const hits = (body.data?.data ?? []).map((k): IctihatHit => {
     const id = String(k.id ?? "");
@@ -245,25 +352,37 @@ async function getEmsal(fetchFn: FetchFn, id: string): Promise<IctihatDecision> 
 
 /**
  * Searches decisions. `adli` (the default) asks Yargıtay and UYAP Emsal together,
- * splitting the limit, and still answers when one of them fails.
+ * splitting the limit, and still answers when one of them fails. A chamber
+ * filter narrows the search to Yargıtay, whose chambers it names.
  */
 export async function searchDecisions(
-  params: { query: string; court?: IctihatCourt; limit?: number; page?: number },
+  params: {
+    query: string;
+    court?: IctihatCourt;
+    limit?: number;
+    page?: number;
+    filters?: IctihatFilters;
+  },
   fetchFn: FetchFn = fetch,
-): Promise<IctihatSearchResult & { warnings?: string[] }> {
+): Promise<IctihatSearchResult & { court: IctihatCourt; filters: IctihatFilters; warnings?: string[] }> {
   const phrase = andQuery(params.query);
-  const court = params.court ?? "adli";
+  const filters = normalizeFilters(params.filters);
+  const court: IctihatCourt = filters.daire ? "yargitay" : (params.court ?? "adli");
   const limit = Math.min(Math.max(Math.trunc(params.limit ?? 10), 1), MAX_RESULTS);
   const page = Math.max(Math.trunc(params.page ?? 1), 1);
 
-  if (court === "yargitay") return searchYargitay(fetchFn, phrase, limit, page);
-  if (court === "emsal") return searchEmsal(fetchFn, phrase, limit, page);
+  if (court === "yargitay") {
+    return { court, filters, ...(await searchYargitay(fetchFn, phrase, limit, page, filters)) };
+  }
+  if (court === "emsal") {
+    return { court, filters, ...(await searchEmsal(fetchFn, phrase, limit, page, filters)) };
+  }
 
   const yargitayLimit = Math.max(Math.ceil(limit / 2), 1);
   const emsalLimit = Math.max(limit - yargitayLimit, 1);
   const [yargitay, emsal] = await Promise.allSettled([
-    searchYargitay(fetchFn, phrase, yargitayLimit, page),
-    searchEmsal(fetchFn, phrase, emsalLimit, page),
+    searchYargitay(fetchFn, phrase, yargitayLimit, page, filters),
+    searchEmsal(fetchFn, phrase, emsalLimit, page, filters),
   ]);
   const warnings: string[] = [];
   const results: IctihatHit[] = [];
@@ -279,7 +398,7 @@ export async function searchDecisions(
     }
   }
   if (!results.length && warnings.length) throw new IctihatSourceError(warnings.join(" "));
-  return { total, results, ...(warnings.length ? { warnings } : {}) };
+  return { court, filters, total, results, ...(warnings.length ? { warnings } : {}) };
 }
 
 /** Full text of one decision, by an id from searchDecisions. */

@@ -1,6 +1,6 @@
 // Messages the backend composes around a provider or model name, so they
 // cannot be dictionary keys (backend/src/lib/llm/providerErrors.ts and
-// apiKeyErrors.ts). {1}, {2} stand for the captured names.
+// apiKeyErrors.ts, lib/ictihat/client.ts). {1}, {2} stand for the captured names.
 export const trPatterns: ReadonlyArray<readonly [RegExp, string]> = [
     [
         /^(.+) isn't available in the region this server runs in\. Select a model from another provider\.$/,
@@ -29,5 +29,13 @@ export const trPatterns: ReadonlyArray<readonly [RegExp, string]> = [
     [
         /^The (.+) API key was rejected\. If you added your own key, check it in Settings → Bring Your Own Keys; otherwise contact your administrator\.$/,
         "{1} API anahtarı reddedildi. Kendi anahtarınızı eklediyseniz Ayarlar → Kendi anahtarlarınız bölümünden kontrol edin; eklemediyseniz yöneticinize başvurun.",
+    ],
+    [
+        /^Dates must be YYYY-MM-DD: (.+)\.$/,
+        "Tarihler YYYY-AA-GG biçiminde olmalı: {1}.",
+    ],
+    [
+        /^Unknown Yargıtay chamber: (.+)\.$/,
+        "Bilinmeyen Yargıtay dairesi: {1}.",
     ],
 ];

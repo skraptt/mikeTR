@@ -47,8 +47,29 @@ describe("searchCaseLaw", () => {
     const result = await searchCaseLaw({ query: " temerrüt ", court: "yargitay", page: "2" }, sources());
     expect(result).toMatchObject({
       ok: true,
-      data: { query: "temerrüt", court: "yargitay", page: 2, total: 1, results: [{ id: "yargitay:1065746300" }] },
+      data: {
+        query: "temerrüt",
+        court: "yargitay",
+        page: 2,
+        filters: {},
+        total: 1,
+        results: [{ id: "yargitay:1065746300" }],
+      },
     });
+  });
+
+  it("passes string filters and rejects invalid ones", async () => {
+    const result = await searchCaseLaw(
+      { query: "temerrüt", filters: { daire: "3. Hukuk Dairesi", bitis: 7, siralama: "yeni" } },
+      sources(),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      data: { court: "yargitay", filters: { daire: "3. Hukuk Dairesi", siralama: "yeni" } },
+    });
+    await expect(
+      searchCaseLaw({ query: "temerrüt", filters: { baslangic: "dün" } }, sources()),
+    ).resolves.toEqual({ ok: false, kind: "validation", detail: "Dates must be YYYY-MM-DD: dün." });
   });
 
   it("falls back to adli for an unknown court", async () => {

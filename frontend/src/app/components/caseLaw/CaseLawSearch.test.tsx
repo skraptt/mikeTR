@@ -70,7 +70,7 @@ describe("CaseLawSearchPage", () => {
         render(<CaseLawSearchPage />);
 
         expect(await screen.findByText("Yargıtay 12. Hukuk Dairesi")).toBeInTheDocument();
-        expect(searchCaseLaw).toHaveBeenCalledWith("temerrüt", "yargitay", 2);
+        expect(searchCaseLaw).toHaveBeenCalledWith("temerrüt", "yargitay", 2, {});
         expect(screen.getByText("Docket 2023/8563 · Decision 2024/4902 · 16.05.2024")).toBeInTheDocument();
         expect(screen.getByText("KESİNLEŞTİ")).toBeInTheDocument();
         expect(screen.getByText("25 decisions found")).toBeInTheDocument();
@@ -100,6 +100,60 @@ describe("CaseLawSearchPage", () => {
         expect(await screen.findByRole("alert")).toHaveTextContent(
             "The decision could not be loaded. Please try again.",
         );
+    });
+
+    it("reads filters from the URL and searches again when one changes", async () => {
+        params = new URLSearchParams({
+            q: "temerrüt",
+            court: "yargitay",
+            daire: "3. Hukuk Dairesi",
+            from: "2023-01-01",
+            to: "bad",
+            sort: "yeni",
+        });
+        searchCaseLaw.mockResolvedValue(response({ court: "yargitay" }));
+        render(<CaseLawSearchPage />);
+
+        expect(await screen.findByText("Yargıtay 12. Hukuk Dairesi")).toBeInTheDocument();
+        expect(searchCaseLaw).toHaveBeenCalledWith("temerrüt", "yargitay", 1, {
+            daire: "3. Hukuk Dairesi",
+            baslangic: "2023-01-01",
+            siralama: "yeni",
+        });
+        expect(screen.getByRole("combobox", { name: "Chamber" })).toHaveValue("3. Hukuk Dairesi");
+
+        fireEvent.change(screen.getByRole("combobox", { name: "Sort" }), { target: { value: "eski" } });
+        expect(push).toHaveBeenLastCalledWith(
+            "/case-law?q=temerr%C3%BCt&court=yargitay&daire=3.+Hukuk+Dairesi&from=2023-01-01&sort=eski",
+        );
+
+        fireEvent.change(screen.getByLabelText("Decided until"), { target: { value: "2024-12-31" } });
+        expect(push).toHaveBeenLastCalledWith(
+            "/case-law?q=temerr%C3%BCt&court=yargitay&daire=3.+Hukuk+Dairesi&from=2023-01-01&to=2024-12-31&sort=eski",
+        );
+
+        // The form keeps each change (the mocked router does not move the URL);
+        // another court drops the Yargıtay chamber.
+        fireEvent.click(screen.getByRole("radio", { name: "All civil courts" }));
+        expect(push).toHaveBeenLastCalledWith("/case-law?q=temerr%C3%BCt&from=2023-01-01&to=2024-12-31&sort=eski");
+
+        fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+        expect(push).toHaveBeenLastCalledWith("/case-law?q=temerr%C3%BCt");
+    });
+
+    it("offers chambers only for Yargıtay and keeps filters until a search", () => {
+        render(<CaseLawSearchPage />);
+        expect(screen.queryByRole("combobox", { name: "Chamber" })).not.toBeInTheDocument();
+        fireEvent.click(screen.getByRole("radio", { name: "Yargıtay" }));
+        fireEvent.change(screen.getByRole("combobox", { name: "Chamber" }), {
+            target: { value: "Hukuk Genel Kurulu" },
+        });
+        expect(push).not.toHaveBeenCalled();
+        fireEvent.change(screen.getByRole("searchbox", { name: "Search Turkish case law" }), {
+            target: { value: "temerrüt" },
+        });
+        fireEvent.click(screen.getByRole("button", { name: "Search" }));
+        expect(push).toHaveBeenCalledWith("/case-law?q=temerr%C3%BCt&court=yargitay&daire=Hukuk+Genel+Kurulu");
     });
 
     it("puts a new search with its court in the URL", () => {

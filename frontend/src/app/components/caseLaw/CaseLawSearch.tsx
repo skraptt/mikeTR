@@ -11,7 +11,13 @@ import { ChevronDown, ExternalLink, Loader2, Search } from "lucide-react";
 import { PageHeader } from "@/app/components/shared/PageHeader";
 import { EmptyState } from "@/app/components/ui/empty-state";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
-import type { IctihatCourt, IctihatHit, IctihatSearchResponse } from "@/app/components/shared/types";
+import type {
+    IctihatCourt,
+    IctihatFilters,
+    IctihatHit,
+    IctihatSearchResponse,
+    IctihatSort,
+} from "@/app/components/shared/types";
 import { getCaseLawDecision, searchCaseLaw } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { LIQUID_GLASS_FLAT_CLASS } from "@/app/components/ui/liquid-surface";
@@ -30,6 +36,50 @@ const COURTS: { value: IctihatCourt; label: string }[] = [
 function isCourt(value: string | null): value is IctihatCourt {
     return COURTS.some((court) => court.value === value);
 }
+
+// Yargıtay chambers and boards, under the names its decision service uses.
+const CHAMBERS: { group: string; names: string[] }[] = [
+    {
+        group: "Boards",
+        names: [
+            "Hukuk Genel Kurulu",
+            "Ceza Genel Kurulu",
+            "Büyük Genel Kurulu",
+            "Hukuk Daireleri Başkanlar Kurulu",
+            "Ceza Daireleri Başkanlar Kurulu",
+        ],
+    },
+    { group: "Civil chambers", names: Array.from({ length: 23 }, (_, i) => `${i + 1}. Hukuk Dairesi`) },
+    { group: "Criminal chambers", names: Array.from({ length: 23 }, (_, i) => `${i + 1}. Ceza Dairesi`) },
+];
+
+const SORTS: { value: IctihatSort; label: string }[] = [
+    { value: "ilgili", label: "Most relevant" },
+    { value: "yeni", label: "Newest first" },
+    { value: "eski", label: "Oldest first" },
+];
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+function filtersFrom(params: URLSearchParams): IctihatFilters {
+    const filters: IctihatFilters = {};
+    const daire = params.get("daire");
+    if (daire && CHAMBERS.some((group) => group.names.includes(daire))) filters.daire = daire;
+    const from = params.get("from");
+    if (from && ISO_DATE.test(from)) filters.baslangic = from;
+    const to = params.get("to");
+    if (to && ISO_DATE.test(to)) filters.bitis = to;
+    const sort = params.get("sort");
+    if (sort === "yeni" || sort === "eski") filters.siralama = sort;
+    return filters;
+}
+
+function filtersKey(filters: IctihatFilters): string {
+    return [filters.daire, filters.baslangic, filters.bitis, filters.siralama].join("|");
+}
+
+const FIELD_CLASS =
+    "h-8 rounded-lg border border-gray-200 bg-white px-2 text-xs text-gray-800 outline-none focus:border-gray-400";
 
 function CaseLawIcon() {
     return <Image src="/icons/features/case-law.svg" alt="" width={32} height={32} unoptimized />;
@@ -128,23 +178,42 @@ function DecisionCard({ hit }: { hit: IctihatHit }) {
 function CaseLawSearchForm({
     initialQuery,
     initialCourt,
+    initialFilters,
     onSearch,
     busy,
 }: {
     initialQuery: string;
     initialCourt: IctihatCourt;
-    onSearch: (query: string, court: IctihatCourt) => void;
+    initialFilters: IctihatFilters;
+    onSearch: (query: string, court: IctihatCourt, filters: IctihatFilters) => void;
     busy: boolean;
 }) {
     // The page remounts the form (key) when the URL changes.
     const [query, setQuery] = useState(initialQuery);
-    const [court, setCourt] = useState<IctihatCourt>(initialCourt);
+    const [court, setCourt] = useState<IctihatCourt>(initialFilters.daire ? "yargitay" : initialCourt);
+    const [filters, setFilters] = useState<IctihatFilters>(initialFilters);
+
+    function apply(nextCourt: IctihatCourt, nextFilters: IctihatFilters) {
+        // A chamber belongs to Yargıtay; another court drops it.
+        const cleaned = nextCourt === "yargitay" ? nextFilters : { ...nextFilters, daire: undefined };
+        setCourt(nextCourt);
+        setFilters(cleaned);
+        // Once there is a query, a filter change searches again right away.
+        const trimmed = query.trim();
+        if (trimmed && initialQuery && !busy) onSearch(trimmed, nextCourt, cleaned);
+    }
+
+    function setFilter<K extends keyof IctihatFilters>(key: K, value: IctihatFilters[K] | "") {
+        apply(court, { ...filters, [key]: value || undefined });
+    }
 
     function submit(event: FormEvent) {
         event.preventDefault();
         const trimmed = query.trim();
-        if (trimmed && !busy) onSearch(trimmed, court);
+        if (trimmed && !busy) onSearch(trimmed, court, filters);
     }
+
+    const hasFilters = !!(filters.daire || filters.baslangic || filters.bitis || filters.siralama);
 
     return (
         <form role="search" onSubmit={submit} className="flex w-full flex-col gap-2">
@@ -173,7 +242,7 @@ function CaseLawSearchForm({
                         type="button"
                         role="radio"
                         aria-checked={court === option.value}
-                        onClick={() => setCourt(option.value)}
+                        onClick={() => apply(option.value, filters)}
                         className={cn(
                             "rounded-full px-3 py-1 text-xs font-medium",
                             court === option.value
@@ -185,18 +254,91 @@ function CaseLawSearchForm({
                     </button>
                 ))}
             </div>
+            <div className="flex flex-wrap items-end gap-2">
+                {court === "yargitay" && (
+                    <label className="flex flex-col gap-1 text-[11px] text-gray-500">
+                        {t("Chamber")}
+                        <select
+                            value={filters.daire ?? ""}
+                            onChange={(event) => setFilter("daire", event.target.value)}
+                            className={FIELD_CLASS}
+                        >
+                            <option value="">{t("All chambers")}</option>
+                            {CHAMBERS.map((group) => (
+                                <optgroup key={group.group} label={t(group.group)}>
+                                    {group.names.map((name) => (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            ))}
+                        </select>
+                    </label>
+                )}
+                <label className="flex flex-col gap-1 text-[11px] text-gray-500">
+                    {t("Decided from")}
+                    <input
+                        type="date"
+                        value={filters.baslangic ?? ""}
+                        max={filters.bitis}
+                        onChange={(event) => setFilter("baslangic", event.target.value)}
+                        className={FIELD_CLASS}
+                    />
+                </label>
+                <label className="flex flex-col gap-1 text-[11px] text-gray-500">
+                    {t("Decided until")}
+                    <input
+                        type="date"
+                        value={filters.bitis ?? ""}
+                        min={filters.baslangic}
+                        onChange={(event) => setFilter("bitis", event.target.value)}
+                        className={FIELD_CLASS}
+                    />
+                </label>
+                <label className="flex flex-col gap-1 text-[11px] text-gray-500">
+                    {t("Sort")}
+                    <select
+                        value={filters.siralama ?? "ilgili"}
+                        onChange={(event) =>
+                            setFilter("siralama", event.target.value === "ilgili" ? "" : (event.target.value as IctihatSort))
+                        }
+                        className={FIELD_CLASS}
+                    >
+                        {SORTS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {t(option.label)}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+                {hasFilters && (
+                    <button
+                        type="button"
+                        onClick={() => apply(court, {})}
+                        className="h-8 rounded-lg px-2 text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-950"
+                    >
+                        {t("Clear filters")}
+                    </button>
+                )}
+            </div>
         </form>
     );
 }
 
-type SearchKey = { query: string; court: IctihatCourt; page: number };
+type SearchKey = { query: string; court: IctihatCourt; page: number; filters: IctihatFilters };
 
 type SearchOutcome =
     | ({ status: "done" } & SearchKey & { response: IctihatSearchResponse })
     | ({ status: "error" } & SearchKey & { message: string });
 
 function sameSearch(a: SearchKey, b: SearchKey) {
-    return a.query === b.query && a.court === b.court && a.page === b.page;
+    return (
+        a.query === b.query &&
+        a.court === b.court &&
+        a.page === b.page &&
+        filtersKey(a.filters) === filtersKey(b.filters)
+    );
 }
 
 export function CaseLawSearchPage() {
@@ -206,6 +348,8 @@ export function CaseLawSearchPage() {
     const courtParam = searchParams.get("court");
     const urlCourt: IctihatCourt = isCourt(courtParam) ? courtParam : "adli";
     const urlPage = Math.max(Number.parseInt(searchParams.get("page") ?? "1", 10) || 1, 1);
+    const urlFilters = filtersFrom(searchParams);
+    const urlFiltersKey = filtersKey(urlFilters);
     // Only finished searches are stored; "loading" is derived below.
     const [outcome, setOutcome] = useState<SearchOutcome | null>(null);
     const requestId = useRef(0);
@@ -213,7 +357,7 @@ export function CaseLawSearchPage() {
     const run = useCallback(async (key: SearchKey) => {
         const id = ++requestId.current;
         try {
-            const response = await searchCaseLaw(key.query, key.court, key.page);
+            const response = await searchCaseLaw(key.query, key.court, key.page, key.filters);
             if (id !== requestId.current) return;
             setOutcome({ status: "done", ...key, response });
         } catch (error) {
@@ -229,11 +373,12 @@ export function CaseLawSearchPage() {
     // The URL is the source of truth, so a reload or the back button land on
     // the same results.
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- fetches from the API; state is only set once the request resolves
-        if (urlQuery) void run({ query: urlQuery, court: urlCourt, page: urlPage });
-    }, [urlQuery, urlCourt, urlPage, run]);
+        if (urlQuery) void run({ query: urlQuery, court: urlCourt, page: urlPage, filters: filtersFrom(searchParams) });
+        // urlFiltersKey stands for the filters read from searchParams.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [urlQuery, urlCourt, urlPage, urlFiltersKey, run]);
 
-    const current: SearchKey = { query: urlQuery, court: urlCourt, page: urlPage };
+    const current: SearchKey = { query: urlQuery, court: urlCourt, page: urlPage, filters: urlFilters };
     const view = !urlQuery
         ? ({ status: "idle" } as const)
         : outcome && sameSearch(outcome, current)
@@ -248,6 +393,10 @@ export function CaseLawSearchPage() {
         }
         const params = new URLSearchParams({ q: key.query });
         if (key.court !== "adli") params.set("court", key.court);
+        if (key.filters.daire) params.set("daire", key.filters.daire);
+        if (key.filters.baslangic) params.set("from", key.filters.baslangic);
+        if (key.filters.bitis) params.set("to", key.filters.bitis);
+        if (key.filters.siralama) params.set("sort", key.filters.siralama);
         if (key.page > 1) params.set("page", String(key.page));
         router.push(`/case-law?${params.toString()}`);
     }
@@ -263,10 +412,11 @@ export function CaseLawSearchPage() {
             <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-10 md:px-8">
                 <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
                     <CaseLawSearchForm
-                        key={`${urlQuery}|${urlCourt}`}
+                        key={`${urlQuery}|${urlCourt}|${urlFiltersKey}`}
                         initialQuery={urlQuery}
                         initialCourt={urlCourt}
-                        onSearch={(query, court) => navigate({ query, court, page: 1 })}
+                        initialFilters={urlFilters}
+                        onSearch={(query, court, filters) => navigate({ query, court, page: 1, filters })}
                         busy={view.status === "loading"}
                     />
                     <p className="text-xs text-gray-500">

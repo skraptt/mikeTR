@@ -50,6 +50,7 @@ import type {
     KanunSearchResponse,
     IctihatCourt,
     IctihatDecision,
+    IctihatFilters,
     IctihatSearchResponse,
     StatuteStatus,
     StatuteUpdatesResponse,
@@ -3284,11 +3285,12 @@ export async function searchCaseLaw(
     query: string,
     court: IctihatCourt = "adli",
     page = 1,
+    filters: IctihatFilters = {},
 ): Promise<IctihatSearchResponse> {
     return apiRequest<IctihatSearchResponse>("/ictihat/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, court, page, limit: 10 }),
+        body: JSON.stringify({ query, court, page, limit: 10, filters }),
     });
 }
 

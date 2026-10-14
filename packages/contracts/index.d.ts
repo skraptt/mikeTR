@@ -325,6 +325,18 @@ export type IctihatHit = {
   kaynak: string;
 };
 
+export type IctihatSort = "ilgili" | "yeni" | "eski";
+
+/** Optional narrowing; dates are YYYY-MM-DD decision dates, inclusive. */
+export type IctihatFilters = {
+  /** A Yargıtay chamber or board, e.g. "3. Hukuk Dairesi". Searches Yargıtay only. */
+  daire?: string;
+  baslangic?: string;
+  bitis?: string;
+  /** ilgili (relevance, the default), yeni (newest first), eski (oldest first). */
+  siralama?: IctihatSort;
+};
+
 export type IctihatSearchResult = {
   total: number;
   results: IctihatHit[];
@@ -335,6 +347,7 @@ export type IctihatSearchResponse = IctihatSearchResult & {
   query: string;
   court: IctihatCourt;
   page: number;
+  filters: IctihatFilters;
   /** A source that failed while the other still answered. */
   warnings?: string[];
 };

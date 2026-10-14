@@ -2938,17 +2938,17 @@ describe("thin endpoint wrappers", () => {
         },
         {
             name: "searchCaseLaw",
-            call: () => searchCaseLaw("kira", "yargitay", 2),
+            call: () => searchCaseLaw("kira", "yargitay", 2, { siralama: "yeni" }),
             url: "/ictihat/search",
             method: "POST",
-            body: { query: "kira", court: "yargitay", page: 2, limit: 10 },
+            body: { query: "kira", court: "yargitay", page: 2, limit: 10, filters: { siralama: "yeni" } },
         },
         {
             name: "searchCaseLaw (defaults)",
             call: () => searchCaseLaw("kira"),
             url: "/ictihat/search",
             method: "POST",
-            body: { query: "kira", court: "adli", page: 1, limit: 10 },
+            body: { query: "kira", court: "adli", page: 1, limit: 10, filters: {} },
         },
         {
             name: "getCaseLawDecision",

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { andQuery } from "../query";
-import { IctihatSourceError, getDecision, htmlToText, searchDecisions } from "../client";
+import { IctihatSourceError, getDecision, htmlToText, normalizeFilters, searchDecisions } from "../client";
 
 describe("andQuery", () => {
   it.each([
@@ -123,6 +123,63 @@ describe("searchDecisions", () => {
     await expect(searchDecisions({ query: "kira", court: "yargitay" }, fetchFn)).rejects.toBeInstanceOf(
       IctihatSourceError,
     );
+  });
+});
+
+describe("filters", () => {
+  it("accepts known chambers, real dates and sorts", () => {
+    expect(
+      normalizeFilters({ daire: "3. hukuk dairesi", baslangic: "2023-01-01", bitis: "2024-12-31", siralama: "yeni" }),
+    ).toEqual({ daire: "3. Hukuk Dairesi", baslangic: "2023-01-01", bitis: "2024-12-31", siralama: "yeni" });
+    // Relevance is the services' default, so it is not sent.
+    expect(normalizeFilters({ siralama: "ilgili", daire: " " })).toEqual({});
+  });
+
+  it.each([
+    [{ daire: "99. Hukuk Dairesi" }, "Unknown Yargıtay chamber: 99. Hukuk Dairesi."],
+    [{ baslangic: "2023-02-30" }, "Dates must be YYYY-MM-DD: 2023-02-30."],
+    [{ bitis: "31.12.2024" }, "Dates must be YYYY-MM-DD: 31.12.2024."],
+    [{ baslangic: "2025-01-01", bitis: "2024-01-01" }, "The start date is after the end date."],
+    [{ siralama: "random" as never }, "Unknown sort: random."],
+  ])("rejects %j", (filters, message) => {
+    expect(() => normalizeFilters(filters)).toThrow(message);
+  });
+
+  it("sends the filters each service understands", async () => {
+    const fetchFn = fakeFetch({
+      searchDocuments: () => jsonResponse(bedestenSearch),
+      aramadetaylist: () => jsonResponse(emsalSearch),
+    });
+    const result = await searchDecisions(
+      { query: "kira", filters: { baslangic: "2023-01-01", bitis: "2024-12-31", siralama: "eski" } },
+      fetchFn,
+    );
+    expect(result).toMatchObject({ court: "adli", filters: { siralama: "eski" } });
+    const [yargitay, emsal] = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls.map(
+      ([, init]) => JSON.parse((init as RequestInit).body as string).data,
+    );
+    expect(yargitay).toMatchObject({
+      kararTarihiStart: "2023-01-01T00:00:00.000Z",
+      kararTarihiEnd: "2024-12-31T23:59:59.999Z",
+      sortFields: ["KARAR_TARIHI"],
+      sortDirection: "ASC",
+    });
+    expect(emsal).toMatchObject({
+      arananKelime: "+kira",
+      baslangicTarihi: "01.01.2023",
+      bitisTarihi: "31.12.2024",
+      siralama: "3",
+      siralamaDirection: "asc",
+    });
+  });
+
+  it("narrows a chamber search to Yargıtay", async () => {
+    const fetchFn = fakeFetch({ searchDocuments: () => jsonResponse(bedestenSearch) });
+    const result = await searchDecisions({ query: "kira", court: "emsal", filters: { daire: "Hukuk Genel Kurulu" } }, fetchFn);
+    expect(result.court).toBe("yargitay");
+    const [[, init]] = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    expect(JSON.parse((init as RequestInit).body as string).data).toMatchObject({ birimAdi: "Hukuk Genel Kurulu" });
+    expect(JSON.parse((init as RequestInit).body as string).data).not.toHaveProperty("sortFields");
   });
 });
 
