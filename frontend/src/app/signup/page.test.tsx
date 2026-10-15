@@ -159,4 +159,22 @@ describe("SignupPage", () => {
             screen.queryByRole("button", { name: "Continue with SSO" }),
         ).not.toBeInTheDocument();
     });
+
+    it("links to mikeTR's own terms and privacy notice, not upstream Mike's", () => {
+        render(<SignupPage />);
+        const terms = screen.getByRole("link", { name: "Terms of Use" });
+        const privacy = screen.getByRole("link", { name: "Privacy Policy" });
+        expect(terms.getAttribute("href")).not.toContain("mikeoss.com");
+        expect(privacy.getAttribute("href")).not.toContain("mikeoss.com");
+        expect(privacy).toHaveAttribute("href", expect.stringContaining("gizlilik"));
+    });
+
+    it("uses the operator's own privacy notice when configured", () => {
+        vi.stubEnv("NEXT_PUBLIC_PRIVACY_URL", "https://buro.example/aydinlatma");
+        render(<SignupPage />);
+        expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute(
+            "href",
+            "https://buro.example/aydinlatma",
+        );
+    });
 });

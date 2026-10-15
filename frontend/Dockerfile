@@ -30,6 +30,10 @@ ARG NEXT_PUBLIC_DEFAULT_LOCALE=en
 # provider is configured (docs/deployment.md).
 ARG NEXT_PUBLIC_GOOGLE_LOGIN=
 ARG NEXT_PUBLIC_SSO_LOGIN=
+# mikeTR: the operator's own terms / privacy notice shown at sign-up. Empty
+# shows the mikeTR templates (docs/kullanim-kosullari.md, docs/gizlilik.md).
+ARG NEXT_PUBLIC_TERMS_URL=
+ARG NEXT_PUBLIC_PRIVACY_URL=
 # The commit this image was built from; the release tag when no explicit
 # release is given, for the browser bundle (inlined) and the Next server.
 ARG GIT_SHA=
@@ -41,6 +45,8 @@ ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN \
     NEXT_PUBLIC_DEFAULT_LOCALE=$NEXT_PUBLIC_DEFAULT_LOCALE \
     NEXT_PUBLIC_GOOGLE_LOGIN=$NEXT_PUBLIC_GOOGLE_LOGIN \
     NEXT_PUBLIC_SSO_LOGIN=$NEXT_PUBLIC_SSO_LOGIN \
+    NEXT_PUBLIC_TERMS_URL=$NEXT_PUBLIC_TERMS_URL \
+    NEXT_PUBLIC_PRIVACY_URL=$NEXT_PUBLIC_PRIVACY_URL \
     NEXT_PUBLIC_GIT_SHA=$GIT_SHA \
     GIT_SHA=$GIT_SHA
 

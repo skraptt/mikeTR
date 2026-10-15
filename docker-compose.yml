@@ -412,6 +412,9 @@ services:
         # mikeTR: sign-in buttons, hidden until the provider is configured.
         NEXT_PUBLIC_GOOGLE_LOGIN: ${NEXT_PUBLIC_GOOGLE_LOGIN:-}
         NEXT_PUBLIC_SSO_LOGIN: ${NEXT_PUBLIC_SSO_LOGIN:-}
+        # mikeTR: your own terms / privacy notice (KVKK aydınlatma metni).
+        NEXT_PUBLIC_TERMS_URL: ${NEXT_PUBLIC_TERMS_URL:-}
+        NEXT_PUBLIC_PRIVACY_URL: ${NEXT_PUBLIC_PRIVACY_URL:-}
     environment:
       - API_BASE_URL=${API_BASE_URL:-http://backend:3001}
       # Next server side (the /api gateway); same project as the browser.

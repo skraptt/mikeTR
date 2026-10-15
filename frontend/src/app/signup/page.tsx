@@ -66,6 +66,7 @@ import { TOO_MANY_ATTEMPTS_MESSAGE, authMessages } from "@/app/lib/authMessages"
 import { AuthDividerUI } from "@/shared/ui/AuthDividerUI";
 import { GoogleAuthButton } from "@/app/components/auth/GoogleAuthButton";
 import { googleLoginEnabled } from "@/app/components/auth/authProviders";
+import { privacyUrl, termsUrl } from "@/shared/lib/legalLinks";
 import { FieldLabel } from "@/app/components/ui/form-field";
 
 function SignupContent() {
@@ -258,7 +259,7 @@ function SignupContent() {
                                 {withNodes(t("By signing up, you agree to our {terms} and {privacy}"), {
                                     terms: (
                                         <Link
-                                            href="https://mikeoss.com/terms"
+                                            href={termsUrl()}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-blue-600 hover:underline"
@@ -268,7 +269,7 @@ function SignupContent() {
                                     ),
                                     privacy: (
                                         <Link
-                                            href="https://mikeoss.com/privacy"
+                                            href={privacyUrl()}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-blue-600 hover:underline"
