@@ -28,6 +28,7 @@ import { UserMessage } from "./UserMessage";
 import { AssistantMessage } from "./AssistantMessage";
 import { ChatInput } from "./ChatInput";
 import { InitialView } from "./InitialView";
+import { MemoryIndicator } from "@/app/components/memory/MemoryIndicator";
 import { QuickActionsModal } from "./QuickActionsModal";
 import { useQuickActions } from "@/app/hooks/useQuickActions";
 import { resolveDocumentViewType } from "@/app/lib/documentViewType";
@@ -1231,6 +1232,9 @@ export function AssistantChatColumn({
                                                 }
                                             />
                                         </ChatInputPrompt>
+                                        <div className="flex justify-center pt-1">
+                                            <MemoryIndicator />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

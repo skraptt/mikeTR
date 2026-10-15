@@ -3,11 +3,21 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import OnboardingPracticePage from "./page";
 
-const { push, replace, completeOnboarding } = vi.hoisted(() => ({
+const {
+  push,
+  replace,
+  completeOnboarding,
+  updateProjectMemoryDefault,
+  setUserMemoryEnabled,
+} = vi.hoisted(() => ({
   push: vi.fn(),
   replace: vi.fn(),
   completeOnboarding: vi.fn(),
+  updateProjectMemoryDefault: vi.fn(),
+  setUserMemoryEnabled: vi.fn(),
 }));
+
+vi.mock("@/app/lib/mikeApi", () => ({ setUserMemoryEnabled }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, replace }),
@@ -30,6 +40,7 @@ vi.mock("@/app/contexts/UserProfileContext", () => ({
     },
     loading: false,
     completeOnboarding,
+    updateProjectMemoryDefault,
   }),
 }));
 
@@ -43,6 +54,10 @@ describe("OnboardingPracticePage", () => {
     replace.mockReset();
     completeOnboarding.mockReset();
     completeOnboarding.mockResolvedValue(true);
+    updateProjectMemoryDefault.mockReset();
+    updateProjectMemoryDefault.mockResolvedValue(undefined);
+    setUserMemoryEnabled.mockReset();
+    setUserMemoryEnabled.mockResolvedValue({ enabled: false });
   });
 
   it("saves a country and multiple practice areas", async () => {
@@ -137,5 +152,50 @@ describe("OnboardingPracticePage", () => {
 
     await waitFor(() => expect(completeOnboarding).toHaveBeenCalledWith({}));
     expect(replace).toHaveBeenCalledWith("/assistant");
+  });
+
+  it("asks about memory on first use, on by default, and leaves it on", async () => {
+    const user = userEvent.setup();
+    render(<OnboardingPracticePage />);
+
+    const memory = screen.getByRole("switch", { name: "Assistant memory" });
+    expect(memory).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByText(/may include client information/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Finish" }));
+
+    await waitFor(() => expect(completeOnboarding).toHaveBeenCalled());
+    expect(setUserMemoryEnabled).not.toHaveBeenCalled();
+    expect(updateProjectMemoryDefault).not.toHaveBeenCalled();
+  });
+
+  it("turns app and project memory off before finishing when switched off", async () => {
+    const user = userEvent.setup();
+    render(<OnboardingPracticePage />);
+
+    await user.click(screen.getByRole("switch", { name: "Assistant memory" }));
+    await user.click(screen.getByRole("button", { name: "Skip" }));
+
+    await waitFor(() => expect(completeOnboarding).toHaveBeenCalledWith({}));
+    expect(setUserMemoryEnabled).toHaveBeenCalledWith(false);
+    expect(updateProjectMemoryDefault).toHaveBeenCalledWith(false);
+    expect(setUserMemoryEnabled.mock.invocationCallOrder[0]).toBeLessThan(
+      completeOnboarding.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("does not finish onboarding if memory cannot be turned off", async () => {
+    setUserMemoryEnabled.mockRejectedValue(new Error("offline"));
+    const user = userEvent.setup();
+    render(<OnboardingPracticePage />);
+
+    await user.click(screen.getByRole("switch", { name: "Assistant memory" }));
+    await user.click(screen.getByRole("button", { name: "Finish" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Unable to turn off memory. Please try again.",
+    );
+    expect(completeOnboarding).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
   });
 });

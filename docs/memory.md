@@ -69,6 +69,11 @@ the answer being shown to the user.
   the account is created, and a new project's shared memory is enabled unless
   its creator clears the toggle. Turning either off is destructive — see
   "Disable, wipe, and deletion".
+- mikeTR asks on first use: the last onboarding step shows an "Assistant
+  memory" switch, on by default, explaining that memory may hold client
+  information. Switching it off disables app memory and the project-memory
+  default before onboarding completes. While app memory is on, the assistant
+  screen shows a "Memory on" link to these settings.
 - A user's own standalone main chats and durable Word add-in chats may update
   app memory. Chats and tabular reviews in a private personal project may
   update both app and project memory. A conversation is private only while it

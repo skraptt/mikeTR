@@ -2276,5 +2276,10 @@ export const tr: Readonly<Record<string, string>> = {
     "{count} workflows": "{count} iş akışı",
     "Delete {count} workflows": "{count} iş akışını sil",
     "No assistant workflows found": "Asistan iş akışı bulunamadı",
-    "No tabular workflows found": "Tablo iş akışı bulunamadı"
+    "No tabular workflows found": "Tablo iş akışı bulunamadı",
+    "Memory on": "Hafıza açık",
+    "The assistant may use details remembered from your saved conversations. Click to review or turn off.": "Asistan, kayıtlı konuşmalarınızdan hatırladığı bilgileri kullanabilir. Gözden geçirmek veya kapatmak için tıklayın.",
+    "Assistant memory": "Asistan hafızası",
+    "When on, the assistant remembers useful details from your saved conversations, which may include client information, and uses them in later answers. You can review, delete, or turn it off at any time in Settings > Memory.": "Açıkken asistan, kayıtlı konuşmalarınızdaki işe yarar bilgileri (müvekkil bilgileri de olabilir) hatırlar ve sonraki yanıtlarında kullanır. Bunu istediğiniz zaman Ayarlar > Hafıza bölümünden gözden geçirebilir, silebilir veya kapatabilirsiniz.",
+    "Unable to turn off memory. Please try again.": "Hafıza kapatılamadı. Lütfen tekrar deneyin."
 };

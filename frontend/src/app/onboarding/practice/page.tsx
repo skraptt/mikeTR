@@ -9,6 +9,8 @@ import {
     usePersonalisationFields,
 } from "@/app/components/settings/PersonalisationFields";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
+import { ToggleSwitchUI } from "@/shared/ui/ToggleSwitchUI";
+import { setUserMemoryEnabled } from "@/app/lib/mikeApi";
 import { FullScreenLoader } from "@/app/components/shared/FullScreenLoader";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useUserProfile } from "@/app/contexts/UserProfileContext";
@@ -41,8 +43,11 @@ function PracticeDetailsForm({
     initial: ReturnType<typeof personalisationInitialValues>;
 }) {
     const router = useRouter();
-    const { completeOnboarding } = useUserProfile();
+    const { completeOnboarding, updateProjectMemoryDefault } = useUserProfile();
     const form = usePersonalisationFields(initial);
+    // mikeTR: memory starts on, but every new account is asked about it here,
+    // on first use, before the assistant can remember anything.
+    const [memoryEnabled, setMemoryEnabled] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +56,18 @@ function PracticeDetailsForm({
     ) => {
         setSubmitting(true);
         setError(null);
+        if (!memoryEnabled) {
+            // Turn memory off before onboarding completes, so a failure here
+            // never leaves the account with memory on against the user's choice.
+            try {
+                await setUserMemoryEnabled(false);
+                await updateProjectMemoryDefault(false);
+            } catch {
+                setError(t("Unable to turn off memory. Please try again."));
+                setSubmitting(false);
+                return;
+            }
+        }
         const saved = await completeOnboarding(details);
         if (saved) {
             router.replace("/assistant");
@@ -100,6 +117,21 @@ function PracticeDetailsForm({
                     ]}
                     className="space-y-4"
                 />
+
+                <div className="mt-6 rounded-lg border border-gray-200 p-4">
+                    <ToggleSwitchUI
+                        checked={memoryEnabled}
+                        disabled={submitting}
+                        aria-label={t("Assistant memory")}
+                        onCheckedChange={setMemoryEnabled}
+                        className="font-medium text-gray-900"
+                    >
+                        {t("Assistant memory")}
+                    </ToggleSwitchUI>
+                    <p className="mt-2 text-xs text-gray-500">
+                        {t("When on, the assistant remembers useful details from your saved conversations, which may include client information, and uses them in later answers. You can review, delete, or turn it off at any time in Settings > Memory.")}
+                    </p>
+                </div>
 
                 {error && (
                     <div

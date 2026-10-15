@@ -15,6 +15,7 @@ import {
 import { t } from "@/shared/i18n";
 import { useRouter } from "next/navigation";
 import { StatuteSearchForm } from "@/app/components/statutes/StatuteSearch";
+import { MemoryIndicator } from "@/app/components/memory/MemoryIndicator";
 
 interface InitialViewProps {
     onSubmit: (message: Message) => void;
@@ -133,6 +134,7 @@ export function InitialView({
                     <p className="text-xs py-2 text-gray-500">
                         {t("AI can make mistakes. Answers are not legal advice.")}
                     </p>
+                    <MemoryIndicator />
                 </div>
 
                 {/* mikeTR: a shortcut into the statute search page. */}
