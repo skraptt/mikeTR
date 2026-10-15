@@ -15,6 +15,8 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 
 ![Güncellemeler: her kanunun mevzuat.gov.tr ile son karşılaştırılma tarihi](docs/assets/miketr-guncellemeler.jpg)
 
+![İçtihat araması: Yargıtay 3. Hukuk Dairesi, "kiracının temerrüdü", en yeni kararlar](docs/assets/miketr-ictihat.jpg)
+
 ![İş akışları: Türk hukukuna uyarlanmış hazır iş akışları](docs/assets/miketr-is-akislari.jpg)
 
 ## Özellikler
