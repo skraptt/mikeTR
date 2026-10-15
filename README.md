@@ -1,5 +1,7 @@
 # mikeTR
 
+**Türkçe** | [English](README.en.md)
+
 Türk hukukçular için açık kaynak yapay zekâ asistanı. Belgelerinizi inceler,
 taslak hazırlar ve Türk mevzuatında araştırma yapar. Kendi bilgisayarınızda
 çalışır.
@@ -181,7 +183,7 @@ mikeTR'yi bir sunucuda, ekibinizle birlikte kullanmak için
   `npm run kanun:embed` ve `npm run kanun:check` komutları vardır.
 - Projeyle gelen veri paketini (`backend/setup-data/kanun-maddeleri.csv.gz`)
   güncel veritabanından yeniden üretmek için: `npm run kanun:snapshot`.
-- Mike'ın kendi belgeleri (İngilizce): [README.en.md](README.en.md) ve
+- Mike'ın kendi belgeleri (İngilizce): [README.mike.md](README.mike.md) ve
   [docs/](docs/README.md).
 
 ## Lisans
