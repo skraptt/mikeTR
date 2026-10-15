@@ -11,8 +11,10 @@ Every Mike runtime can report unexpected failures to [Sentry](https://sentry.io)
 | Web app, Next.js server (the `/api` gateway) | `@sentry/nextjs` | `SENTRY_DSN` in the frontend's runtime environment |
 | Word add-in (task pane, ribbon commands, OAuth dialog) | `@sentry/react` | `REACT_APP_SENTRY_DSN` at **build** time |
 
-**On by default.** Error reports are sent to the Mike project's own Sentry by default, so the
-maintainers can fix failures encountered by forks and self-hosted installs.
+**Off by default in mikeTR.** Nothing is sent unless you set a DSN of your own,
+or set `SENTRY_DISABLED=false` (`NEXT_PUBLIC_…`/`REACT_APP_…` for the browser and
+add-in builds) to send reports to the upstream Mike project's own Sentry, so its
+maintainers can fix failures encountered by forks.
 Before network transmission, every runtime rebuilds reports from an explicit
 allowlist: code locations and line numbers, controlled operation labels,
 HTTP method/status and normalized routes, validated correlation IDs, release,
@@ -22,10 +24,7 @@ breadcrumbs are excluded. Automatic sessions, replay, attachments, traces,
 and other non-error payloads are blocked. The same boundary applies to
 community and official installations. See the [observability guide](observability.md)
 for the exact policy, source-map behavior, and limitations.
-To opt out, set `SENTRY_DISABLED=true`
-(`NEXT_PUBLIC_SENTRY_DISABLED=true` / `REACT_APP_SENTRY_DISABLED=true` for the
-browser and add-in builds); to use your own Sentry instead, set the matching
-`*_SENTRY_DSN`.
+`SENTRY_DISABLED=true` keeps reporting off even when a DSN is set.
 
 The [data audit](sentry-data-audit.md) preserves the earlier leak findings and
 records the final transport boundary that closes them. Internal source-code
@@ -61,9 +60,10 @@ installing their underlying libraries automatically reports to their authors:
 | [Element Web](https://github.com/element-hq/element-web/blob/5fc4f4090cea4357bf101e051e9864cde7610145/apps/web/element.io/develop/config.json) (AGPL/GPL options) | Publishes a Sentry DSN in its develop deployment configuration. Its [integration](https://github.com/element-hq/element-web/blob/5fc4f4090cea4357bf101e051e9864cde7610145/apps/web/src/sentry.ts) explicitly submits bug reports; this is not evidence of Mike's same automatic reporting policy. |
 | [GitLab Service Ping](https://docs.gitlab.com/development/internal_analytics/service_ping/) | Documents default-on telemetry sending a weekly usage payload to GitLab. This is a precedent for default-on usage reporting, not proof of default-on Sentry crash reporting from self-managed instances. GitLab's [Sentry setup](https://docs.gitlab.com/omnibus/settings/configuration/#error-reporting-and-logging-with-sentry) asks administrators to enable it and supply their own DSNs. |
 
-Mike's policy remains explicit: automatic error reporting is on by default,
-with the exclusions above, an opt-out, and an alternative destination under
-the operator's control. Other projects' choices do not imply identical data
+Upstream Mike reports errors by default. mikeTR changes this: reporting is
+off until the operator chooses a destination (their own DSN, or Mike's project
+with `SENTRY_DISABLED=false`), because Turkish operators must assess the
+transfer under KVKK Art. 9 first. Other projects' choices do not imply identical data
 collection, privacy guarantees, or consent policies.
 
 ### Quota protection and its limits

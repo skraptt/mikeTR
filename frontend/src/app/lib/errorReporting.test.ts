@@ -215,8 +215,14 @@ describe("setReportingUser", () => {
 });
 
 describe("browserSentryOptions", () => {
-    it("is ON BY DEFAULT with the Mike project DSN and never turns on PII or replay", () => {
+    it("is OFF BY DEFAULT in mikeTR", () => {
         const options = browserSentryOptions({ nodeEnv: "test" });
+        expect(options.enabled).toBe(false);
+        expect(options.dsn).toBeUndefined();
+    });
+
+    it("uses the Mike project DSN only on opt-in and never turns on PII or replay", () => {
+        const options = browserSentryOptions({ nodeEnv: "test", disabled: "false" });
         expect(options.enabled).toBe(true);
         expect(options.dsn).toBe(MIKE_SENTRY_DSN.frontend);
         expect(options.environment).toBe("self-hosted");
@@ -318,11 +324,13 @@ describe("serverSentryOptions", () => {
         expect(options.beforeSend).toBe(scrubEvent);
     });
 
-    it("is ON BY DEFAULT without config, off with SENTRY_DISABLED, official only when marked", () => {
-        const options = serverSentryOptions(
-            "server",
-            {} as unknown as NodeJS.ProcessEnv,
-        );
+    it("is OFF BY DEFAULT without config, on with SENTRY_DISABLED=false, official only when marked", () => {
+        expect(
+            serverSentryOptions("server", {} as unknown as NodeJS.ProcessEnv).enabled,
+        ).toBe(false);
+        const options = serverSentryOptions("server", {
+            SENTRY_DISABLED: "false",
+        } as unknown as NodeJS.ProcessEnv);
         expect(options.enabled).toBe(true);
         expect(options.dsn).toBe(MIKE_SENTRY_DSN.frontend);
         expect(options.release).toBeUndefined();
@@ -336,6 +344,7 @@ describe("serverSentryOptions", () => {
         } as unknown as NodeJS.ProcessEnv);
         expect(off.enabled).toBe(false);
         const official = serverSentryOptions("server", {
+            SENTRY_DISABLED: "false",
             SENTRY_INSTALL: "official",
         } as unknown as NodeJS.ProcessEnv);
         expect((official.initialScope as { tags: { install: string } }).tags.install).toBe("official");

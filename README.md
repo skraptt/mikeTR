@@ -156,6 +156,17 @@ kullanmadığından ve sözleşmesinin KVKK md. 9 (yurt dışına aktarım) ile 
 sır saklama yükümlülüğüne uygun olduğundan emin olun. Verinin bilgisayardan hiç
 çıkmamasını istiyorsanız Ollama ile yerel bir model kullanın.
 
+### Telemetri (hata raporları)
+
+mikeTR varsayılan olarak hiçbir hata raporu göndermez. Kendi Sentry
+projenize rapor göndermek isterseniz `SENTRY_DSN` (sunucu) ve
+`FRONTEND_SENTRY_DSN` (web uygulaması) değişkenlerini ayarlayın.
+`SENTRY_DISABLED=false` ayarlarsanız raporlar, mikeTR'nin üzerine kurulduğu
+Mike projesinin ABD'de barındırılan Sentry hesabına gider. Bu raporlar belge
+içeriği ve kimlik bilgisi içermez; ayrıntılar
+[observability.md](docs/observability.md) dosyasındadır. Bu seçeneği açmadan
+önce KVKK md. 9 kapsamındaki yurt dışına aktarım şartlarını değerlendirin.
+
 ## Sunucuya kurulum
 
 mikeTR'yi bir sunucuda, ekibinizle birlikte kullanmak için

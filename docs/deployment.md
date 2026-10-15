@@ -285,9 +285,11 @@ key restores the global key as the fallback.
 
 ### Error tracking
 
-Error reports are sent to the Mike project's own Sentry by default, so the
-maintainers can fix failures encountered by forks and self-hosted installs.
-Before network transmission, every runtime rebuilds reports from an explicit
+mikeTR sends no error reports by default. A DSN of your own turns reporting on;
+`SENTRY_DISABLED=false` (`NEXT_PUBLIC_SENTRY_DISABLED=false` /
+`REACT_APP_SENTRY_DISABLED=false` for the browser and add-in builds) instead
+sends reports to the upstream Mike project's own Sentry, so its maintainers can
+fix failures encountered by forks. Before network transmission, every runtime rebuilds reports from an explicit
 allowlist: code locations and line numbers, controlled operation labels,
 HTTP method/status and normalized routes, validated correlation IDs, release,
 and environment. Client document filenames, document text, raw error and
@@ -296,10 +298,7 @@ breadcrumbs are excluded. Automatic sessions, replay, attachments, traces,
 and other non-error payloads are blocked. The same boundary applies to
 community and official installations. See the [observability guide](observability.md)
 for the exact policy, source-map behavior, and limitations.
-To opt out, set `SENTRY_DISABLED=true`
-(`NEXT_PUBLIC_SENTRY_DISABLED=true` / `REACT_APP_SENTRY_DISABLED=true` for the
-browser and add-in builds); to use your own Sentry instead, set the matching
-`*_SENTRY_DSN`.
+`SENTRY_DISABLED=true` keeps reporting off even when a DSN is set.
 
 For the compose stack that is `SENTRY_DISABLED=true` in the root `.env`
 (the backend reads it through `env_file`; the frontend build and the Next

@@ -87,8 +87,18 @@ afterEach(() => {
 });
 
 describe("sentryConfiguration", () => {
-  it("is ON BY DEFAULT: the Mike project DSN, a community install, environment self-hosted", () => {
+  it("is OFF BY DEFAULT in mikeTR: no DSN, nothing sent", () => {
     const config = sentryConfiguration({ NODE_ENV: "production" } as NodeJS.ProcessEnv);
+    expect(config.enabled).toBe(false);
+    expect(config.dsn).toBe("");
+    expect(config.dsnSource).toBe("disabled");
+  });
+
+  it("opts into the Mike project DSN with SENTRY_DISABLED=false: a community install, environment self-hosted", () => {
+    const config = sentryConfiguration({
+      NODE_ENV: "production",
+      SENTRY_DISABLED: "false",
+    } as NodeJS.ProcessEnv);
     expect(config.enabled).toBe(true);
     expect(config.dsn).toBe(MIKE_SENTRY_DSN.backend);
     expect(config.dsnSource).toBe("default");

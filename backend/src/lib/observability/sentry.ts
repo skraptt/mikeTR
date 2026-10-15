@@ -3,8 +3,8 @@
 //
 // Design rules, in priority order:
 //
-//   1. ON BY DEFAULT for community installs; SENTRY_DISABLED=true opts out.
-//      An explicit DSN overrides Mike's project. Test processes stay disabled
+//   1. OFF BY DEFAULT in mikeTR. A DSN of your own turns it on;
+//      SENTRY_DISABLED=false opts into the upstream Mike project's Sentry. Test processes stay disabled
 //      unless SENTRY_ALLOW_IN_TESTS=true is explicitly set.
 //   2. NEVER LEAK DOCUMENT CONTENT OR CREDENTIALS. This is a legal platform:
 //      request bodies carry privileged documents and chat transcripts, and
@@ -266,9 +266,8 @@ export function redactShaped(value: unknown, depth = 0): unknown {
 /**
  * The Mike project's own Sentry projects. A DSN is a write-only address:
  * it lets an SDK post events and nothing else, so it is public by design
- * (it ships in every browser bundle). Community installs report here by
- * default so the project learns what forks run into; the opt-out and the
- * override are one variable each (see resolveDsn).
+ * (it ships in every browser bundle). In mikeTR these are used only when
+ * the operator opts in with SENTRY_DISABLED=false (see resolveDsn).
  */
 export const MIKE_SENTRY_DSN = {
   backend:
@@ -295,12 +294,17 @@ export function resolveDsn(input: {
   dsn?: string;
   fallback: string;
 }): DsnResolution {
-  if (input.disabled?.trim().toLowerCase() === "true") {
+  const flag = input.disabled?.trim().toLowerCase();
+  if (flag === "true") {
     return { dsn: "", source: "disabled" };
   }
   const explicit = input.dsn?.trim();
   if (explicit) return { dsn: explicit, source: "env" };
-  return { dsn: input.fallback, source: "default" };
+  // mikeTR: error reports leave the machine only on an explicit opt-in.
+  // Without a DSN of your own, SENTRY_DISABLED=false sends them to the
+  // upstream Mike project's Sentry (US-hosted); anything else keeps them off.
+  if (flag === "false") return { dsn: input.fallback, source: "default" };
+  return { dsn: "", source: "disabled" };
 }
 
 export type InstallKind = "official" | "community";
@@ -529,9 +533,9 @@ function parseRate(raw: string | undefined, fallback: number): number {
 }
 
 export function sentryConfiguration(env: NodeJS.ProcessEnv = process.env) {
-  // ON BY DEFAULT: without SENTRY_DISABLED or a DSN of your own, errors go
-  // to the Mike project's Sentry as a community install (see the README's
-  // Telemetry section). Only Mike's own deployment sets SENTRY_INSTALL.
+  // mikeTR: OFF BY DEFAULT. Errors go to your own SENTRY_DSN, or to the
+  // upstream Mike project's Sentry only with SENTRY_DISABLED=false (README,
+  // "Telemetri"). Only Mike's own deployment sets SENTRY_INSTALL.
   const resolved = resolveDsn({
     disabled: env.SENTRY_DISABLED,
     dsn: env.SENTRY_DSN,
@@ -810,7 +814,11 @@ export function initSentry(
     if (env.NODE_ENV !== "test") {
       console.log(
         `[sentry] disabled for ${role} (${
-          config.dsnSource === "disabled" ? "SENTRY_DISABLED=true" : "test process"
+          config.dsnSource !== "disabled"
+            ? "test process"
+            : env.SENTRY_DISABLED?.trim().toLowerCase() === "true"
+              ? "SENTRY_DISABLED=true"
+              : "off by default; set SENTRY_DSN or SENTRY_DISABLED=false to enable"
         })`,
       );
     }

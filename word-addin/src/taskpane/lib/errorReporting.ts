@@ -52,8 +52,8 @@ export function addinSentryOptions(
     nodeEnv?: string;
   },
 ): Sentry.BrowserOptions {
-  // ON BY DEFAULT: the Mike project's own DSN unless REACT_APP_SENTRY_DISABLED
-  // or a DSN of your own is baked in at build time (README, "Telemetry").
+  // mikeTR: OFF BY DEFAULT. A DSN of your own, or REACT_APP_SENTRY_DISABLED=false
+  // (upstream Mike project's Sentry), turns it on at build time (README, "Telemetri").
   const { dsn } = resolveDsn({
     disabled: env.disabled,
     dsn: env.dsn,

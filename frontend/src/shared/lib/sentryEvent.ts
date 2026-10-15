@@ -251,9 +251,8 @@ export function redactShaped(value: unknown, depth = 0): unknown {
 /**
   * The Mike project's own Sentry projects. A DSN is a write-only address:
   * it lets an SDK post events and nothing else, so it is public by design
-  * (it ships in every browser bundle). Community installs report here by
-  * default so the project learns what forks run into; the opt-out and the
-  * override are one variable each (see resolveDsn).
+  * (it ships in every browser bundle). In mikeTR these are used only when
+  * the operator opts in with SENTRY_DISABLED=false (see resolveDsn).
   */
 export const MIKE_SENTRY_DSN = {
     backend:
@@ -280,12 +279,17 @@ export function resolveDsn(input: {
     dsn?: string;
     fallback: string;
 }): DsnResolution {
-    if (input.disabled?.trim().toLowerCase() === "true") {
+    const flag = input.disabled?.trim().toLowerCase();
+    if (flag === "true") {
         return { dsn: "", source: "disabled" };
     }
     const explicit = input.dsn?.trim();
     if (explicit) return { dsn: explicit, source: "env" };
-    return { dsn: input.fallback, source: "default" };
+    // mikeTR: error reports leave the machine only on an explicit opt-in.
+    // Without a DSN of your own, SENTRY_DISABLED=false sends them to the
+    // upstream Mike project's Sentry (US-hosted); anything else keeps them off.
+    if (flag === "false") return { dsn: input.fallback, source: "default" };
+    return { dsn: "", source: "disabled" };
 }
 
 export type InstallKind = "official" | "community";

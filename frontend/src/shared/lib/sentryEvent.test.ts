@@ -403,11 +403,14 @@ describe("automatic captures of an already-reported error", () => {
 });
 
 describe("resolveDsn", () => {
-    it("is off when disabled, uses an explicit DSN, else the built-in Mike DSN", () => {
+    it("is off when disabled, uses an explicit DSN, the Mike DSN only on opt-in, else off", () => {
         expect(resolveDsn({ disabled: "true", dsn: "https://x@y/1", fallback: MIKE_SENTRY_DSN.frontend })).toEqual({ dsn: "", source: "disabled" });
         expect(resolveDsn({ disabled: "TRUE ", fallback: "f" })).toEqual({ dsn: "", source: "disabled" });
         expect(resolveDsn({ disabled: "false", dsn: " https://x@y/1 ", fallback: "f" })).toEqual({ dsn: "https://x@y/1", source: "env" });
-        expect(resolveDsn({ dsn: "", fallback: MIKE_SENTRY_DSN.wordAddin })).toEqual({ dsn: MIKE_SENTRY_DSN.wordAddin, source: "default" });
+        expect(resolveDsn({ disabled: "false", dsn: "", fallback: MIKE_SENTRY_DSN.wordAddin })).toEqual({ dsn: MIKE_SENTRY_DSN.wordAddin, source: "default" });
+        // mikeTR: nothing configured means nothing leaves the machine.
+        expect(resolveDsn({ dsn: "", fallback: MIKE_SENTRY_DSN.wordAddin })).toEqual({ dsn: "", source: "disabled" });
+        expect(resolveDsn({ fallback: MIKE_SENTRY_DSN.frontend })).toEqual({ dsn: "", source: "disabled" });
     });
 
     it("only an explicit 'official' marks the official deployment", () => {
