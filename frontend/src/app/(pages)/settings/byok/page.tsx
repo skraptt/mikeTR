@@ -95,9 +95,10 @@ const MODEL_API_KEY_FIELDS: readonly ModelApiKeyField[] = [
     },
     {
         provider: "opencode-go",
-        name: "OpenCode Go",
+        // mikeTR: one OpenCode key serves Go and Zen (with its free models).
+        name: "OpenCode (Go / Zen)",
         logo: "opencode",
-        label: t("OpenCode Go API Key"),
+        label: t("OpenCode API Key"),
     },
     {
         provider: "custom",

@@ -27,6 +27,7 @@ import {
   isAzureFoundryClaudeDeployment,
   isOpenCodeGoChatCompletionsModel,
   isOpenCodeGoMessagesModel,
+  isOpenCodeZenModel,
   isSafeAccountModel,
   normalizeReasoningLevelForModel,
   openCodeGoModelId,
@@ -60,6 +61,10 @@ const OPENROUTER_BASE_URL =
 const OPENCODE_GO_BASE_URL =
   process.env.OPENCODE_GO_BASE_URL?.trim().replace(/\/+$/, "") ||
   "https://opencode.ai/zen/go/v1";
+// mikeTR: OpenCode Zen (pay-as-you-go, with free models) on the same key.
+const OPENCODE_ZEN_BASE_URL =
+  process.env.OPENCODE_ZEN_BASE_URL?.trim().replace(/\/+$/, "") ||
+  "https://opencode.ai/zen/v1";
 const VERCEL_GATEWAY_BASE_URL =
   process.env.VERCEL_AI_GATEWAY_BASE_URL?.trim().replace(/\/+$/, "");
 
@@ -178,7 +183,11 @@ async function createRouterAdapter(
   model: string,
   apiKeys?: UserApiKeys,
 ): Promise<AiSdkAdapterConfig> {
-  if (provider === "opencode-go" && !isOpenCodeGoChatCompletionsModel(model)) {
+  if (
+    provider === "opencode-go" &&
+    !isOpenCodeGoChatCompletionsModel(model) &&
+    !isOpenCodeZenModel(model)
+  ) {
     throw unsupportedOpenCodeGoModel(model);
   }
   const key = routerKey(provider, apiKeys);
@@ -220,7 +229,7 @@ async function createRouterAdapter(
   const openCodeGo = createOpenAICompatible({
     name: "opencodeGo",
     apiKey: key,
-    baseURL: OPENCODE_GO_BASE_URL,
+    baseURL: isOpenCodeZenModel(model) ? OPENCODE_ZEN_BASE_URL : OPENCODE_GO_BASE_URL,
     fetch: aiSdkFetch,
   });
   return {

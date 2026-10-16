@@ -1173,7 +1173,6 @@ export const tr: Readonly<Record<string, string>> = {
     "Open workflows": "İş akışlarını aç",
     "OpenAI API Key": "OpenAI API anahtarı",
     "OpenAI-compatible endpoint API Key": "OpenAI uyumlu uç nokta API anahtarı",
-    "OpenCode Go API Key": "OpenCode Go API anahtarı",
     "Opening workspace…": "Çalışma alanı açılıyor…",
     "OpenRouter API Key": "OpenRouter API anahtarı",
     "Optionally add your professional setting, primary jurisdiction, and the areas you work in.": "İsterseniz çalışma ortamınızı, ana yargı bölgenizi ve çalıştığınız alanları ekleyin.",
@@ -2283,5 +2282,6 @@ export const tr: Readonly<Record<string, string>> = {
     "When on, the assistant remembers useful details from your saved conversations, which may include client information, and uses them in later answers. You can review, delete, or turn it off at any time in Settings > Memory.": "Açıkken asistan, kayıtlı konuşmalarınızdaki işe yarar bilgileri (müvekkil bilgileri de olabilir) hatırlar ve sonraki yanıtlarında kullanır. Bunu istediğiniz zaman Ayarlar > Hafıza bölümünden gözden geçirebilir, silebilir veya kapatabilirsiniz.",
     "Unable to turn off memory. Please try again.": "Hafıza kapatılamadı. Lütfen tekrar deneyin.",
     "Reversals in the interest of the law": "Kanun yararına bozma",
-    "Yargıtay: reversal in the interest of the law": "Yargıtay kanun yararına bozma"
+    "Yargıtay: reversal in the interest of the law": "Yargıtay kanun yararına bozma",
+    "OpenCode API Key": "OpenCode API anahtarı"
 };

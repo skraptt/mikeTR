@@ -139,6 +139,17 @@ export const OPENCODE_GO_MESSAGES_MODEL_IDS: ReadonlySet<string> = new Set([
     "qwen3.6-plus",
 ]);
 
+// mikeTR: OpenCode Zen's free models, served on Zen's own Chat Completions
+// endpoint with the same OpenCode API key. Only the free models OpenCode says
+// it neither trains on nor retains are offered (https://opencode.ai/docs/zen/);
+// free models that collect data (Big Pickle, MiMo, Nemotron, ...) stay out.
+export const OPENCODE_ZEN_FREE_MODEL_IDS: ReadonlySet<string> = new Set([
+    "glm-5.3-flash-free",
+    "deepseek-v4.1-flash-free",
+    "space-bunny-free",
+    "longcat-2.5-preview-free",
+]);
+
 const ALL_MODELS = new Set<string>([
     ...CLAUDE_MAIN_MODELS,
     ...GEMINI_MAIN_MODELS,
@@ -441,9 +452,14 @@ export function isOpenCodeGoMessagesModel(model: string): boolean {
     return OPENCODE_GO_MESSAGES_MODEL_IDS.has(openCodeGoModelId(model));
 }
 
+export function isOpenCodeZenModel(model: string): boolean {
+    return OPENCODE_ZEN_FREE_MODEL_IDS.has(openCodeGoModelId(model));
+}
+
 export function isSupportedOpenCodeGoModel(model: string): boolean {
     return (
         isOpenCodeGoChatCompletionsModel(model) ||
-        isOpenCodeGoMessagesModel(model)
+        isOpenCodeGoMessagesModel(model) ||
+        isOpenCodeZenModel(model)
     );
 }

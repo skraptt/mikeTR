@@ -12,7 +12,10 @@
 
 import type { Db } from "../../lib/supabase";
 import { ollamaAuthHeaders as authHeaders } from "../../lib/llm/providers";
-import { isSupportedOpenCodeGoModel } from "../../lib/llm/models";
+import {
+    isOpenCodeZenModel,
+    isSupportedOpenCodeGoModel,
+} from "../../lib/llm/models";
 import { configuredEndpointSummaries } from "../../lib/llm/registry";
 import { getUserApiKeys } from "../user/user.service";
 
@@ -314,16 +317,39 @@ export async function listOpenCodeGoModels(
             process.env.OPENCODE_GO_BASE_URL?.trim() ||
             "https://opencode.ai/zen/go/v1"
         ).replace(/\/+$/, "");
-        const response = await fetch(`${baseUrl}/models`, {
-            headers: { Authorization: `Bearer ${key}` },
-        });
-        if (!response.ok) return await upstreamFailure("OpenCode Go", response);
+        const zenBaseUrl = (
+            process.env.OPENCODE_ZEN_BASE_URL?.trim() ||
+            "https://opencode.ai/zen/v1"
+        ).replace(/\/+$/, "");
+        // mikeTR: the same key also reaches OpenCode Zen, whose free models
+        // are listed with Go's. A key without a Go subscription still lists
+        // Zen's, so Go's catalog failing only matters when Zen's fails too.
+        const [response, zenResponse] = await Promise.all([
+            fetch(`${baseUrl}/models`, {
+                headers: { Authorization: `Bearer ${key}` },
+            }),
+            fetch(`${zenBaseUrl}/models`, {
+                headers: { Authorization: `Bearer ${key}` },
+            }).catch(() => null),
+        ]);
+        const zenOk = !!zenResponse?.ok;
+        if (!response.ok && !zenOk) {
+            return await upstreamFailure("OpenCode Go", response);
+        }
 
-        const payload = (await response.json()) as {
-            data?: Array<{ id?: unknown; name?: unknown }>;
-        };
+        type Listing = { data?: Array<{ id?: unknown; name?: unknown }> };
+        const goModels = response.ok
+            ? ((await response.json()) as Listing).data ?? []
+            : [];
+        const zenModels = zenOk
+            ? (((await zenResponse!.json()) as Listing).data ?? []).filter(
+                  (model) =>
+                      typeof model?.id === "string" &&
+                      isOpenCodeZenModel(model.id.trim()),
+              )
+            : [];
         const byId = new Map<string, CatalogModel>();
-        for (const model of payload.data ?? []) {
+        for (const model of [...goModels, ...zenModels]) {
             if (typeof model?.id !== "string" || !model.id.trim()) continue;
             const id = model.id.trim();
             if (!isSupportedOpenCodeGoModel(id)) continue;

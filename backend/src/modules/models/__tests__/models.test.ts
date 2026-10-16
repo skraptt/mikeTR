@@ -336,8 +336,7 @@ describe("GET /models/opencode-go", () => {
     });
 
     it("returns supported Chat Completions and Messages models with the key server-side", async () => {
-        const fetchMock = vi.fn().mockResolvedValue(
-            new Response(
+        const fetchMock = vi.fn(async (url: string) => url.includes("/zen/go/") ? new Response(
                 JSON.stringify({
                     data: [
                         // Qwen and MiniMax use Anthropic Messages; GPT uses the
@@ -360,7 +359,7 @@ describe("GET /models/opencode-go", () => {
                     status: 200,
                     headers: { "Content-Type": "application/json" },
                 },
-            ),
+            ) : new Response(JSON.stringify({ data: [] }), { status: 200 }),
         );
         vi.stubGlobal("fetch", fetchMock);
 
@@ -383,11 +382,10 @@ describe("GET /models/opencode-go", () => {
 
     it("honors OPENCODE_GO_BASE_URL like the chat adapter", async () => {
         process.env.OPENCODE_GO_BASE_URL = "http://localhost:4242/v1/";
-        const fetchMock = vi
-            .fn()
-            .mockResolvedValue(
+        const fetchMock = vi.fn(
+            async () =>
                 new Response(JSON.stringify({ data: [] }), { status: 200 }),
-            );
+        );
         vi.stubGlobal("fetch", fetchMock);
 
         const response = await request(app).get("/models/opencode-go");
@@ -398,13 +396,44 @@ describe("GET /models/opencode-go", () => {
         );
     });
 
+    it("adds OpenCode Zen's free models that keep no data, even without Go", async () => {
+        const fetchMock = vi.fn(async (url: string) =>
+            url.includes("/zen/go/")
+                ? new Response("no subscription", { status: 403 })
+                : new Response(
+                      JSON.stringify({
+                          data: [
+                              { id: "glm-5.3-flash-free", name: "GLM-5.3 Flash Free" },
+                              // Free, but OpenCode may train on it.
+                              { id: "big-pickle", name: "Big Pickle" },
+                              // Paid Zen models are not offered.
+                              { id: "claude-opus-5", name: "Claude Opus 5" },
+                          ],
+                      }),
+                      { status: 200 },
+                  ),
+        );
+        vi.stubGlobal("fetch", fetchMock);
+
+        const response = await request(app).get("/models/opencode-go");
+
+        expect(response.status).toBe(200);
+        expect(response.body.models).toEqual([
+            { id: "glm-5.3-flash-free", label: "GLM-5.3 Flash Free" },
+        ]);
+        expect(fetchMock).toHaveBeenCalledWith(
+            "https://opencode.ai/zen/v1/models",
+            { headers: { Authorization: "Bearer oc-user-key" } },
+        );
+    });
+
     it("reports an upstream failure as a bad gateway", async () => {
         const consoleError = vi
             .spyOn(console, "error")
             .mockImplementation(() => {});
         vi.stubGlobal(
             "fetch",
-            vi.fn().mockResolvedValue(new Response("nope", { status: 401 })),
+            vi.fn(async () => new Response("nope", { status: 401 })),
         );
 
         const response = await request(app).get("/models/opencode-go");

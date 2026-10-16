@@ -178,7 +178,7 @@ const ROUTER_SETTINGS: readonly {
 }[] = [
   { provider: "openrouter", label: "OpenRouter", loadCatalog: getOpenRouterModels },
   { provider: "vercel", label: "Vercel AI Gateway", loadCatalog: getVercelModels },
-  { provider: "opencode-go", label: "OpenCode Go", loadCatalog: getOpenCodeGoModels },
+  { provider: "opencode-go", label: "OpenCode (Go / Zen)", loadCatalog: getOpenCodeGoModels },
   {
     provider: "bedrock",
     label: "Amazon Bedrock",

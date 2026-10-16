@@ -286,6 +286,7 @@ export function underlyingProviderGroup(
     if (/^qwen/i.test(catalogModelId)) return "Alibaba";
     if (/^deepseek-/i.test(catalogModelId)) return "DeepSeek";
     if (/^mimo-/i.test(catalogModelId)) return "Xiaomi";
+    if (/^longcat-/i.test(catalogModelId)) return "Meituan";
   }
   return "Other providers";
 }
