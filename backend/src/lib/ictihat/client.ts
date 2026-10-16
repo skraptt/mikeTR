@@ -48,6 +48,7 @@ const EMSAL_SITE = `${EMSAL}/`;
 const TIMEOUT_MS = 30_000;
 const YARGITAY_PREFIX = "yargitay:";
 const DANISTAY_PREFIX = "danistay:";
+const KYB_PREFIX = "kyb:";
 const AYM_PREFIX = "aym:";
 const NORM_PREFIX = "norm:";
 const AYM = "https://kararlarbilgibankasi.anayasa.gov.tr";
@@ -256,6 +257,14 @@ const YARGITAY: BedestenCourt = {
   prefix: YARGITAY_PREFIX,
   name: "Yargıtay",
   source: "yargitay",
+};
+// Kanun yararına bozma: Yargıtay decisions on the Minister of Justice's or the
+// Chief Public Prosecutor's request, under their own item type.
+const KYB: BedestenCourt = {
+  itemType: "KYB",
+  prefix: KYB_PREFIX,
+  name: "Yargıtay",
+  source: "kyb",
 };
 const DANISTAY: BedestenCourt = {
   itemType: "DANISTAYKARAR",
@@ -631,11 +640,14 @@ export async function searchDecisions(
 ): Promise<IctihatSearchResult & { court: IctihatCourt; filters: IctihatFilters; warnings?: string[] }> {
   const phrase = andQuery(params.query);
   const filters = normalizeFilters(params.filters);
-  // A chamber names its court; only UYAP Emsal reports finality.
+  // A chamber names its court (KYB decisions come from Yargıtay chambers too);
+  // only UYAP Emsal reports finality.
   const court: IctihatCourt = filters.daire
     ? DANISTAY_CHAMBERS.includes(filters.daire)
       ? "danistay"
-      : "yargitay"
+      : params.court === "kyb"
+        ? "kyb"
+        : "yargitay"
     : filters.kesinlesme
       ? "emsal"
       : (params.court ?? "adli");
@@ -644,6 +656,7 @@ export async function searchDecisions(
 
   const single: Record<Exclude<IctihatCourt, "adli">, () => Promise<IctihatSearchResult>> = {
     yargitay: () => searchBedesten(fetchFn, YARGITAY, phrase, limit, page, filters),
+    kyb: () => searchBedesten(fetchFn, KYB, phrase, limit, page, filters),
     danistay: () => searchBedesten(fetchFn, DANISTAY, phrase, limit, page, filters),
     emsal: () => searchEmsal(fetchFn, phrase, limit, page, filters),
     anayasa: () => searchAym(fetchFn, AYM_INDIVIDUAL, phrase, limit, page, filters),
@@ -690,8 +703,9 @@ export async function getDecision(id: string, fetchFn: FetchFn = fetch): Promise
   const trimmed = id.trim();
   const [, prefix = "", rest] = /^(?:([a-z]+):)?(.*)$/i.exec(trimmed) ?? [];
   const kind = prefix.toLowerCase();
-  if ((kind === "" || kind === "yargitay" || kind === "danistay") && /^\d+$/.test(rest)) {
+  if ((kind === "" || kind === "yargitay" || kind === "kyb" || kind === "danistay") && /^\d+$/.test(rest)) {
     if (kind === "yargitay") return getBedesten(fetchFn, YARGITAY, rest);
+    if (kind === "kyb") return getBedesten(fetchFn, KYB, rest);
     if (kind === "danistay") return getBedesten(fetchFn, DANISTAY, rest);
     return getEmsal(fetchFn, rest);
   }

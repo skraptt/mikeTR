@@ -28,7 +28,8 @@ search, and workflows adapted to Turkish law.
 - **Statute search:** semantic search over the full text of 13 laws. Describe an
   issue in plain words ("kiracının temerrüdü") or type a citation such as
   "HMK 107" or "TBK md. 49".
-- **Case law search:** decisions of the Court of Cassation (Yargıtay), the
+- **Case law search:** decisions of the Court of Cassation (Yargıtay),
+  including reversals in the interest of the law (kanun yararına bozma), the
   Council of State (Danıştay) and the Constitutional Court (individual
   applications and constitutional review), plus regional appeal and
   first-instance decisions published in UYAP Emsal. Filter by chamber, decision

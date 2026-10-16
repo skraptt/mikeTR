@@ -23,7 +23,7 @@ export type { IctihatDecision, IctihatSearchResponse } from "@mike/contracts";
 
 const DEFAULT_LIMIT = 10;
 const MAX_QUERY_LENGTH = 300;
-const COURTS: readonly IctihatCourt[] = ["adli", "yargitay", "emsal", "danistay", "anayasa", "norm"];
+const COURTS: readonly IctihatCourt[] = ["adli", "yargitay", "kyb", "emsal", "danistay", "anayasa", "norm"];
 
 export async function searchCaseLaw(
   body: unknown,

@@ -305,17 +305,18 @@ export type KanunCitationsEvent = {
 /**
  * mikeTR: Turkish case law from the courts' public decision services. `adli`
  * searches Yargıtay and UYAP Emsal (regional courts of appeal, some
- * first-instance courts) together; `danistay` is the Council of State;
+ * first-instance courts) together; `kyb` is Yargıtay's reversals in the
+ * interest of the law (kanun yararına bozma); `danistay` is the Council of State;
  * `anayasa` and `norm` are the Constitutional Court's individual applications
  * and constitutional review.
  */
-export type IctihatCourt = "adli" | "yargitay" | "emsal" | "danistay" | "anayasa" | "norm";
+export type IctihatCourt = "adli" | "yargitay" | "kyb" | "emsal" | "danistay" | "anayasa" | "norm";
 
-export type IctihatSource = "yargitay" | "emsal" | "danistay" | "anayasa" | "norm";
+export type IctihatSource = "yargitay" | "kyb" | "emsal" | "danistay" | "anayasa" | "norm";
 
 export type IctihatHit = {
   /**
-   * "yargitay:<n>", "danistay:<n>", "aym:<uuid>", "norm:<uuid>", or a bare
+   * "yargitay:<n>", "kyb:<n>", "danistay:<n>", "aym:<uuid>", "norm:<uuid>", or a bare
    * number for UYAP Emsal.
    */
   id: string;

@@ -27,8 +27,8 @@ export const ICTIHAT_TOOL_NAMES = {
 const MAX_DECISION_CHARS = 24_000;
 
 export const ICTIHAT_SYSTEM_PROMPT = `TURKISH CASE LAW (search_ictihat, get_karar):
-search_ictihat searches published Turkish court decisions: Yargıtay (Court of Cassation), UYAP Emsal (regional courts of appeal and some first-instance courts), Danıştay (Council of State, administrative and tax law) and the Anayasa Mahkemesi (Constitutional Court: individual applications and constitutional review). get_karar returns a decision's full text.
-- Choose the court by the question: civil, commercial and criminal law -> adli (or yargitay); administrative acts, zoning, public servants, tax -> danistay; fundamental rights violations -> anayasa; whether a statute is unconstitutional -> norm.
+search_ictihat searches published Turkish court decisions: Yargıtay (Court of Cassation), Yargıtay reversals in the interest of the law (kanun yararına bozma, KYB), UYAP Emsal (regional courts of appeal and some first-instance courts), Danıştay (Council of State, administrative and tax law) and the Anayasa Mahkemesi (Constitutional Court: individual applications and constitutional review). get_karar returns a decision's full text.
+- Choose the court by the question: civil, commercial and criminal law -> adli (or yargitay); administrative acts, zoning, public servants, tax -> danistay; fundamental rights violations -> anayasa; whether a statute is unconstitutional -> norm; kanun yararına bozma (a final judgment or prosecutor's decision quashed at the Minister of Justice's or Chief Public Prosecutor's request) -> kyb.
 - Use them when the user asks for case law, precedent, "Yargıtay kararı", "içtihat", or how courts apply a rule. Search with a few distinctive Turkish legal terms, not a sentence: every word must appear in the decision (e.g. "kiracının temerrüdü tahliye", "belirsiz alacak davası"). Put fixed phrases in double quotes ("ihtiyaç nedeniyle tahliye") and exclude terms with a leading minus (-ceza). If there are no results, retry with fewer or more general terms.
 - Narrow with the optional filters when the question calls for it: daire (a Yargıtay chamber, e.g. "3. Hukuk Dairesi" for tenancy, "12. Hukuk Dairesi" for enforcement; or a Danıştay one, e.g. "4. Daire" for tax, "6. Daire" for zoning), baslangic/bitis (decision date range) and siralama "yeni" for the most recent decisions. Prefer recent decisions when the law has changed. kesinlesme "kesinlesti" keeps only final decisions of the regional and first-instance courts.
 - Before relying on or quoting a decision, read it with get_karar. Search results contain only the citation details, not the holding.
@@ -36,7 +36,7 @@ search_ictihat searches published Turkish court decisions: Yargıtay (Court of C
 - State what the decision actually held, from its text. Note when its "durum" says it is not final (KESİNLEŞMEDİ), and that decisions of the regional courts and first-instance courts are not binding precedent.
 - Case citations go in prose only, never in the <CITATIONS> block.`;
 
-const COURT_VALUES: readonly IctihatCourt[] = ["adli", "yargitay", "emsal", "danistay", "anayasa", "norm"];
+const COURT_VALUES: readonly IctihatCourt[] = ["adli", "yargitay", "kyb", "emsal", "danistay", "anayasa", "norm"];
 
 export const ICTIHAT_TOOLS = [
   {
@@ -57,7 +57,7 @@ export const ICTIHAT_TOOLS = [
             type: "string",
             enum: COURT_VALUES,
             description:
-              "adli (default): Yargıtay and regional/first-instance courts together; yargitay: Court of Cassation only; emsal: regional courts of appeal and first-instance courts only; danistay: Council of State; anayasa: Constitutional Court individual applications; norm: Constitutional Court review of statutes.",
+              "adli (default): Yargıtay and regional/first-instance courts together; yargitay: Court of Cassation only; kyb: Yargıtay reversals in the interest of the law (kanun yararına bozma); emsal: regional courts of appeal and first-instance courts only; danistay: Council of State; anayasa: Constitutional Court individual applications; norm: Constitutional Court review of statutes.",
           },
           limit: {
             type: "integer",

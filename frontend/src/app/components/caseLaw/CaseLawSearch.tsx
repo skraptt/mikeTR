@@ -32,6 +32,7 @@ const PAGE_SIZE = 10;
 const COURTS: { value: IctihatCourt; label: string }[] = [
     { value: "adli", label: "All civil courts" },
     { value: "yargitay", label: "Yargıtay" },
+    { value: "kyb", label: "Reversals in the interest of the law" },
     { value: "emsal", label: "Regional and first-instance courts" },
     { value: "danistay", label: "Danıştay" },
     { value: "anayasa", label: "Constitutional Court: individual applications" },
@@ -40,6 +41,7 @@ const COURTS: { value: IctihatCourt; label: string }[] = [
 
 const SOURCE_LABELS: Record<IctihatHit["kaynak_turu"], string> = {
     yargitay: "Yargıtay",
+    kyb: "Yargıtay: reversal in the interest of the law",
     emsal: "UYAP Emsal",
     danistay: "Danıştay",
     anayasa: "Constitutional Court: individual application",

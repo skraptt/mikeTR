@@ -238,6 +238,52 @@ describe("filters", () => {
   });
 });
 
+describe("kanun yararına bozma", () => {
+  const kybSearch = {
+    data: {
+      total: 8,
+      emsalKararList: [
+        { documentId: "152530800", birimAdi: "8. Ceza Dairesi", esasNo: "2015/12262", kararNo: "2015/22468", kararTarihiStr: "12.10.2015", kesinlesmeDurumu: null },
+      ],
+    },
+    metadata: { FMTY: "SUCCESS" },
+  };
+
+  it("searches KYB decisions as Yargıtay's, under their own item type and id", async () => {
+    const fetchFn = fakeFetch({ searchDocuments: () => jsonResponse(kybSearch) });
+    const result = await searchDecisions({ query: "kira", court: "kyb" }, fetchFn);
+    expect(result.court).toBe("kyb");
+    expect(result.results[0]).toMatchObject({
+      id: "kyb:152530800",
+      kaynak_turu: "kyb",
+      mahkeme: "Yargıtay 8. Ceza Dairesi",
+      kaynak: "https://mevzuat.adalet.gov.tr/ictihat/152530800",
+    });
+    const [[, init]] = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    expect(JSON.parse((init as RequestInit).body as string).data.itemTypeList).toEqual(["KYB"]);
+  });
+
+  it("keeps a chamber filter on KYB instead of moving to Yargıtay", async () => {
+    const fetchFn = fakeFetch({ searchDocuments: () => jsonResponse(kybSearch) });
+    const result = await searchDecisions({ query: "kira", court: "kyb", filters: { daire: "8. Ceza Dairesi" } }, fetchFn);
+    expect(result.court).toBe("kyb");
+    const [[, init]] = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    expect(JSON.parse((init as RequestInit).body as string).data).toMatchObject({ itemTypeList: ["KYB"], birimAdi: "8. Ceza Dairesi" });
+  });
+
+  it("reads a KYB decision", async () => {
+    const html = "<p>8. Ceza Dairesi 2015/12262 E. , 2015/22468 K.</p>";
+    const fetchFn = fakeFetch({
+      getDocumentContent: () =>
+        jsonResponse({ data: { content: Buffer.from(html).toString("base64"), mimeType: "text/html" } }),
+    });
+    await expect(getDecision("kyb:152530800", fetchFn)).resolves.toMatchObject({
+      id: "kyb:152530800",
+      kaynak: "https://mevzuat.adalet.gov.tr/ictihat/152530800",
+    });
+  });
+});
+
 describe("getDecision", () => {
   it("decodes a Yargıtay decision", async () => {
     const html = "<p>12. Hukuk Dairesi 2023/8563 E. , 2024/4902 K.</p><p>Gereği düşünüldü.</p>";

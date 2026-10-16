@@ -51,8 +51,8 @@ export function CaseLawDecisionPage() {
 
     const view = !id ? null : outcome && outcome.id === id ? outcome : ({ status: "loading" } as const);
     // Every source but UYAP Emsal has a public page per decision.
-    const hasOfficialPage = /^(yargitay|danistay|aym|norm):/.test(id);
-    const sourceNote = id.startsWith("yargitay:")
+    const hasOfficialPage = /^(yargitay|kyb|danistay|aym|norm):/.test(id);
+    const sourceNote = /^(yargitay|kyb):/.test(id)
         ? t("Source: Yargıtay decision search (mevzuat.adalet.gov.tr).")
         : id.startsWith("danistay:")
           ? t("Source: Danıştay decision search (mevzuat.adalet.gov.tr).")

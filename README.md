@@ -27,8 +27,8 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 - **Mevzuat araması:** 13 kanunun tam metninde anlam araması yapar. "Kiracının
   temerrüdü" gibi bir konu yazabilir ya da "HMK 107", "TBK md. 49" gibi doğrudan
   madde atfıyla arayabilirsiniz.
-- **İçtihat araması:** Yargıtay, Danıştay, Anayasa Mahkemesi (bireysel başvuru
-  ve norm denetimi) kararlarında ve UYAP Emsal'deki bölge adliye ve ilk derece
+- **İçtihat araması:** Yargıtay (kanun yararına bozma kararları dahil), Danıştay,
+  Anayasa Mahkemesi (bireysel başvuru ve norm denetimi) kararlarında ve UYAP Emsal'deki bölge adliye ve ilk derece
   mahkemesi kararlarında arama yapar. Daireye, karar tarihine ve kesinleşme
   durumuna göre süzer; kararın tam metnini açar ve resmî sayfasına bağlantı
   verir. Asistan, bir karara atıf yapmadan önce kararı

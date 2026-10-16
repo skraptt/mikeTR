@@ -9,7 +9,7 @@ export function decisionReaderHref(decision: { id: string; atif?: string | null 
 }
 
 export function decisionHref(decision: { id: string; atif?: string | null; kaynak?: string | null }): string {
-    return /^(yargitay|danistay|aym|norm):/.test(decision.id) && decision.kaynak
+    return /^(yargitay|kyb|danistay|aym|norm):/.test(decision.id) && decision.kaynak
         ? decision.kaynak
         : decisionReaderHref(decision);
 }
