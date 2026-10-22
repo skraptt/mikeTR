@@ -1,11 +1,12 @@
 # mikeTR Türk hukuku değerlendirme seti — TASLAK
 # Açıklama ve puanlama: README.md
 # Kanun numaraları: 6098 TBK, 6100 HMK, 6102 TTK, 4721 TMK, 6502 TKHK,
-# 6698 KVKK, 5941 Çek K., 6769 SMK.
+# 6698 KVKK, 5941 Çek K., 6769 SMK, 2004 İİK, 4857 ve 1475 İş K., 2709 Anayasa,
+# 2577 İYUK, 3194 İmar K.
 # "incelendi: false" olan sorular bir hukukçunun onayını bekliyor.
 
-surum: 1
-tarih: 2026-10-14
+surum: 2
+tarih: 2026-10-22
 
 sorular:
   # ---------------------------------------------------------------- Kira
@@ -21,7 +22,7 @@ sorular:
     tuzaklar:
       - "TBK md. 315'i hiç anmadan yalnızca md. 352'deki iki haklı ihtara dayanmak."
       - "Süreyi on gün olarak söylemek (on gün konut ve çatılı işyeri dışındaki kiralar içindir)."
-    kapsam_disi_not: "İcra yoluyla tahliye (İİK) veritabanında yok; değinilirse doğrulanmadığı belirtilmeli."
+    kapsam_disi_not: "İcra yoluyla tahliye İİK md. 269 vd.'dadır; değinilirse veritabanından atıf yapılmalı."
     incelendi: false
 
   - id: kira-02
@@ -162,7 +163,7 @@ sorular:
       - "Talep eden tedbir sebebini ve türünü belirtmeli, haklılığını yaklaşık olarak ispat etmelidir (md. 390/3)."
     tuzaklar:
       - "Para alacağı için ihtiyati haciz (İİK) ile ihtiyati tedbiri karıştırıp İİK'yı doğrulanmış gibi anlatmak."
-    kapsam_disi_not: "İhtiyati haciz İİK'dadır ve veritabanında yoktur; değinilirse doğrulanmadığı belirtilmeli."
+    kapsam_disi_not: "İhtiyati haciz İİK md. 257 vd.'dadır; değinilirse veritabanından atıf yapılmalı."
     incelendi: false
 
   # ------------------------------------------------------------ Borçlar
@@ -176,7 +177,7 @@ sorular:
       - "Fiil ceza kanunlarında daha uzun zamanaşımı öngörülen bir suçsa o süre uygulanır."
     tuzaklar:
       - "Genel on yıllık süreyi (TBK md. 146) haksız fiil için esas almak."
-    kapsam_disi_not: "Karayolları Trafik Kanunu ve sigorta mevzuatı veritabanında yok."
+    kapsam_disi_not: "Sigorta mevzuatı veritabanında yok; Karayolları Trafik Kanunu (2918) var."
     incelendi: false
 
   - id: borclar-02
@@ -262,49 +263,52 @@ sorular:
   - id: kapsam-01
     alan: iş hukuku
     soru: "Beş yıl çalıştığım işyerinden haklı nedenle istifa ettim. Kıdem tazminatı alabilir miyim?"
-    beklenen_maddeler: []
-    kapsam_disi: true
-    kapsam_disi_not: "İş Kanunu (4857) ve 1475 s. K. md. 14 veritabanında yok."
+    beklenen_maddeler:
+      - { kanun: "1475", madde: "14" }
+      - { kanun: "4857", madde: "24" }
     beklenen_noktalar:
-      - "İş hukuku mevzuatının veritabanında olmadığını açıkça belirtir."
-      - "Genel bilgi verirse 'Not: Bu bölüm, veritabanındaki kanun metinleriyle doğrulanmamıştır…' uyarısını ekler."
+      - "Kıdem tazminatı, yürürlükte kalan 1475 sayılı İş Kanunu md. 14'e dayanır; 4857 sayılı İş Kanunu'nda düzenlenmemiştir."
+      - "İşçinin haklı nedenle feshi (4857 s. K. md. 24) kıdem tazminatı hakkı doğurur; en az bir yıllık kıdem gerekir."
     tuzaklar:
-      - "İş Kanunu ya da 1475 s. K. için doğrulanmış gibi madde numarası vermek."
-      - "TBK'daki hizmet sözleşmesi hükümlerini kıdem tazminatının dayanağıymış gibi göstermek."
+      - "Kıdem tazminatını 4857 sayılı İş Kanunu'nun bir maddesine dayandırmak."
+      - "Haklı nedenle istifada kıdem tazminatının alınamayacağını söylemek."
     incelendi: false
 
   - id: kapsam-02
     alan: icra
     soru: "Borçlu ödeme emrine itiraz etti. İtirazın iptali davasını ne kadar sürede açmalıyım?"
-    beklenen_maddeler: []
-    kapsam_disi: true
-    kapsam_disi_not: "İcra ve İflas Kanunu (md. 67) veritabanında yok."
+    beklenen_maddeler:
+      - { kanun: "2004", madde: "67" }
     beklenen_noktalar:
-      - "İİK'nın veritabanında olmadığını açıkça belirtir; süreyi verirse doğrulanmadığını not eder."
+      - "İtirazın iptali davası, itirazın tebliği tarihinden itibaren bir yıl içinde açılır (İİK md. 67)."
+      - "Bir yıl geçerse alacaklı genel hükümlere göre alacak davası açabilir."
+      - "Haklı çıkan taraf lehine en az yüzde yirmi icra inkâr tazminatına hükmedilebilir."
     tuzaklar:
-      - "İİK md. 67'yi doğrulanmış bir atıf gibi sunmak."
+      - "Süreyi altı ay ya da yedi gün olarak söylemek (yedi gün, ödeme emrine itiraz süresidir)."
     incelendi: false
 
   # ------------------------------------------------- İdare / Anayasa içtihadı
   - id: idare-01
     alan: idare
     soru: "Belediyenin onayladığı imar planı değişikliği mülkümü etkiliyor. Danıştay bu tür planların iptalinde neye bakıyor?"
-    beklenen_maddeler: []
-    kapsam_disi: true
-    kapsam_disi_not: "İmar Kanunu ve İYUK veritabanında yok; cevap Danıştay kararlarına dayanmalı."
+    beklenen_maddeler:
+      - { kanun: "3194", madde: "8" }
+      - { kanun: "2577", madde: "7" }
     ictihat:
       mahkeme: danistay
       onerilen_filtreler: { daire: "6. Daire", siralama: "yeni" }
       beklenen: "Danıştay'da arayıp en az bir kararı okumak; planlama ilkeleri ve kamu yararı gibi ölçütleri karardan aktarmak."
     tuzaklar:
-      - "İYUK'taki dava açma süresini doğrulanmış bir atıf gibi vermek."
+      - "Dava açma süresini (İYUK md. 7: altmış gün) atlamak ya da yanlış vermek."
       - "Okunmamış karar künyesi vermek."
     incelendi: false
 
   - id: aym-01
     alan: anayasa
     soru: "Davam sekiz yıldır sürüyor. Anayasa Mahkemesi makul sürede yargılanma hakkı ihlali konusunda nasıl karar veriyor?"
-    beklenen_maddeler: []
+    beklenen_maddeler:
+      - { kanun: "2709", madde: "36" }
+      - { kanun: "2709", madde: "141" }
     ictihat:
       mahkeme: anayasa
       onerilen_filtreler: { siralama: "yeni" }
@@ -312,8 +316,51 @@ sorular:
     beklenen_noktalar:
       - "Okunan bir AYM kararına dayanarak ihlal değerlendirmesinin ölçütlerini aktarır."
       - "Uzun yargılama şikâyetleri için başvuru yolları ve Tazminat Komisyonu gibi ayrıntılar veritabanında yoksa doğrulanmadığını belirtir."
-    kapsam_disi_not: "Anayasa ve 6384 s. Tazminat Komisyonu Kanunu veritabanında yok."
+    kapsam_disi_not: "6384 s. Tazminat Komisyonu Kanunu veritabanında yok."
     tuzaklar:
       - "AYM kararı künyesi uydurmak."
-      - "Anayasa md. 36'yı doğrulanmış bir atıf gibi sunmak."
+      - "6384 s. Kanun için doğrulanmış gibi madde numarası vermek."
+    incelendi: false
+
+  # ------------------------------------------------- Hesaplama araçları
+  - id: hesap-01
+    alan: süre
+    soru: "Asliye hukuk mahkemesinin kararı bana 10 Temmuz 2026'da tebliğ edildi. İstinaf için son gün ne zaman?"
+    beklenen_maddeler:
+      - { kanun: "6100", madde: "345" }
+      - { kanun: "6100", madde: "104" }
+    beklenen_noktalar:
+      - "İstinaf süresi tebliğden itibaren iki haftadır (HMK md. 345)."
+      - "Süre adli tatilde (24 Temmuz) bittiğinden adli tatilin bitiminden itibaren bir hafta uzar; son gün 7 Eylül 2026 Pazartesi'dir (HMK md. 104)."
+    hesap: { arac: "calculate_deadline", beklenen: "2026-09-07" }
+    tuzaklar:
+      - "Son günü 24 Temmuz 2026 olarak vermek."
+      - "Günleri aracı kullanmadan kafadan saymak."
+    incelendi: false
+
+  - id: hesap-02
+    alan: faiz
+    soru: "100.000 TL'lik ticari alacağın 1 Ocak 2024 ile 1 Ocak 2025 arasındaki ticari temerrüt faizi ne kadardır?"
+    beklenen_maddeler: []
+    beklenen_noktalar:
+      - "Ticari işlerde temerrüt faizi TCMB'nin avans oranıdır (3095 s. K. md. 2/2)."
+      - "2024'ün ilk yarısı %44,25, ikinci yarısı %51,75 (30 Haziran oranı beş puandan fazla değiştiği için)."
+      - "Faiz basit faizdir; toplam 48.152,05 TL'dir (182 gün %44,25: 22.064,38 TL + 184 gün %51,75: 26.087,67 TL)."
+    hesap: { arac: "calculate_interest" }
+    tuzaklar:
+      - "Tüm yıl için tek bir oran uygulamak."
+      - "Faize faiz yürütmek."
+    incelendi: false
+
+  - id: hesap-03
+    alan: harç
+    soru: "500.000 TL'lik bir alacak davasını asliye hukuk mahkemesinde açarken ne kadar harç öderim?"
+    beklenen_maddeler: []
+    beklenen_noktalar:
+      - "Başvurma harcı 732,00 TL (2026)."
+      - "Peşin harç, binde 68,31 nispi harcın dörtte biridir: 8.538,75 TL."
+      - "Açılışta toplam 9.270,75 TL; gider avansı ve vekâlet harcı ayrıca ödenir."
+    hesap: { arac: "calculate_court_fees" }
+    tuzaklar:
+      - "Nispi harcın tamamını peşin istemek."
     incelendi: false

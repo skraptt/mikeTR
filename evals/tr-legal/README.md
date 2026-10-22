@@ -17,7 +17,7 @@ cevap verip vermediğini** ölçmektir:
 - İçtihat gerektiğinde doğru mahkemede arıyor, kararı okuyor ve künyeyi
   resmî kaynaktan mı alıyor?
 
-Sorular [`sorular.yaml`](sorular.yaml) dosyasındadır. Beklenen maddeler, 13
+Sorular [`sorular.yaml`](sorular.yaml) dosyasındadır. Beklenen maddeler, 22
 Ekim 2026 itibarıyla mikeTR veritabanındaki (mevzuat.gov.tr ile karşılaştırılmış)
 metinlerden kontrol edilmiştir.
 
@@ -50,16 +50,30 @@ bir karar künyesi uydurmak, o sorunun puanını 0 yapar. mikeTR'nin atıf kontr
 
 ## Nasıl çalıştırılır
 
-Şimdilik elle:
+`backend/` klasöründe:
 
-1. mikeTR'de değerlendirilecek modeli seçin ve her soruyu **yeni bir sohbette**
-   sorun.
-2. Cevabı, atıf kontrolü kutusunu ve hangi araçların kullanıldığını (mevzuat
-   araması, içtihat araması, karar okuma) kaydedin.
-3. Yukarıdaki ölçütlere göre puanlayın.
+```bash
+npm run eval -- --model gemini-3.8-flash
+npm run eval -- --model ollama/qwen3:8b --ids kira-01,hesap-01
+```
 
-İleride bu adımları otomatik çalıştıran bir betik eklenebilir; atıf kontrolü ve
-araç kullanımı zaten sohbet olaylarında kayıtlı.
+Betik (`backend/scripts/eval/run-eval.ts`) her soruyu, uygulamadaki asistanla
+aynı sistem talimatı, aynı araçlar (mevzuat, içtihat, süre/faiz/harç) ve aynı
+model katmanıyla yeni bir sohbetmiş gibi sorar. Model anahtarı `backend/.env`
+dosyasından ya da Ollama'dan gelir.
+
+Otomatik puan (0–5) şunları ölçer:
+
+- Beklenen maddelere atıf (0–3), mikeTR'nin atıf kontrolüyle.
+- Soruya özgü gereklilik (0–2): içtihatta karar okuma, hesap aracını kullanma ve
+  beklenen sonucu verme, kapsam dışı uyarısı.
+- Uydurma atıf (veritabanında olmayan madde ya da kaynaksız karar künyesi)
+  puanı sıfırlar.
+
+Hukuki noktalar (0–3) ve tuzaklar (0–2) elle puanlanır: sonuçlar
+`sonuclar/<model>-<tarih>.md` dosyasına, her soru için işaretlenecek
+noktalarla birlikte yazılır; tam kayıt (araç çağrıları, atıf durumları)
+aynı adlı `.json` dosyasındadır.
 
 ## Uyarı
 
