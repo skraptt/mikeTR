@@ -57,6 +57,7 @@ export type UdfParagraph = {
     alignment?: UdfAlignment;
     /** Points. */
     leftIndent?: number;
+    rightIndent?: number;
     firstLineIndent?: number;
 };
 
@@ -134,6 +135,7 @@ function readParagraph(el: Element, pool: string[]): UdfParagraph {
                 ? (alignment as UdfAlignment)
                 : undefined,
         leftIndent: numberAttr(el, "LeftIndent"),
+        rightIndent: numberAttr(el, "RightIndent"),
         firstLineIndent: numberAttr(el, "FirstLineIndent"),
     };
 }
@@ -360,8 +362,9 @@ export async function readDocxBlocks(data: ArrayBuffer | Blob): Promise<UdfBlock
 
 const DEFAULT_FAMILY = "Times New Roman";
 const DEFAULT_SIZE = 12;
-// Table width on an A4 page between UYAP's default margins, in points.
-const TABLE_WIDTH = 595.28 - 42.52 - 28.35;
+// Total table width in points: inside an A4 page with the editor's 1.5 cm
+// margins (595.28 - 2 x 42.525 = 510), with room to spare.
+const TABLE_WIDTH = 480;
 
 function escapeAttr(value: string): string {
     return value
@@ -399,40 +402,53 @@ export function buildUdfXml(blocks: UdfBlock[]): string {
         const attrs =
             `Alignment="${p.alignment ?? 0}"` +
             (p.leftIndent ? ` LeftIndent="${p.leftIndent.toFixed(1)}"` : "") +
+            (p.rightIndent ? ` RightIndent="${p.rightIndent.toFixed(1)}"` : "") +
             (p.firstLineIndent ? ` FirstLineIndent="${p.firstLineIndent.toFixed(1)}"` : "");
         return `<paragraph ${attrs}>${parts.join("")}</paragraph>\n`;
     };
 
-    const cellAttrs =
-        `colspan="1" align="top" fillColor="-1" border="borderCell" borderStyle="borderStyle-solid" borderWidth="1.0" borderColor="-16777216" borderSpec="15"`;
-    const body = blocks
-        .map((block) => {
-            if (block.kind === "paragraph") return paragraphXml(block);
-            const columns = Math.max(1, ...block.rows.map((r) => r.length));
-            const span = (TABLE_WIDTH / columns).toFixed(1);
-            const rows = block.rows
-                .map((cells, r) => {
-                    const padded = [...cells, ...Array(columns - cells.length).fill([])];
-                    return (
-                        `<row rowName="row${r + 1}" rowType="dataRow" border="borderCell" height="20.0">` +
-                        padded
-                            .map(
-                                (paragraphs: UdfParagraph[]) =>
-                                    `<cell ${cellAttrs}>${(paragraphs.length
-                                        ? paragraphs
-                                        : [{ kind: "paragraph", runs: [] } as UdfParagraph]
-                                    )
-                                        .map(paragraphXml)
-                                        .join("")}</cell>`,
-                            )
-                            .join("") +
-                        `</row>\n`
-                    );
-                })
-                .join("");
-            return `<table tableName="Sabit" columnCount="${columns}" columnSpans="${Array(columns).fill(span).join(",")}" border="borderCell">\n${rows}</table>\n`;
-        })
-        .join("");
+    // Tables as the editor saves them (a table made and saved in UYAP Doküman
+    // Editörü v5.4): whole-number column spans, rows with only a name and type,
+    // bare cells whose paragraphs carry a small inset.
+    const cellParagraph = (p: UdfParagraph): UdfParagraph => ({
+        ...p,
+        leftIndent: p.leftIndent ?? 3,
+        rightIndent: p.rightIndent ?? 1,
+    });
+    const items: string[] = [];
+    blocks.forEach((block) => {
+        if (block.kind === "paragraph") {
+            items.push(paragraphXml(block));
+            return;
+        }
+        const columns = Math.max(1, ...block.rows.map((r) => r.length));
+        const span = Math.round(TABLE_WIDTH / columns);
+        const rows = block.rows
+            .map((cells, r) => {
+                const padded: UdfParagraph[][] = [...cells, ...Array(columns - cells.length).fill([])];
+                return (
+                    `<row rowName="row${r + 1}" rowType="dataRow">` +
+                    padded
+                        .map(
+                            (paragraphs) =>
+                                `<cell>${(paragraphs.length ? paragraphs : [{ kind: "paragraph", runs: [] } as UdfParagraph])
+                                    .map((p) => paragraphXml(cellParagraph(p)).trimEnd())
+                                    .join("")}</cell>`,
+                        )
+                        .join("") +
+                    `</row>`
+                );
+            })
+            .join("");
+        items.push(
+            `<table tableName="Sabit" columnCount="${columns}" columnSpans="${Array(columns).fill(span).join(",")}" border="borderCell">${rows}</table>`,
+        );
+    });
+    // The editor always ends a document with a paragraph, never a table.
+    if (blocks.length === 0 || blocks[blocks.length - 1].kind === "table") {
+        items.push(paragraphXml({ kind: "paragraph", runs: [] }));
+    }
+    const body = items.join("");
 
     // CDATA cannot hold "]]>"; split it across two sections if it appears.
     const cdata = pool.join("").replace(/]]>/g, "]]]]><![CDATA[>");

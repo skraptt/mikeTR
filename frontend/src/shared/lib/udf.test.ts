@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
 import {
@@ -66,7 +68,8 @@ describe("buildUdfXml", () => {
         const xml = buildUdfXml(blocks);
         expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8" ?>')).toBe(true);
         expect(xml).not.toContain("<tab ");
-        expect(text(await readUdf(await udfFrom(xml)))).toEqual(text(blocks));
+        // A document ending in a table gets a closing empty paragraph, as in UYAP.
+        expect(text(await readUdf(await udfFrom(xml)))).toEqual([...text(blocks), ""]);
     });
 
     it("keeps formatting through a round trip", async () => {
@@ -103,5 +106,31 @@ describe("Word conversion", () => {
             { kind: "table", rows: [[[{ kind: "paragraph", runs: [{ text: "A" }] }], [{ kind: "paragraph", runs: [{ text: "B" }] }]]] },
         ];
         expect(text(await readDocxBlocks(await udfToDocxBlob(blocks)))).toEqual([[["A", "B"]]]);
+    });
+});
+
+describe("tables as UYAP Doküman Editörü saves them", () => {
+    // A 2x2 table made and saved in the editor (v5.4.21).
+    const saved = fs.readFileSync(path.join(__dirname, "__fixtures__/uyap-tablo-content.xml"), "utf8");
+
+    it("reads the editor's table", async () => {
+        const blocks = await readUdf(await udfFrom(saved));
+        expect(text(blocks)).toEqual([[[" a", " b"], [" c", " d"]], ""]);
+    });
+
+    it("writes tables in the same shape", () => {
+        const table: UdfBlock = {
+            kind: "table",
+            rows: [
+                [[{ kind: "paragraph", runs: [{ text: "a" }] }], [{ kind: "paragraph", runs: [{ text: "b" }] }]],
+                [[{ kind: "paragraph", runs: [{ text: "c" }] }], [{ kind: "paragraph", runs: [{ text: "d" }] }]],
+            ],
+        };
+        const xml = buildUdfXml([table]);
+        const spans = /columnSpans="([^"]+)"/.exec(xml)![1].split(",");
+        expect(spans.every((n) => /^\d+$/.test(n))).toBe(true);
+        expect(xml).toMatch(/<row rowName="row1" rowType="dataRow"><cell><paragraph Alignment="0" LeftIndent="3.0" RightIndent="1.0">/);
+        // Like the editor, the document ends with a paragraph after the table.
+        expect(xml).toMatch(/<\/table><paragraph[^>]*><content[^>]*\/><\/paragraph>\s*<\/elements>/);
     });
 });

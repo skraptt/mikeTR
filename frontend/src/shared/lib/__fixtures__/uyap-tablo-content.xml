@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<template format_id="1.8" >
+<content><![CDATA[ a
+ b
+ c
+ d
+
+]]></content><properties><pageFormat mediaSizeName="1" leftMargin="42.525000000000006" rightMargin="42.525000000000006" topMargin="42.525000000000006" bottomMargin="42.52500000000006" paperOrientation="1" headerFOffset="20.0" footerFOffset="20.0" /></properties>
+<elements resolver="hvl-default" >
+<table tableName="Sabit" columnCount="2" columnSpans="100,100" border="borderCell"><row rowName="row1" rowType="dataRow"><cell><paragraph Alignment="0" LeftIndent="3.0" RightIndent="1.0"><content Alignment="0" LeftIndent="3.0" RightIndent="1.0" startOffset="0" length="3" /></paragraph></cell><cell><paragraph Alignment="0" LeftIndent="3.0" RightIndent="1.0"><content Alignment="0" LeftIndent="3.0" RightIndent="1.0" startOffset="3" length="3" /></paragraph></cell></row><row rowName="row2" rowType="dataRow"><cell><paragraph Alignment="0" LeftIndent="3.0" RightIndent="1.0"><content Alignment="0" LeftIndent="3.0" RightIndent="1.0" startOffset="6" length="3" /></paragraph></cell><cell><paragraph Alignment="0" LeftIndent="3.0" RightIndent="1.0"><content Alignment="0" LeftIndent="3.0" RightIndent="1.0" startOffset="9" length="3" /></paragraph></cell></row></table><paragraph><content startOffset="12" length="1" /></paragraph>
+</elements>
+<styles><style name="default" description="Geçerli" family="Lucida Grande" size="13" bold="false" italic="false" FONT_ATTRIBUTE_KEY="com.apple.laf.AquaFonts$DerivedUIResourceFont[family=Lucida Grande,name=Lucida Grande,style=plain,size=13]" /><style name="hvl-default" family="Times New Roman" size="12" description="Gövde" /></styles>
+</template>
