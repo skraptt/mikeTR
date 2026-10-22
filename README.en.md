@@ -45,6 +45,8 @@ search, and workflows adapted to Turkish law.
 - **Workflows adapted to Turkish law:** contract reviews, tabular reviews, a
   legal research memo and a draft formal notice (ihtarname)
   ([skraptt/mike-workflows-tr](https://github.com/skraptt/mike-workflows-tr)).
+- **UYAP UDF:** upload .udf files, and download Word documents as .udf for
+  filing through UYAP (text, formatting, alignment and tables).
 - **Mike's features:** chat with documents, apply suggested edits, tabular
   document review, projects and folders.
 - **Bring your own key:** add an Anthropic (Claude), Google (Gemini) or OpenAI

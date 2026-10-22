@@ -40,6 +40,8 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 - **Güncellik kontrolü:** Kanun metinleri her gün mevzuat.gov.tr ile
   karşılaştırılır. Bulunan değişiklikler, siz onaylayınca uygulanır; eski metin
   arşivde saklanır.
+- **UYAP UDF:** .udf dosyalarını yükleyebilir, Word belgelerini UYAP'a
+  yüklenebilir .udf olarak indirebilirsiniz (metin, biçim, hizalama ve tablolar).
 - **Mike'ın özellikleri:** belgelerle sohbet, önerilen düzenlemeleri uygulama,
   tablo hâlinde belge inceleme, hazır iş akışları, proje ve klasörler.
 - **Türkçe iş akışları:** sözleşme incelemeleri, tablo incelemeleri, hukuki
