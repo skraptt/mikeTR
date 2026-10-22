@@ -14,17 +14,42 @@ import { decisionHref } from "@/app/components/caseLaw/caseLawLinks";
 
 // mikeTR: Türk mevzuatı araması ve atıf kontrolü için sohbet blokları.
 
+// Kanun numarası -> atıfta kullanılan kısa ad; backend/src/lib/kanunList.ts ile aynı.
+// Listede olmayanlar "<no> s. K." olarak yazılır.
 const KANUN_KISALTMA: Record<string, string> = {
     "4721": "TMK",
-    "5846": "FSEK",
-    "5941": "Çek K.",
     "6098": "TBK",
-    "6100": "HMK",
     "6102": "TTK",
-    "6362": "SPK",
+    "5941": "Çek K.",
     "6502": "TKHK",
-    "6698": "KVKK",
+    "634": "KMK",
+    "2644": "Tapu K.",
+    "5846": "FSEK",
     "6769": "SMK",
+    "6362": "SPK",
+    "4054": "RKHK",
+    "6698": "KVKK",
+    "6100": "HMK",
+    "2004": "İİK",
+    "6325": "HUAK",
+    "7201": "Tebligat K.",
+    "1136": "Av. K.",
+    "1512": "Noterlik K.",
+    "4857": "İş K.",
+    "7036": "İş Mah. K.",
+    "5237": "TCK",
+    "5271": "CMK",
+    "5326": "Kabahatler K.",
+    "2918": "KTK",
+    "2709": "AY",
+    "2577": "İYUK",
+    "657": "DMK",
+    "2942": "Kamulaştırma K.",
+    "3194": "İmar K.",
+    "4734": "KİK",
+    "213": "VUK",
+    "193": "GVK",
+    "3065": "KDVK",
 };
 
 /** "TBK md. 315", "TMK Geçici md. 1", "6101 s. K. md. 1" */

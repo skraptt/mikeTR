@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "kanun:import": "tsx scripts/kanun/import-kanunlar.ts",
+    "kanun:fetch": "tsx scripts/kanun/fetch-kanunlar.ts",
     "kanun:embed": "tsx scripts/kanun/embed-kanun-maddeleri.ts",
     "kanun:check": "tsx scripts/kanun/check-kanunlar.ts",
     "kanun:snapshot": "tsx scripts/kanun/export-snapshot.ts",

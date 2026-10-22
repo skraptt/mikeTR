@@ -4,35 +4,19 @@ import type { Db } from "./supabase";
 // Asistan cevabındaki kanun maddesi atıflarını ayıklar ve her birini
 // sohbetteki kanun aramalarının sonuçlarına ve kanun_maddeleri tablosuna göre doğrular.
 
+import { KANUNLAR } from "./kanunList";
+
 type Law = { no: string; short: string; abbrs: string[]; names: string[] };
 
-// Veritabanındaki kanunlar. `names` küçük harfli, Türkçe ek almamış hâlleridir.
-const LAWS: Law[] = [
-    { no: "4721", short: "TMK", abbrs: ["TMK", "MK"], names: ["türk medeni kanunu", "türk medenî kanunu", "medeni kanun"] },
-    { no: "4722", short: "4722 s. K.", abbrs: [], names: [] },
-    { no: "5846", short: "FSEK", abbrs: ["FSEK"], names: ["fikir ve sanat eserleri kanunu"] },
-    { no: "5941", short: "Çek K.", abbrs: ["ÇK"], names: ["çek kanunu", "çek k."] },
-    { no: "6098", short: "TBK", abbrs: ["TBK"], names: ["türk borçlar kanunu", "borçlar kanunu"] },
-    { no: "6100", short: "HMK", abbrs: ["HMK"], names: ["hukuk muhakemeleri kanunu"] },
-    { no: "6101", short: "6101 s. K.", abbrs: [], names: [] },
-    { no: "6102", short: "TTK", abbrs: ["TTK"], names: ["türk ticaret kanunu"] },
-    { no: "6103", short: "6103 s. K.", abbrs: [], names: [] },
-    { no: "6362", short: "SPK", abbrs: ["SPK", "SPKn"], names: ["sermaye piyasası kanunu"] },
-    { no: "6502", short: "TKHK", abbrs: ["TKHK"], names: ["tüketicinin korunması hakkında kanun"] },
-    { no: "6698", short: "KVKK", abbrs: ["KVKK"], names: ["kişisel verilerin korunması kanunu"] },
-    { no: "6769", short: "SMK", abbrs: ["SMK"], names: ["sınai mülkiyet kanunu"] },
-];
+// Veritabanındaki kanunlar (lib/kanunList).
+const LAWS: Law[] = KANUNLAR.map(({ no, short, abbrs, names }) => ({ no, short, abbrs, names }));
 
 // Sık geçen ama veritabanında olmayan kanunlar; etiket için kullanılır.
 const OUTSIDE_LAWS: { label: string; abbrs: string[]; names: string[] }[] = [
-    { label: "İş Kanunu", abbrs: ["İK", "İşK"], names: ["iş kanunu"] },
-    { label: "İİK", abbrs: ["İİK"], names: ["icra ve iflas kanunu"] },
-    { label: "TCK", abbrs: ["TCK"], names: ["türk ceza kanunu"] },
-    { label: "CMK", abbrs: ["CMK"], names: ["ceza muhakemesi kanunu"] },
-    { label: "İYUK", abbrs: ["İYUK"], names: ["idari yargılama usulü kanunu"] },
-    { label: "Anayasa", abbrs: ["AY"], names: ["anayasa"] },
+    { label: "Harçlar K.", abbrs: ["HarçK"], names: ["harçlar kanunu"] },
+    { label: "Bankacılık K.", abbrs: [], names: ["bankacılık kanunu"] },
+    { label: "Basın K.", abbrs: [], names: ["basın kanunu"] },
 ];
-
 
 type RawCitation = { lawNo: string | null; lawLabel: string; madde: string };
 
@@ -100,9 +84,11 @@ function findLawMentions(text: string): Mention[] {
     }
     // "1475 sayılı (mülga) İş Kanunu" gibi numarayla anılan kanunlar.
     // `\b` Türkçe harfleri sözcük karakteri saymaz ("sayılı" "ı" ile biter), bu yüzden açık sınır kullanılır.
+    const numbered = new Set<Mention>();
     for (const m of text.matchAll(new RegExp(`(?<!\\d)(\\d{3,5})\\s+sayılı(?![${WORD}])`, "gu"))) {
         const law = LAWS.find((l) => l.no === m[1]);
         add(m.index!, m[0].length, law?.no ?? null, law?.short ?? `${m[1]} s. K.`);
+        numbered.add(mentions[mentions.length - 1]);
     }
     // Bilinmeyen kısaltmalar: "XYZ md. 5" — veritabanında olmadığı varsayılır.
     // En az iki büyük harf aranır; "Geçici md. 1" gibi sözcükler kısaltma sayılmaz.
@@ -112,7 +98,15 @@ function findLawMentions(text: string): Mention[] {
 
     // Aynı yerde birden fazla eşleşme varsa (ör. "Türk Borçlar Kanunu" ve "Borçlar Kanunu") en uzunu kalsın.
     mentions.sort((a, b) => a.index - b.index || b.end - a.end);
-    return mentions.filter((m, i) => !mentions.slice(0, i).some((p) => p.index <= m.index && p.end >= m.end));
+    const kept = mentions.filter((m, i) => !mentions.slice(0, i).some((p) => p.index <= m.index && p.end >= m.end));
+    // "1475 sayılı İş Kanunu": numara, ardından gelen adın hangi kanun olduğunu belirler
+    // (1475 sayılı eski İş Kanunu, 4857 sayılı İş Kanunu değildir).
+    for (let i = 1; i < kept.length; i++) {
+        const prev = kept[i - 1];
+        if (!numbered.has(prev) || kept[i].index - prev.end > 3) continue;
+        kept[i] = { ...kept[i], lawNo: prev.lawNo, label: prev.label };
+    }
+    return kept;
 }
 
 export function extractStatuteCitations(text: string): RawCitation[] {

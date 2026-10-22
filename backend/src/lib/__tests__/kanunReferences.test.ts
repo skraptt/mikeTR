@@ -17,13 +17,22 @@ describe("findArticleReferences", () => {
     ["Türk Borçlar Kanunu'nun 315. maddesi", [["6098", "315"]]],
     ["HMK 107 belirsiz alacak", [["6100", "107"]]],
     ["TMK1", [["4721", "1"]]],
+    ["İİK 89", [["2004", "89"]]],
+    ["TCK md. 141", [["5237", "141"]]],
+    ["İşK 18", [["4857", "18"]]],
+    ["AY 2", [["2709", "2"]]],
+    ["Anayasa'nın 35. maddesi", [["2709", "35"]]],
+    ["213 sayılı Kanun 359", [["213", "359"]]],
+    ["4857 sayılı İş Kanunu'nun 18. maddesi", [["4857", "18"]]],
+    // The old 1475 sayılı İş Kanunu (severance pay) is not the 4857 one.
+    ["1475 sayılı İş Kanunu'nun 14. maddesi", [["1475", "14"]]],
   ])("reads %j", (query, expected) => {
     expect(findArticleReferences(query)).toEqual(
       expected.map(([kanun_no, madde_no]) => ({ kanun_no, madde_no })),
     );
   });
 
-  it.each(["belirsiz alacak davası", "HMK", "6098 sayılı kanun", "İİK 89", "6100107"])(
+  it.each(["belirsiz alacak davası", "HMK", "6098 sayılı kanun", "HarçK 28", "6100107"])(
     "finds nothing in %j",
     (query) => {
       expect(findArticleReferences(query)).toEqual([]);

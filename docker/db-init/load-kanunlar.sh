@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # mikeTR: loads the bundled statute snapshot into a new database — the article
 # texts as last approved against mevzuat.gov.tr plus their BGE-M3 vectors, so
-# statute search works without embedding 4,000+ articles on first start.
+# statute search works without embedding some 9,000 articles on first start.
 # Regenerate the snapshot with `npm run kanun:snapshot` in backend/.
 set -euo pipefail
 

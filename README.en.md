@@ -25,7 +25,7 @@ search, and workflows adapted to Turkish law.
 ## Features
 
 - **Turkish interface:** every screen of Mike is translated into Turkish.
-- **Statute search:** semantic search over the full text of 13 laws. Describe an
+- **Statute search:** semantic search over the full text of 42 laws. Describe an
   issue in plain words ("kiracının temerrüdü") or type a citation such as
   "HMK 107" or "TBK md. 49".
 - **Case law search:** decisions of the Court of Cassation (Yargıtay),
@@ -52,21 +52,20 @@ search, and workflows adapted to Turkish law.
 
 ### Laws covered
 
-| Law | No. |
-|---|---|
-| Turkish Civil Code (TMK) and its Implementation Law | 4721, 4722 |
-| Turkish Code of Obligations (TBK) and its Implementation Law | 6098, 6101 |
-| Turkish Commercial Code (TTK) and its Implementation Law | 6102, 6103 |
-| Code of Civil Procedure (HMK) | 6100 |
-| Law on Intellectual and Artistic Works (FSEK) | 5846 |
-| Cheque Law | 5941 |
-| Capital Markets Law (SPK) | 6362 |
-| Consumer Protection Law (TKHK) | 6502 |
-| Personal Data Protection Law (KVKK) | 6698 |
-| Industrial Property Law (SMK) | 6769 |
+42 laws, about 9,000 articles:
 
-For topics outside this set (for example the Labour Law or the Enforcement and
-Bankruptcy Law), the assistant says plainly that its answer is not verified
+| Area | Laws |
+|---|---|
+| Civil law and obligations | Civil Code (4721) and its Implementation Law (4722), Code of Obligations (6098) and its Implementation Law (6101), Condominium Law (634), Land Registry Law (2644) |
+| Commercial and IP | Commercial Code (6102) and its Implementation Law (6103), Cheque Law (5941), Capital Markets Law (6362), Competition Law (4054), Law on Intellectual and Artistic Works (5846), Industrial Property Law (6769) |
+| Consumers and data | Consumer Protection Law (6502), Personal Data Protection Law (6698), Internet Law (5651) |
+| Procedure, enforcement and the professions | Code of Civil Procedure (6100), Enforcement and Bankruptcy Law (2004), Mediation in Civil Disputes Law (6325), Notification Law (7201), Attorneys Law (1136), Notaries Law (1512) |
+| Labour and social security | Labour Law (4857), the old Labour Law No. 1475 (article 14 on severance pay, still in force), Labour Courts Law (7036), Social Insurance and General Health Insurance Law (5510) |
+| Criminal | Criminal Code (5237), Code of Criminal Procedure (5271), Law on the Execution of Sentences (5275), Misdemeanours Law (5326), Law No. 6284 on protection of the family and prevention of violence against women, Highway Traffic Law (2918) |
+| Public law | Constitution (2709), Administrative Procedure Law (2577), Civil Servants Law (657), Expropriation Law (2942), Zoning Law (3194), Public Procurement Law (4734) |
+| Tax | Tax Procedure Law (213), Income Tax Law (193), Value Added Tax Law (3065), Law on the Collection of Public Receivables (6183) |
+
+For topics outside this set (for example the Fees Law or regulations), the assistant says plainly that its answer is not verified
 against the database.
 
 ## Installation
@@ -163,6 +162,8 @@ To run mikeTR on a server for your team, follow
 
 ## Development
 
+- To add a law, list it in `backend/src/lib/kanunList.ts`, then run
+  `npm run kanun:fetch` and `npm run kanun:embed`.
 - To re-import statute texts, compute vectors and compare with mevzuat.gov.tr,
   `backend/` has `npm run kanun:import`, `npm run kanun:embed` and
   `npm run kanun:check`.

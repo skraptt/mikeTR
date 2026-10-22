@@ -24,7 +24,7 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 ## Özellikler
 
 - **Türkçe arayüz:** Mike'ın tüm ekranları Türkçeye çevrildi.
-- **Mevzuat araması:** 13 kanunun tam metninde anlam araması yapar. "Kiracının
+- **Mevzuat araması:** 42 kanunun tam metninde anlam araması yapar. "Kiracının
   temerrüdü" gibi bir konu yazabilir ya da "HMK 107", "TBK md. 49" gibi doğrudan
   madde atfıyla arayabilirsiniz.
 - **İçtihat araması:** Yargıtay (kanun yararına bozma kararları dahil), Danıştay,
@@ -51,20 +51,20 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 
 ### Kapsanan kanunlar
 
-| Kanun | No |
-|---|---|
-| Türk Medeni Kanunu (TMK) ve Yürürlük Kanunu | 4721, 4722 |
-| Türk Borçlar Kanunu (TBK) ve Yürürlük Kanunu | 6098, 6101 |
-| Türk Ticaret Kanunu (TTK) ve Yürürlük Kanunu | 6102, 6103 |
-| Hukuk Muhakemeleri Kanunu (HMK) | 6100 |
-| Fikir ve Sanat Eserleri Kanunu (FSEK) | 5846 |
-| Çek Kanunu | 5941 |
-| Sermaye Piyasası Kanunu (SPK) | 6362 |
-| Tüketicinin Korunması Hakkında Kanun (TKHK) | 6502 |
-| Kişisel Verilerin Korunması Kanunu (KVKK) | 6698 |
-| Sınai Mülkiyet Kanunu (SMK) | 6769 |
+42 kanun, yaklaşık 9.000 madde:
 
-Kapsam dışındaki bir konuda (ör. İş Kanunu, İcra ve İflas Kanunu) asistan,
+| Alan | Kanunlar |
+|---|---|
+| Medeni hukuk ve borçlar | Türk Medeni Kanunu (4721) ve Yürürlük Kanunu (4722), Türk Borçlar Kanunu (6098) ve Yürürlük Kanunu (6101), Kat Mülkiyeti Kanunu (634), Tapu Kanunu (2644) |
+| Ticaret ve fikrî mülkiyet | Türk Ticaret Kanunu (6102) ve Yürürlük Kanunu (6103), Çek Kanunu (5941), Sermaye Piyasası Kanunu (6362), Rekabetin Korunması Hakkında Kanun (4054), Fikir ve Sanat Eserleri Kanunu (5846), Sınai Mülkiyet Kanunu (6769) |
+| Tüketici ve veri | Tüketicinin Korunması Hakkında Kanun (6502), Kişisel Verilerin Korunması Kanunu (6698), 5651 sayılı İnternet Kanunu |
+| Yargılama, icra ve meslek | Hukuk Muhakemeleri Kanunu (6100), İcra ve İflas Kanunu (2004), Hukuk Uyuşmazlıklarında Arabuluculuk Kanunu (6325), Tebligat Kanunu (7201), Avukatlık Kanunu (1136), Noterlik Kanunu (1512) |
+| İş ve sosyal güvenlik | İş Kanunu (4857), 1475 sayılı İş Kanunu (yürürlükteki 14. madde: kıdem tazminatı), İş Mahkemeleri Kanunu (7036), Sosyal Sigortalar ve Genel Sağlık Sigortası Kanunu (5510) |
+| Ceza | Türk Ceza Kanunu (5237), Ceza Muhakemesi Kanunu (5271), Ceza ve Güvenlik Tedbirlerinin İnfazı Hakkında Kanun (5275), Kabahatler Kanunu (5326), 6284 sayılı Kanun, Karayolları Trafik Kanunu (2918) |
+| Kamu hukuku | Anayasa (2709), İdari Yargılama Usulü Kanunu (2577), Devlet Memurları Kanunu (657), Kamulaştırma Kanunu (2942), İmar Kanunu (3194), Kamu İhale Kanunu (4734) |
+| Vergi | Vergi Usul Kanunu (213), Gelir Vergisi Kanunu (193), Katma Değer Vergisi Kanunu (3065), Amme Alacaklarının Tahsil Usulü Hakkında Kanun (6183) |
+
+Kapsam dışındaki bir konuda (ör. Harçlar Kanunu, yönetmelikler) asistan,
 cevabının veritabanıyla doğrulanmadığını açıkça belirtir.
 
 ## Kurulum
@@ -178,6 +178,8 @@ mikeTR'yi bir sunucuda, ekibinizle birlikte kullanmak için
 
 ## Geliştirme
 
+- Listeye yeni bir kanun eklemek için `backend/src/lib/kanunList.ts` dosyasına
+  ekleyip `npm run kanun:fetch` ve `npm run kanun:embed` çalıştırın.
 - Kanun metinlerini yeniden içe aktarmak, vektörleri hesaplamak ve
   mevzuat.gov.tr ile karşılaştırmak için `backend/` içinde `npm run kanun:import`,
   `npm run kanun:embed` ve `npm run kanun:check` komutları vardır.
