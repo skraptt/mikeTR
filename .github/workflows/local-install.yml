@@ -1,0 +1,92 @@
+# mikeTR: the README's local installation, from a clean checkout.
+#
+# Follows the README steps (copy the example settings, fill in the two
+# secrets, `docker compose up --build`), then checks what a new user relies
+# on: every service starts, the bundled statute snapshot is loaded with its
+# vectors, and a signed-in user's statute search finds the right article.
+# Everything runs on the runner with the stack's local demo keys; no secrets.
+name: Local install
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docker-compose.yml
+      - docker/**
+      - .env.example
+      - backend/**
+      - frontend/**
+      - packages/**
+      - .github/workflows/local-install.yml
+  workflow_dispatch:
+
+concurrency:
+  group: local-install-${{ github.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: docker compose up from a clean checkout
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # The local stack's well-known demo keys (docker-compose.yml).
+      ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      SERVICE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Make room for the images
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: README steps 2-3 (settings files and secrets)
+        run: |
+          cp .env.example .env
+          cp backend/.env.example backend/.env
+          sed -i "s/^DOWNLOAD_SIGNING_SECRET=.*/DOWNLOAD_SIGNING_SECRET=$(openssl rand -hex 32)/" backend/.env
+          sed -i "s/^USER_API_KEYS_ENCRYPTION_SECRET=.*/USER_API_KEYS_ENCRYPTION_SECRET=$(openssl rand -hex 32)/" backend/.env
+          sed -i "s/^KANUN_ADMIN_EMAILS=.*/KANUN_ADMIN_EMAILS=ci@example.com/" backend/.env
+
+      - name: README step 4 (docker compose up --build)
+        run: docker compose up -d --build
+
+      - name: Wait for the backend and the web app
+        run: |
+          for i in $(seq 1 120); do
+            if curl -fs http://localhost:3001/health >/dev/null && curl -fs -o /dev/null http://localhost:3000/login; then
+              echo "up after $((i * 10)) s"; exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::The stack did not come up within 20 minutes"; exit 1
+
+      - name: Statute snapshot is loaded with vectors
+        run: |
+          read -r total vectors laws <<<"$(docker compose exec -T db psql -U postgres -tA -F ' ' -c \
+            "select count(*), count(embedding_bge_m3), count(distinct kanun_no) from public.kanun_maddeleri")"
+          echo "articles=$total vectors=$vectors laws=$laws"
+          test "$total" -ge 8900 && test "$vectors" -eq "$total" && test "$laws" -ge 42
+
+      - name: A signed-in user finds İİK md. 89
+        run: |
+          curl -fs http://localhost:54321/auth/v1/admin/users \
+            -H "apikey: $SERVICE_KEY" -H "Authorization: Bearer $SERVICE_KEY" -H "Content-Type: application/json" \
+            -d '{"email":"ci@example.com","password":"ci-password-1234","email_confirm":true}' >/dev/null
+          token=$(curl -fs "http://localhost:54321/auth/v1/token?grant_type=password" \
+            -H "apikey: $ANON_KEY" -H "Content-Type: application/json" \
+            -d '{"email":"ci@example.com","password":"ci-password-1234"}' | jq -r .access_token)
+          result=$(curl -fs http://localhost:3001/kanun/search -H "Authorization: Bearer $token" \
+            -H "Content-Type: application/json" -d '{"query":"haciz ihbarnamesi üçüncü kişi","limit":5}')
+          echo "$result" | jq -c '[.results[] | {kanun_no, madde_no}]'
+          echo "$result" | jq -e '.results | any(.kanun_no == "2004" and .madde_no == "89")' >/dev/null
+
+      - name: Service logs
+        if: failure()
+        run: |
+          docker compose ps -a
+          docker compose logs --tail 150
