@@ -15,6 +15,7 @@ import { buildGoogleDriveTools } from "../../../lib/integrations/googleDrive";
 import { COURTLISTENER_TOOLS } from "./tools/courtlistenerTools";
 import { KANUN_TOOLS, buildKanunCitationsEvent } from "./tools/kanunTools";
 import { ICTIHAT_TOOLS, buildIctihatCitationsEvent } from "./tools/ictihatTools";
+import { HESAP_TOOLS } from "./tools/hesapTools";
 import {
   type DocStore,
   type DocIndex,
@@ -307,6 +308,7 @@ export async function runLLMStream(params: {
     ...conversationTools,
     ...KANUN_TOOLS,
     ...ICTIHAT_TOOLS,
+    ...HESAP_TOOLS,
     ...researchTools,
     ...WORKFLOW_TOOLS,
   ];
