@@ -371,94 +371,106 @@ function escapeAttr(value: string): string {
         .replace(/>/g, "&gt;");
 }
 
-/** content.xml for the given blocks. */
+/**
+ * content.xml for the given blocks, in the shape UYAP's editor writes and
+ * reads (cross-checked against files the editor opens, e.g. LexUDF's): tabs
+ * stay as characters inside the text, every paragraph's last run carries its
+ * line break, and tables carry the row and cell attributes the editor expects.
+ */
 export function buildUdfXml(blocks: UdfBlock[]): string {
     const pool: string[] = [];
     const paragraphXml = (p: UdfParagraph): string => {
-        const parts: string[] = [];
-        const runs = p.runs.filter((r) => r.text.length > 0);
-        if (runs.length === 0) {
-            // An empty paragraph holds one zero-width space.
-            const start = pool.length;
-            pool.push("​");
-            parts.push(
-                `<content startOffset="${start}" length="1" family="${DEFAULT_FAMILY}" size="${DEFAULT_SIZE}" />`,
-            );
-        }
-        for (const run of runs) {
-            const family = escapeAttr(run.family ?? DEFAULT_FAMILY);
-            const size = run.size ?? DEFAULT_SIZE;
+        const runs = p.runs
+            .map((r) => ({ ...r, text: r.text.replace(/\r?\n/g, " ") }))
+            .filter((r) => r.text.length > 0);
+        // An empty paragraph is just its line break.
+        if (runs.length === 0) runs.push({ text: "" });
+        const parts = runs.map((run, i) => {
+            const text = chars(run.text + (i === runs.length - 1 ? "\n" : ""));
             const style =
-                `family="${family}" size="${size}"` +
+                `family="${escapeAttr(run.family ?? DEFAULT_FAMILY)}" size="${run.size ?? DEFAULT_SIZE}"` +
                 (run.bold ? ` bold="true"` : "") +
                 (run.italic ? ` italic="true"` : "") +
                 (run.underline ? ` underline="true"` : "");
-            // Tabs are their own elements; the text around them is content.
-            const pieces = run.text.split("\t");
-            pieces.forEach((piece, i) => {
-                if (i > 0) {
-                    parts.push(`<tab startOffset="${pool.length}" length="1" ${style} />`);
-                    pool.push("\t");
-                }
-                const text = chars(piece.replace(/\r?\n/g, " "));
-                if (!text.length) return;
-                parts.push(`<content startOffset="${pool.length}" length="${text.length}" ${style} />`);
-                pool.push(...text);
-            });
-        }
-        // Every paragraph ends with a line break in the pool, covered by its last run.
-        const last = parts.length - 1;
-        parts[last] = parts[last].replace(/length="(\d+)"/, (_, n) => `length="${Number(n) + 1}"`);
-        pool.push("\n");
+            const xml = `<content ${style} startOffset="${pool.length}" length="${text.length}" />`;
+            pool.push(...text);
+            return xml;
+        });
         const attrs =
-            `Alignment="${p.alignment ?? 0}" LeftIndent="${(p.leftIndent ?? 0).toFixed(1)}" RightIndent="0.0"` +
+            `Alignment="${p.alignment ?? 0}"` +
+            (p.leftIndent ? ` LeftIndent="${p.leftIndent.toFixed(1)}"` : "") +
             (p.firstLineIndent ? ` FirstLineIndent="${p.firstLineIndent.toFixed(1)}"` : "");
-        return `<paragraph ${attrs}>${parts.join("")}</paragraph>`;
+        return `<paragraph ${attrs}>${parts.join("")}</paragraph>\n`;
     };
 
+    const cellAttrs =
+        `colspan="1" align="top" fillColor="-1" border="borderCell" borderStyle="borderStyle-solid" borderWidth="1.0" borderColor="-16777216" borderSpec="15"`;
     const body = blocks
         .map((block) => {
             if (block.kind === "paragraph") return paragraphXml(block);
             const columns = Math.max(1, ...block.rows.map((r) => r.length));
             const span = (TABLE_WIDTH / columns).toFixed(1);
             const rows = block.rows
-                .map(
-                    (cells) =>
-                        `<row rowType="dataRow">${cells
+                .map((cells, r) => {
+                    const padded = [...cells, ...Array(columns - cells.length).fill([])];
+                    return (
+                        `<row rowName="row${r + 1}" rowType="dataRow" border="borderCell" height="20.0">` +
+                        padded
                             .map(
-                                (paragraphs) =>
-                                    `<cell>${(paragraphs.length
+                                (paragraphs: UdfParagraph[]) =>
+                                    `<cell ${cellAttrs}>${(paragraphs.length
                                         ? paragraphs
                                         : [{ kind: "paragraph", runs: [] } as UdfParagraph]
                                     )
                                         .map(paragraphXml)
                                         .join("")}</cell>`,
                             )
-                            .join("")}</row>`,
-                )
+                            .join("") +
+                        `</row>\n`
+                    );
+                })
                 .join("");
-            return `<table tableName="Sabit" columnCount="${columns}" columnSpans="${Array(columns).fill(span).join(",")}" border="borderCell">${rows}</table>`;
+            return `<table tableName="Sabit" columnCount="${columns}" columnSpans="${Array(columns).fill(span).join(",")}" border="borderCell">\n${rows}</table>\n`;
         })
         .join("");
 
     // CDATA cannot hold "]]>"; split it across two sections if it appears.
     const cdata = pool.join("").replace(/]]>/g, "]]]]><![CDATA[>");
     return (
-        `<?xml version="1.0" encoding="UTF-8" ?>` +
-        `<template format_id="1.8">` +
+        `<?xml version="1.0" encoding="UTF-8" ?> \n\n<template format_id="1.8" >\n` +
         `<content><![CDATA[${cdata}]]></content>` +
-        `<properties><pageFormat mediaSizeName="1" leftMargin="42.52" rightMargin="28.35" topMargin="14.17" bottomMargin="14.17" paperOrientation="1" headerFOffset="20.0" footerFOffset="20.0" /></properties>` +
-        `<elements resolver="hvl-default">${body}</elements>` +
-        `<styles><style name="default" description="Geçerli" family="Dialog" size="12" bold="false" italic="false" foreground="-13421773" FONT_ATTRIBUTE_KEY="javax.swing.plaf.FontUIResource[family=Dialog,name=Dialog,style=plain,size=12]" /><style name="hvl-default" family="${DEFAULT_FAMILY}" size="${DEFAULT_SIZE}" description="Gövde" /></styles>` +
-        `</template>`
+        `<properties><pageFormat mediaSizeName="1" leftMargin="42.52" rightMargin="28.35" topMargin="14.17" bottomMargin="14.17" paperOrientation="1" headerFOffset="20.0" footerFOffset="20.0" /></properties>\n` +
+        `<elements resolver="hvl-default" >\n${body}</elements>\n` +
+        `<styles><style name="default" description="Geçerli" family="Dialog" size="12" bold="false" italic="false" foreground="-13421773" FONT_ATTRIBUTE_KEY="javax.swing.plaf.FontUIResource[family=Dialog,name=Dialog,style=plain,size=12]" /><style name="hvl-default" family="${DEFAULT_FAMILY}" size="${DEFAULT_SIZE}" description="Gövde" /></styles>\n` +
+        `</template>\n`
     );
+}
+
+// JSZip records "version needed to extract" as 1.0 even for deflated entries;
+// zip readers expect 2.0 there, as in the files UYAP itself writes.
+export function withDeflateVersion(zip: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> {
+    const view = new DataView(zip.buffer, zip.byteOffset, zip.byteLength);
+    // The end-of-central-directory record is the last 22 bytes (no comment).
+    let end = zip.length - 22;
+    while (end >= 0 && view.getUint32(end, true) !== 0x06054b50) end--;
+    if (end < 0) return zip;
+    const entries = view.getUint16(end + 10, true);
+    let at = view.getUint32(end + 16, true);
+    for (let n = 0; n < entries && view.getUint32(at, true) === 0x02014b50; n++) {
+        view.setUint16(at + 4, 20, true); // version made by
+        view.setUint16(at + 6, 20, true); // version needed
+        const local = view.getUint32(at + 42, true);
+        if (view.getUint32(local, true) === 0x04034b50) view.setUint16(local + 4, 20, true);
+        at += 46 + view.getUint16(at + 28, true) + view.getUint16(at + 30, true) + view.getUint16(at + 32, true);
+    }
+    return zip;
 }
 
 export async function blocksToUdfBlob(blocks: UdfBlock[]): Promise<Blob> {
     const zip = new JSZip();
     zip.file("content.xml", buildUdfXml(blocks));
     const data = await zip.generateAsync({ type: "arraybuffer", compression: "DEFLATE" });
-    return new Blob([data], { type: UDF_MIME });
+    return new Blob([withDeflateVersion(new Uint8Array(data))], { type: UDF_MIME });
 }
 
 /** A Word document as a .udf file for UYAP. */

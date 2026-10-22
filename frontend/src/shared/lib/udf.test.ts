@@ -64,14 +64,15 @@ describe("buildUdfXml", () => {
 
     it("points every run at its own characters in the pool", async () => {
         const xml = buildUdfXml(blocks);
-        expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8" ?><template format_id="1.8">')).toBe(true);
+        expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8" ?>')).toBe(true);
+        expect(xml).not.toContain("<tab ");
         expect(text(await readUdf(await udfFrom(xml)))).toEqual(text(blocks));
     });
 
     it("keeps formatting through a round trip", async () => {
         const back = await readUdf(await blocksToUdfBlob(blocks));
         expect(back[0]).toMatchObject({ alignment: 1, runs: [{ text: "İHTARNAME", bold: true }] });
-        expect(back[2]).toMatchObject({ runs: [{ text: "Keşideci:" }, { text: "\t" }, { text: "Şirket A.Ş.", italic: true }] });
+        expect(back[2]).toMatchObject({ runs: [{ text: "Keşideci:" }, { text: "\tŞirket A.Ş.", italic: true }] });
     });
 
     it("survives text that would close the CDATA section", async () => {
