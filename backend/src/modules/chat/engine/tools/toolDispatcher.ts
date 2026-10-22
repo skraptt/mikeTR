@@ -21,7 +21,7 @@ import {
   type IctihatDecisionEvent,
   type IctihatSearchEvent,
 } from "./ictihatTools";
-import { HESAP_TOOL_NAMES, runFaizHesabi, runSureHesabi } from "./hesapTools";
+import { HESAP_TOOL_NAMES, runFaizHesabi, runHarcHesabi, runSureHesabi } from "./hesapTools";
 import {
   COURTLISTENER_TOOL_NAMES,
   type CaseCitationEvent,
@@ -900,6 +900,8 @@ export async function runToolCalls(
       toolResults.push({ role: "tool", tool_call_id: tc.id, content: runSureHesabi(args) });
     } else if (tc.function.name === HESAP_TOOL_NAMES.faiz) {
       toolResults.push({ role: "tool", tool_call_id: tc.id, content: runFaizHesabi(args) });
+    } else if (tc.function.name === HESAP_TOOL_NAMES.harc) {
+      toolResults.push({ role: "tool", tool_call_id: tc.id, content: runHarcHesabi(args) });
     } else if (tc.function.name === COURTLISTENER_TOOL_NAMES.searchCaseLaw) {
       const query = typeof args.query === "string" ? args.query : "";
       write(

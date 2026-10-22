@@ -1,5 +1,5 @@
-// mikeTR: hesaplama araçları. Süre hesabını model kafadan yapmaz; bu araç
-// kanundaki kurallara göre son günü ve dayandığı maddeleri verir.
+// mikeTR: hesaplama araçları (süre, faiz, harç). Model bunları kafadan
+// yapmaz; araçlar kanundaki kurallarla sonucu ve dayandığı maddeleri verir.
 
 import {
   SureHesabiHatasi,
@@ -11,10 +11,16 @@ import {
   faizHesapla,
   TCMB_TABLO_TARIHI,
 } from "../../../../lib/faizHesap";
+import {
+  HARC_TARIFE_YILI,
+  HarcHesabiHatasi,
+  harcHesapla,
+} from "../../../../lib/harcHesap";
 
 export const HESAP_TOOL_NAMES = {
   sure: "calculate_deadline",
   faiz: "calculate_interest",
+  harc: "calculate_court_fees",
 } as const;
 
 export const HESAP_SYSTEM_PROMPT = `DEADLINE CALCULATION (calculate_deadline):
@@ -25,7 +31,10 @@ export const HESAP_SYSTEM_PROMPT = `DEADLINE CALCULATION (calculate_deadline):
 
 INTEREST CALCULATION (calculate_interest):
 - For statutory interest (kanuni faiz) or commercial default interest (ticari temerrüt faizi, avans faizi) under Law 3095, call calculate_interest instead of computing it yourself. Use tur "ticari" only for commercial matters; otherwise "kanuni". If a contract sets its own rate, say so: the tool does not cover contractual interest.
-- Present the total and the periods with their rates and legal basis as returned, and pass on the warnings. The TCMB rate table was last checked on ${TCMB_TABLO_TARIHI}; statutory interest has been 80% of the TCMB rediscount rate since 31.7.2026 (Law 7589).`;
+- Present the total and the periods with their rates and legal basis as returned, and pass on the warnings. The TCMB rate table was last checked on ${TCMB_TABLO_TARIHI}; statutory interest has been 80% of the TCMB rediscount rate since 31.7.2026 (Law 7589).
+
+COURT FEES (calculate_court_fees):
+- For the court fees due when filing a lawsuit (başvurma harcı, peşin harç, karar ve ilam harcı), call calculate_court_fees instead of computing them. Give the court (sulh or asliye) and, for money claims, the claim value; leave the value out for claims without a money value. Use the ${HARC_TARIFE_YILI} tariff it applies, list the items with their basis, and pass on the warnings (it excludes gider avansı and vekâlet harcı).`;
 
 const SURE_TOOL = {
   type: "function",
@@ -98,7 +107,57 @@ const FAIZ_TOOL = {
   },
 };
 
-export const HESAP_TOOLS = [SURE_TOOL, FAIZ_TOOL];
+const HARC_TOOL = {
+  type: "function",
+  function: {
+    name: HESAP_TOOL_NAMES.harc,
+    description:
+      "Calculates Turkish court fees due when filing a civil lawsuit under Law 492 (Harçlar Kanunu): application fee, advance proportional or fixed judgment fee, and the remainder due at judgment.",
+    parameters: {
+      type: "object",
+      properties: {
+        mahkeme: {
+          type: "string",
+          enum: ["sulh", "asliye"],
+          description:
+            "sulh (also icra mahkemesi) or asliye (also idare mahkemesi).",
+        },
+        deger: {
+          type: "number",
+          description:
+            "Claim value in Turkish lira; omit for claims without a money value.",
+        },
+        olum_cismani_zarar: {
+          type: "boolean",
+          description: "True for damages claims for death or bodily injury.",
+        },
+      },
+      required: ["mahkeme"],
+    },
+  },
+};
+
+export const HESAP_TOOLS = [SURE_TOOL, FAIZ_TOOL, HARC_TOOL];
+
+export function runHarcHesabi(args: Record<string, unknown>): string {
+  try {
+    const r = harcHesapla({
+      mahkeme: String(args.mahkeme ?? "") as never,
+      deger: typeof args.deger === "number" ? args.deger : undefined,
+      olumCismaniZarar: args.olum_cismani_zarar === true,
+    });
+    return JSON.stringify({
+      kalemler: r.kalemler,
+      acilista_odenecek: r.acilistaOdenecek,
+      kalan_karar_harci: r.kalanKararHarci,
+      uyarilar: r.uyarilar,
+    });
+  } catch (error) {
+    if (error instanceof HarcHesabiHatasi)
+      return JSON.stringify({ hata: error.message });
+    throw error;
+  }
+}
 
 export function runFaizHesabi(args: Record<string, unknown>): string {
   try {
