@@ -1,12 +1,16 @@
+import { t } from "@/shared/i18n";
+
 export const SUPPORTED_DOCUMENT_ACCEPT =
-    ".pdf,.docx,.doc,.xlsx,.xlsm,.xls,.pptx,.ppt";
+    ".pdf,.docx,.doc,.udf,.xlsx,.xlsm,.xls,.pptx,.ppt";
 export const UNSUPPORTED_DOCUMENT_WARNING_MESSAGE =
-    "Unsupported file type. Only PDF, Word, Excel, and PowerPoint files can be uploaded.";
+    "Unsupported file type. Only PDF, Word, UYAP (UDF), Excel, and PowerPoint files can be uploaded.";
 
 const SUPPORTED_DOCUMENT_EXTENSIONS = new Set([
     "pdf",
     "docx",
     "doc",
+    // mikeTR: UYAP documents, converted to .docx before upload (mikeApi).
+    "udf",
     "xlsx",
     "xlsm",
     "xls",
@@ -33,7 +37,7 @@ export function partitionSupportedDocumentFiles(files: File[]) {
 
 export function formatUnsupportedDocumentWarning(files: File[]): string | null {
     if (files.length === 0) return null;
-    return UNSUPPORTED_DOCUMENT_WARNING_MESSAGE;
+    return t(UNSUPPORTED_DOCUMENT_WARNING_MESSAGE);
 }
 
 /**

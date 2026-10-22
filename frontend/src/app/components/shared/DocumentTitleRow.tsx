@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Download, ExternalLink } from "lucide-react";
-import { downloadDocumentFile } from "@/app/lib/downloadDocument";
+import { downloadDocumentAsUdf, downloadDocumentFile } from "@/app/lib/downloadDocument";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { TextButtonUI } from "@/shared/ui/TextButtonUI";
 import { textButtonUIClassName } from "@/shared/ui/TextButtonUI.styles";
@@ -132,6 +132,14 @@ export function DocumentTitleRow({
                             filename={document.title}
                             isReloading={isReloading}
                             onDownload={onDownload}
+                        />
+                    )}
+                    {isFile && /\.docx$/i.test(document.title) && (
+                        <UdfDownloadButton
+                            documentId={document.document_id}
+                            versionId={document.version_id ?? null}
+                            filename={document.title}
+                            isReloading={isReloading}
                         />
                     )}
                     {(document.actions ?? []).map((action, index) =>
@@ -266,6 +274,60 @@ function ExternalSourceLinkButton({
                 {link.label}
             </span>
         </a>
+    );
+}
+
+// mikeTR: the same document as a UYAP .udf file, for filing through UYAP.
+function UdfDownloadButton({
+    documentId,
+    versionId,
+    filename,
+    isReloading,
+}: {
+    documentId: string;
+    versionId: string | null;
+    filename: string;
+    isReloading?: boolean;
+}) {
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleClick = async () => {
+        if (busy || isReloading) return;
+        setBusy(true);
+        setError(null);
+        try {
+            await downloadDocumentAsUdf(documentId, versionId, filename);
+        } catch (cause) {
+            setError(
+                userFacingApiError(
+                    cause,
+                    t("This file could not be converted to UDF. Please try again."),
+                ),
+            );
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    return (
+        <>
+            <WarningPopup
+                open={!!error}
+                title={t("Download failed")}
+                message={error}
+                onClose={() => setError(null)}
+            />
+            <TextButtonUI
+                size="xs"
+                aria-label={t("Download as UDF (UYAP)")}
+                title={t("Download as UDF (UYAP)")}
+                onClick={handleClick}
+                loading={busy || !!isReloading}
+            >
+                UDF
+            </TextButtonUI>
+        </>
     );
 }
 

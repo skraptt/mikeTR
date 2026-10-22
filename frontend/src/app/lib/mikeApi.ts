@@ -236,6 +236,24 @@ export type UploadRequestOptions<T> = {
     signal?: AbortSignal;
 };
 
+// mikeTR: UYAP .udf files are uploaded as the Word documents they convert to,
+// so every viewer and the assistant read them like any .docx. A file that
+// cannot be converted goes up as it is and the upload reports it unsupported.
+async function convertUdfInputs(files: UploadSessionInput[]): Promise<UploadSessionInput[]> {
+    if (!files.some((input) => /\.udf$/i.test(input.file.name))) return files;
+    const { convertUdfFileToDocx, isUdfFile } = await import("@/shared/lib/udf");
+    return Promise.all(
+        files.map(async (input) => {
+            if (!isUdfFile(input.file)) return input;
+            try {
+                return { ...input, file: await convertUdfFileToDocx(input.file) };
+            } catch {
+                return input;
+            }
+        }),
+    );
+}
+
 export async function uploadFilesWithSession<T>(args: {
     purpose: UploadSessionPurpose;
     destination: Record<string, unknown>;
@@ -245,6 +263,7 @@ export async function uploadFilesWithSession<T>(args: {
 }): Promise<UploadOutcome<T>[]> {
     return uploadFilesWithSessionCore<T>({
         ...args,
+        files: await convertUdfInputs(args.files),
         transport: {
             apiRequest,
             fetchStorage: (...fetchArgs) => fetch(...fetchArgs),

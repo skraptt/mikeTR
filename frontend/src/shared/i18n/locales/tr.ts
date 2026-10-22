@@ -2283,5 +2283,8 @@ export const tr: Readonly<Record<string, string>> = {
     "Unable to turn off memory. Please try again.": "Hafıza kapatılamadı. Lütfen tekrar deneyin.",
     "Reversals in the interest of the law": "Kanun yararına bozma",
     "Yargıtay: reversal in the interest of the law": "Yargıtay kanun yararına bozma",
-    "OpenCode API Key": "OpenCode API anahtarı"
+    "OpenCode API Key": "OpenCode API anahtarı",
+    "Unsupported file type. Only PDF, Word, UYAP (UDF), Excel, and PowerPoint files can be uploaded.": "Desteklenmeyen dosya türü. Yalnızca PDF, Word, UYAP (UDF), Excel ve PowerPoint dosyaları yüklenebilir.",
+    "Download as UDF (UYAP)": "UDF olarak indir (UYAP)",
+    "This file could not be converted to UDF. Please try again.": "Bu dosya UDF'ye dönüştürülemedi. Lütfen tekrar deneyin."
 };
