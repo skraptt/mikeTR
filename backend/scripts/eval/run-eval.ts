@@ -91,7 +91,8 @@ const ROOT = path.join(__dirname, "..", "..", "..");
 const NOT_DOGRULANMADI = "veritabanındaki kanun metinleriyle doğrulanmamıştır";
 // Sağlayıcının geçici hataları: yeniden denenir, kalırsa soru puanlanmaz.
 const GECICI_HATA =
-  /rate limit|quota|high demand|stopped responding|overloaded|429|503|timed out/i;
+  /rate limit|quota|high demand|stopped responding|overloaded|429|503|timed out|timeout|abort/i;
+const DENEME_SURESI_MS = 10 * 60 * 1000;
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -192,6 +193,8 @@ async function soruCalistir(
         messages: [{ role: "user", content: q.soru }],
         tools: [...KANUN_TOOLS, ...ICTIHAT_TOOLS, ...HESAP_TOOLS] as never,
         maxIterations: 10,
+        // Yanıt vermeyi bırakan bir sağlayıcı soruyu saatlerce bekletmesin.
+        abortSignal: AbortSignal.timeout(DENEME_SURESI_MS),
         runTools,
       });
       cevap = result.fullText;
@@ -379,10 +382,27 @@ async function main() {
   const db = createServerSupabase();
   const sonuclar: Sonuc[] = [];
   let ilk = true;
+  let art_arda = 0;
+  const BOS: Sonuc = {
+    id: "",
+    soru: "",
+    cevap: "",
+    araclar: [],
+    kanunAtiflari: [],
+    kararAtiflari: [],
+    puan: { maddeler: 0, gereklilik: 0, uydurma: false, otomatik: 0 },
+    notlar: [],
+    sureMs: 0,
+  };
   for (const q of sorular) {
     const eski = onceki.get(q.id);
     if (eski) {
       sonuclar.push(eski);
+      continue;
+    }
+    if (art_arda >= 2) {
+      // Kota bitti: kalan soruları boşuna bekleyerek denemeyin.
+      sonuclar.push({ ...BOS, id: q.id, soru: q.soru, calismadi: true, hata: "Kota dolu; sorulmadı." });
       continue;
     }
     if (!ilk && bekleSn > 0)
@@ -391,6 +411,8 @@ async function main() {
     process.stdout.write(`${q.id} ... `);
     const s = await soruCalistir(db, model, q);
     sonuclar.push(s);
+    art_arda = s.calismadi && /rate limit|quota/i.test(s.hata ?? "") ? art_arda + 1 : 0;
+    if (art_arda >= 2) console.log("İki soru üst üste kota hatası verdi; kalan sorular sorulmadan bırakılıyor (--devam ile sonra tamamlanır).");
     console.log(
       `${s.calismadi ? "çalışmadı" : `${s.puan.otomatik}/5`} (${Math.round(s.sureMs / 1000)} sn)${s.notlar.length ? " — " + s.notlar.join(" ") : ""}`,
     );
