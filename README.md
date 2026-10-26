@@ -40,6 +40,9 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 - **Güncellik kontrolü:** Kanun metinleri her gün mevzuat.gov.tr ile
   karşılaştırılır. Bulunan değişiklikler, siz onaylayınca uygulanır; eski metin
   arşivde saklanır.
+- **Hesaplamalar:** HMK/İİK/CMK/TBK süre hesabı (tatiller ve adli tatil dahil),
+  kanuni ve ticari temerrüt faizi (3095 s. K.) ve dava açılışı harçları; hem
+  Hesaplamalar sayfasında hem asistanın araçları olarak.
 - **Dilekçe şablonları:** Kütüphane > Hazır şablonlar > mikeTR altında ihtarname,
   ödeme emrine itiraz, itirazın iptali, kira tespiti, tahliye, cevap ve istinaf
   dilekçesi taslakları (doldurulacak alanlar vurgulu; avukat kontrolü gerekir).
