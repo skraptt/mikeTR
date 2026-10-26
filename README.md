@@ -40,6 +40,9 @@ iş akışı özelliklerine Türkçe arayüz ve Türk mevzuatı araması eklenmi
 - **Güncellik kontrolü:** Kanun metinleri her gün mevzuat.gov.tr ile
   karşılaştırılır. Bulunan değişiklikler, siz onaylayınca uygulanır; eski metin
   arşivde saklanır.
+- **Dilekçe şablonları:** Kütüphane > Hazır şablonlar > mikeTR altında ihtarname,
+  ödeme emrine itiraz, itirazın iptali, kira tespiti, tahliye, cevap ve istinaf
+  dilekçesi taslakları (doldurulacak alanlar vurgulu; avukat kontrolü gerekir).
 - **UYAP UDF:** .udf dosyalarını yükleyebilir, Word belgelerini UYAP'a
   yüklenebilir .udf olarak indirebilirsiniz (metin, biçim, hizalama ve tablolar).
 - **Mike'ın özellikleri:** belgelerle sohbet, önerilen düzenlemeleri uygulama,

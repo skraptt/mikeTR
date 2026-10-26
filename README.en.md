@@ -45,6 +45,10 @@ search, and workflows adapted to Turkish law.
 - **Workflows adapted to Turkish law:** contract reviews, tabular reviews, a
   legal research memo and a draft formal notice (ihtarname)
   ([skraptt/mike-workflows-tr](https://github.com/skraptt/mike-workflows-tr)).
+- **Petition templates:** under Library > Preset templates > mikeTR: formal
+  notices, objection to a payment order, annulment of objection, rent
+  determination, eviction, statement of defence and appeal petitions (fields to
+  fill are highlighted; a lawyer must review them).
 - **UYAP UDF:** upload .udf files, and download Word documents as .udf for
   filing through UYAP (text, formatting, alignment and tables).
 - **Mike's features:** chat with documents, apply suggested edits, tabular

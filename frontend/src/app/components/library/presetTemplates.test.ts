@@ -51,7 +51,7 @@ describe("bundled preset catalog", () => {
         .filter((folder) => folder.parent_folder_id === null)
         .map((folder) => folder.name)
         .sort(),
-    ).toEqual(["Bonterms", "Common Paper", "General Legal"]);
+    ).toEqual(["Bonterms", "Common Paper", "General Legal", "mikeTR"]);
 
     const byId = new Map(folders.map((folder) => [folder.id, folder]));
     for (const document of documents) {
