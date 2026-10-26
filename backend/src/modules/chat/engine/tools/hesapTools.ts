@@ -16,6 +16,12 @@ import {
   HarcHesabiHatasi,
   harcHesapla,
 } from "../../../../lib/harcHesap";
+import type { HesapSonucuEvent } from "@mike/contracts";
+import {
+  faizHesabi,
+  harcHesabi,
+  sureHesabi,
+} from "../../../hesap/hesap.service";
 
 export const HESAP_TOOL_NAMES = {
   sure: "calculate_deadline",
@@ -204,4 +210,40 @@ export function runSureHesabi(args: Record<string, unknown>): string {
       return JSON.stringify({ hata: error.message });
     throw error;
   }
+}
+
+/**
+ * Runs a calculation tool for the chat: the JSON the model reads, and the
+ * result card the chat shows (null when the input was invalid).
+ */
+export function runHesapAraci(
+  name: string,
+  args: Record<string, unknown>,
+): { content: string; event: HesapSonucuEvent | null } {
+  if (name === HESAP_TOOL_NAMES.sure) {
+    const r = sureHesabi({ ...args, adliTatileTabi: args.adli_tatile_tabi });
+    return {
+      content: runSureHesabi(args),
+      event: r.ok
+        ? { type: "hesap_sonucu", arac: "sure", sonuc: r.data }
+        : null,
+    };
+  }
+  if (name === HESAP_TOOL_NAMES.faiz) {
+    const r = faizHesabi(args);
+    return {
+      content: runFaizHesabi(args),
+      event: r.ok
+        ? { type: "hesap_sonucu", arac: "faiz", sonuc: r.data }
+        : null,
+    };
+  }
+  const r = harcHesabi({
+    ...args,
+    olumCismaniZarar: args.olum_cismani_zarar === true,
+  });
+  return {
+    content: runHarcHesabi(args),
+    event: r.ok ? { type: "hesap_sonucu", arac: "harc", sonuc: r.data } : null,
+  };
 }

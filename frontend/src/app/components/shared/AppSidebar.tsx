@@ -40,6 +40,7 @@ import {
     SignOutSkeuoIcon,
     StatutesSkeuoIcon,
     CaseLawSkeuoIcon,
+    CalculationsSkeuoIcon,
 } from "@/app/components/shared/AppSidebarSkeuoIcons";
 import { HistorySkeuoIcon } from "@/app/components/shared/HistorySkeuoIcon";
 import { listProjectSummaries } from "@/app/lib/mikeApi";
@@ -67,6 +68,7 @@ const NAV_ITEMS = [
     { href: "/workflows", label: "Workflows", icon: WorkflowSkeuoIcon },
     { href: "/statutes", label: "Statutes", icon: StatutesSkeuoIcon },
     { href: "/case-law", label: "Case law", icon: CaseLawSkeuoIcon },
+    { href: "/calculations", label: "Calculations", icon: CalculationsSkeuoIcon },
 ];
 
 const RECENT_PROJECT_PAGE_SIZE = 10;

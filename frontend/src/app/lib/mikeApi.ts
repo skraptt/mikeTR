@@ -52,6 +52,9 @@ import type {
     IctihatDecision,
     IctihatFilters,
     IctihatSearchResponse,
+    SureHesabiYaniti,
+    FaizHesabiYaniti,
+    HarcHesabiYaniti,
     StatuteStatus,
     StatuteUpdatesResponse,
     PanelDocument,
@@ -3300,6 +3303,46 @@ export async function searchStatutes(
 }
 
 // mikeTR: Turkish case law from the Ministry of Justice's decision services.
+// mikeTR: Hesaplamalar sayfası (süre, faiz, harç).
+export async function calculateDeadline(input: {
+    baslangic: string;
+    sure: number;
+    birim: string;
+    rejim: string;
+    adliTatileTabi?: boolean;
+}): Promise<SureHesabiYaniti> {
+    return apiRequest<SureHesabiYaniti>("/hesap/sure", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+    });
+}
+
+export async function calculateInterest(input: {
+    anapara: number;
+    baslangic: string;
+    bitis: string;
+    tur: string;
+}): Promise<FaizHesabiYaniti> {
+    return apiRequest<FaizHesabiYaniti>("/hesap/faiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+    });
+}
+
+export async function calculateCourtFees(input: {
+    mahkeme: string;
+    deger?: number;
+    olumCismaniZarar?: boolean;
+}): Promise<HarcHesabiYaniti> {
+    return apiRequest<HarcHesabiYaniti>("/hesap/harc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+    });
+}
+
 export async function searchCaseLaw(
     query: string,
     court: IctihatCourt = "adli",

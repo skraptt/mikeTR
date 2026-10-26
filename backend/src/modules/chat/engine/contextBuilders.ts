@@ -819,6 +819,7 @@ const COMPLETES_TEXTLESS_TURN = {
   ictihat_search: false,
   ictihat_karar: false,
   ictihat_citations: false,
+  hesap_sonucu: false,
   mcp_tool_call: false,
   case_opinions: false,
   content: false,

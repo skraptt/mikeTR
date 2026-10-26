@@ -417,6 +417,52 @@ export type CaseLawCitation = {
   status: CaseLawCitationStatus;
 };
 
+/** mikeTR: Hesaplamalar sayfası ve sohbet araçları (süre, faiz, harç). */
+export type SureHesabiYaniti = {
+  baslangic: string;
+  /** YYYY-MM-DD */
+  sonGun: string;
+  /** "7 Eylül 2026 Pazartesi" */
+  sonGunAdi: string;
+  adimlar: string[];
+  uyarilar: string[];
+};
+
+export type FaizDonemi = {
+  baslangic: string;
+  bitis: string;
+  gun: number;
+  oran: number;
+  faiz: number;
+  dayanak: string;
+};
+
+export type FaizHesabiYaniti = {
+  anapara: number;
+  toplamFaiz: number;
+  toplam: number;
+  donemler: FaizDonemi[];
+  uyarilar: string[];
+  /** The TCMB rate table was last checked on this day. */
+  tabloTarihi: string;
+};
+
+export type HarcKalemi = { kalem: string; tutar: number; dayanak: string };
+
+export type HarcHesabiYaniti = {
+  kalemler: HarcKalemi[];
+  acilistaOdenecek: number;
+  kalanKararHarci: number;
+  uyarilar: string[];
+  tarifeYili: number;
+};
+
+/** A calculation tool's result, shown as a card in the chat. */
+export type HesapSonucuEvent =
+  | { type: "hesap_sonucu"; arac: "sure"; sonuc: SureHesabiYaniti }
+  | { type: "hesap_sonucu"; arac: "faiz"; sonuc: FaizHesabiYaniti }
+  | { type: "hesap_sonucu"; arac: "harc"; sonuc: HarcHesabiYaniti };
+
 export type IctihatCitationsEvent = {
   type: "ictihat_citations";
   citations: CaseLawCitation[];
@@ -512,6 +558,7 @@ export type McpToolEvent = {
 
 export type AssistantEvent =
   | { type: "reasoning"; text: string }
+  | HesapSonucuEvent
   | AskInputsEvent
   | {
       type: "ask_inputs_response";

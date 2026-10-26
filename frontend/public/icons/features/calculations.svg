@@ -1,0 +1,34 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5B6B7E"/>
+      <stop offset="1" stop-color="#2F3A47"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D9EFD2"/>
+      <stop offset="1" stop-color="#A9CFA0"/>
+    </linearGradient>
+    <linearGradient id="key" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F6F8"/>
+      <stop offset="1" stop-color="#C9D0D8"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7B267"/>
+      <stop offset="1" stop-color="#E07B24"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="5" width="40" height="54" rx="6" fill="url(#body)"/>
+  <rect x="12.5" y="5.5" width="39" height="53" rx="5.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.18"/>
+  <rect x="17" y="10" width="30" height="12" rx="2.5" fill="url(#screen)" stroke="#1F2933" stroke-opacity="0.35"/>
+  <text x="44" y="19.5" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="8" font-weight="700" fill="#2D4A2A">%</text>
+  <g fill="url(#key)">
+    <rect x="17" y="26" width="8" height="7" rx="1.6"/>
+    <rect x="28" y="26" width="8" height="7" rx="1.6"/>
+    <rect x="17" y="36" width="8" height="7" rx="1.6"/>
+    <rect x="28" y="36" width="8" height="7" rx="1.6"/>
+    <rect x="17" y="46" width="8" height="7" rx="1.6"/>
+    <rect x="28" y="46" width="8" height="7" rx="1.6"/>
+  </g>
+  <rect x="39" y="26" width="8" height="7" rx="1.6" fill="url(#key)"/>
+  <rect x="39" y="36" width="8" height="17" rx="1.6" fill="url(#accent)"/>
+</svg>

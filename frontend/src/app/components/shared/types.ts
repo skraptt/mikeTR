@@ -14,6 +14,10 @@ import type {
 } from "@mike/contracts";
 import type {
   CaseLawCitation,
+  FaizHesabiYaniti,
+  HarcHesabiYaniti,
+  HesapSonucuEvent,
+  SureHesabiYaniti,
   IctihatCourt,
   IctihatDecision,
   IctihatFilters,
@@ -33,6 +37,10 @@ import type {
 // mikeTR: Turkish statute and case-law search, citation checking and statute updates.
 export type {
   CaseLawCitation,
+  FaizHesabiYaniti,
+  HarcHesabiYaniti,
+  HesapSonucuEvent,
+  SureHesabiYaniti,
   IctihatCourt,
   IctihatDecision,
   IctihatFilters,
@@ -249,6 +257,7 @@ export type AssistantEvent =
     })
   | WireActivity<"kanun_citations">
   | WireActivity<"ictihat_citations">
+  | WireActivity<"hesap_sonucu">
   | (Omit<WireActivity<"ictihat_search">, "results" | "total" | "error"> & {
       results?: IctihatHit[];
       total?: number;

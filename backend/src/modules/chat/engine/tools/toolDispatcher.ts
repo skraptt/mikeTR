@@ -21,7 +21,8 @@ import {
   type IctihatDecisionEvent,
   type IctihatSearchEvent,
 } from "./ictihatTools";
-import { HESAP_TOOL_NAMES, runFaizHesabi, runHarcHesabi, runSureHesabi } from "./hesapTools";
+import { HESAP_TOOL_NAMES, runHesapAraci } from "./hesapTools";
+import type { HesapSonucuEvent } from "@mike/contracts";
 import {
   COURTLISTENER_TOOL_NAMES,
   type CaseCitationEvent,
@@ -337,6 +338,7 @@ export async function runToolCalls(
   courtlistenerEvents: CourtlistenerToolEvent[];
   kanunEvents: KanunSearchEvent[];
   ictihatEvents: (IctihatSearchEvent | IctihatDecisionEvent)[];
+  hesapEvents: HesapSonucuEvent[];
   caseCitationEvents: CaseCitationEvent[];
   mcpEvents: McpToolEvent[];
 }> {
@@ -363,6 +365,7 @@ export async function runToolCalls(
   const courtlistenerEvents: CourtlistenerToolEvent[] = [];
   const kanunEvents: KanunSearchEvent[] = [];
   const ictihatEvents: (IctihatSearchEvent | IctihatDecisionEvent)[] = [];
+  const hesapEvents: HesapSonucuEvent[] = [];
   const caseCitationEvents: CaseCitationEvent[] = [];
   const mcpEvents: McpToolEvent[] = [];
   const approvalItems: AskInputItem[] = [];
@@ -896,12 +899,17 @@ export async function runToolCalls(
       write(`data: ${JSON.stringify(event)}\n\n`);
       ictihatEvents.push(event);
       toolResults.push({ role: "tool", tool_call_id: tc.id, content });
-    } else if (tc.function.name === HESAP_TOOL_NAMES.sure) {
-      toolResults.push({ role: "tool", tool_call_id: tc.id, content: runSureHesabi(args) });
-    } else if (tc.function.name === HESAP_TOOL_NAMES.faiz) {
-      toolResults.push({ role: "tool", tool_call_id: tc.id, content: runFaizHesabi(args) });
-    } else if (tc.function.name === HESAP_TOOL_NAMES.harc) {
-      toolResults.push({ role: "tool", tool_call_id: tc.id, content: runHarcHesabi(args) });
+    } else if (
+      tc.function.name === HESAP_TOOL_NAMES.sure ||
+      tc.function.name === HESAP_TOOL_NAMES.faiz ||
+      tc.function.name === HESAP_TOOL_NAMES.harc
+    ) {
+      const { content, event } = runHesapAraci(tc.function.name, args);
+      if (event) {
+        write(`data: ${JSON.stringify(event)}\n\n`);
+        hesapEvents.push(event);
+      }
+      toolResults.push({ role: "tool", tool_call_id: tc.id, content });
     } else if (tc.function.name === COURTLISTENER_TOOL_NAMES.searchCaseLaw) {
       const query = typeof args.query === "string" ? args.query : "";
       write(
@@ -2106,6 +2114,7 @@ export async function runToolCalls(
     courtlistenerEvents,
     kanunEvents,
     ictihatEvents,
+    hesapEvents,
     caseCitationEvents,
     mcpEvents,
   };

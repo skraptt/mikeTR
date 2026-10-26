@@ -29,6 +29,7 @@ import {
     kanunSearchItems,
 } from "./message/KanunBlocks";
 import { decisionHref } from "@/app/components/caseLaw/caseLawLinks";
+import { HesapSonucuKarti, hesapOzeti } from "@/app/components/calculations/HesapSonucu";
 import {
     AskInputsBlock,
     CourtListenerBlock,
@@ -676,6 +677,24 @@ export function AssistantMessage({
                 />
             );
         }
+        if (event.type === "hesap_sonucu") {
+            return (
+                <CourtListenerBlock
+                    key={globalIdx}
+                    label={
+                        event.arac === "sure"
+                            ? t("Calculated the deadline")
+                            : event.arac === "faiz"
+                              ? t("Calculated the interest")
+                              : t("Calculated the court fees")
+                    }
+                    detail={hesapOzeti(event)}
+                    isStreaming={false}
+                    hasError={false}
+                    showConnector={showConnector}
+                />
+            );
+        }
         if (event.type === "ictihat_karar") {
             return (
                 <CourtListenerBlock
@@ -1256,6 +1275,8 @@ export function AssistantMessage({
                             <KanunCitationCheck key={`kc-${i}`} citations={e.citations} />
                         ) : e.type === "ictihat_citations" && e.citations.length > 0 ? (
                             <IctihatCitationCheck key={`ic-${i}`} citations={e.citations} />
+                        ) : e.type === "hesap_sonucu" ? (
+                            <HesapSonucuKarti key={`hs-${i}`} event={e} className="mt-3" />
                         ) : null,
                     )}
 

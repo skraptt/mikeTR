@@ -623,6 +623,7 @@ export async function runLLMStream(params: {
           courtlistenerEvents,
           kanunEvents,
           ictihatEvents,
+          hesapEvents,
           caseCitationEvents,
           mcpEvents,
         } = await runToolCalls(
@@ -713,6 +714,9 @@ export async function runLLMStream(params: {
           events.push(event);
         }
         for (const event of ictihatEvents) {
+          events.push(event);
+        }
+        for (const event of hesapEvents) {
           events.push(event);
         }
         for (const event of mcpEvents) {

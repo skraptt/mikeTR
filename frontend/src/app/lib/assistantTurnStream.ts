@@ -13,7 +13,7 @@ import type {
   StatuteCitation,
 } from "@/app/components/shared/types";
 import type { AssistantTurnHandle } from "@/app/lib/assistantTurns";
-import type { ConnectorApprovalItem } from "@mike/contracts";
+import type { ConnectorApprovalItem, HesapSonucuEvent } from "@mike/contracts";
 
 /**
  * Reading an assistant turn's SSE stream into its turn record.
@@ -702,6 +702,14 @@ export async function consumeAssistantTurnStream(
             }),
           );
           pushThinkingPlaceholder();
+          continue;
+        }
+
+        // mikeTR: a calculation tool's result (deadline, interest, court fees).
+        if (data.type === "hesap_sonucu") {
+          if (data.sonuc && typeof data.arac === "string") {
+            pushEvent(data as unknown as HesapSonucuEvent);
+          }
           continue;
         }
 

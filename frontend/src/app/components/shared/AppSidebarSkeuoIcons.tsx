@@ -63,6 +63,11 @@ export function CaseLawSkeuoIcon(props: IconProps) {
   return <AppSidebarIcon name="features/case-law" {...props} />;
 }
 
+// mikeTR: deadline, interest and court fee calculations.
+export function CalculationsSkeuoIcon(props: IconProps) {
+  return <AppSidebarIcon name="features/calculations" {...props} />;
+}
+
 export function TabularReviewSkeuoIcon(props: IconProps) {
   return <AppSidebarIcon name="features/tabular-review" {...props} />;
 }
