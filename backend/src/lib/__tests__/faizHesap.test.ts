@@ -55,7 +55,7 @@ describe("faizHesapla", () => {
 describe("calculate_interest tool", () => {
   it("returns the total and periods, and an error instead of throwing", async () => {
     const { runFaizHesabi, HESAP_TOOLS } = await import("../../modules/chat/engine/tools/hesapTools");
-    expect(HESAP_TOOLS.map((t) => t.function.name)).toEqual(["calculate_deadline", "calculate_interest", "calculate_court_fees"]);
+    expect(HESAP_TOOLS.map((t) => t.function.name)).toEqual(["calculate_deadline", "calculate_interest", "calculate_court_fees", "calculate_severance"]);
     const ok = JSON.parse(runFaizHesabi({ anapara: 100000, baslangic: "2024-01-01", bitis: "2024-12-31", tur: "kanuni" }));
     expect(ok).toMatchObject({ toplam_faiz: 17753.43, toplam: 117753.43 });
     expect(JSON.parse(runFaizHesabi({ anapara: -1, baslangic: "2024-01-01", bitis: "2024-12-31", tur: "kanuni" }))).toHaveProperty("hata");

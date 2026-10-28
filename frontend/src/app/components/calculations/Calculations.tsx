@@ -1,26 +1,37 @@
 "use client";
 
-// mikeTR: Hesaplamalar sayfası. Süre, faiz ve harç hesapları sohbet açmadan,
+// mikeTR: Hesaplamalar sayfası. Süre, faiz, harç ve kıdem/ihbar tazminatı hesapları sohbet açmadan,
 // asistanın kullandığı araçlarla aynı kurallarla yapılır.
 
 import { useState, type FormEvent, type ReactNode } from "react";
-import type { FaizHesabiYaniti, HarcHesabiYaniti, SureHesabiYaniti } from "@mike/contracts";
+import type { FaizHesabiYaniti, HarcHesabiYaniti, SureHesabiYaniti, TazminatHesabiYaniti } from "@mike/contracts";
 import { PageHeader } from "@/app/components/shared/PageHeader";
 import { PillButtonUI } from "@/shared/ui/PillButtonUI";
 import { LIQUID_GLASS_FLAT_CLASS } from "@/app/components/ui/liquid-surface";
-import { calculateCourtFees, calculateDeadline, calculateInterest } from "@/app/lib/mikeApi";
+import { calculateCourtFees, calculateDeadline, calculateInterest, calculateSeverance } from "@/app/lib/mikeApi";
 import { userFacingApiError } from "@/app/lib/userFacingError";
 import { cn } from "@/app/lib/utils";
 import { t } from "@/shared/i18n";
-import { FaizSonucu, HarcSonucu, SureSonucu } from "./HesapSonucu";
+import { FaizSonucu, HarcSonucu, KidemSonucu, SureSonucu } from "./HesapSonucu";
 
-type Sekme = "sure" | "faiz" | "harc";
+type Sekme = "sure" | "faiz" | "harc" | "kidem";
 
 const SEKMELER: { value: Sekme; label: string }[] = [
     { value: "sure", label: "Deadline" },
     { value: "faiz", label: "Interest" },
     { value: "harc", label: "Court fees" },
+    { value: "kidem", label: "Severance / notice pay" },
 ];
+
+const ACIKLAMA: Record<Sekme, string> = {
+    sure: "Calculates the last day of a period under HMK, İİK, CMK or TBK, with weekends, public and religious holidays and the judicial recess.",
+    faiz: "Simple statutory or commercial default interest under Law 3095, split where the official rate changes.",
+    harc: "Court fees due when filing a civil lawsuit under the current tariff of Law 492.",
+    kidem: "Severance pay under Law 1475 md. 14 with the ceiling in force on the end date, and notice pay under Law 4857 md. 17, with tax deductions.",
+};
+
+/** "100.000,50" → 100000.5 */
+const tutar = (s: string) => Number(s.replace(/\./g, "").replace(",", "."));
 
 const FIELD_CLASS =
     "h-9 rounded-lg border border-gray-200 bg-white px-2 text-sm text-gray-800 outline-none focus:border-gray-400";
@@ -145,7 +156,7 @@ function FaizFormu() {
     function gonder(event: FormEvent) {
         event.preventDefault();
         void calistir(() =>
-            calculateInterest({ anapara: Number(anapara.replace(/\./g, "").replace(",", ".")), baslangic, bitis, tur }),
+            calculateInterest({ anapara: tutar(anapara), baslangic, bitis, tur }),
         );
     }
 
@@ -195,7 +206,7 @@ function HarcFormu() {
         void calistir(() =>
             calculateCourtFees({
                 mahkeme,
-                deger: maktu ? undefined : Number(deger.replace(/\./g, "").replace(",", ".")),
+                deger: maktu ? undefined : tutar(deger),
                 olumCismaniZarar: olum,
             }),
         );
@@ -240,6 +251,70 @@ function HarcFormu() {
     );
 }
 
+function KidemFormu() {
+    const [giris, setGiris] = useState("");
+    const [cikis, setCikis] = useState(bugun());
+    const [ucret, setUcret] = useState("");
+    const [ihbar, setIhbar] = useState(true);
+    const [gvOrani, setGvOrani] = useState("15");
+    const { sonuc, hata, mesgul, calistir } = useHesap<TazminatHesabiYaniti>();
+
+    function gonder(event: FormEvent) {
+        event.preventDefault();
+        void calistir(() =>
+            calculateSeverance({
+                giris,
+                cikis,
+                brutUcret: tutar(ucret),
+                ihbar,
+                gelirVergisiOrani: ihbar ? tutar(gvOrani) : undefined,
+            }),
+        );
+    }
+
+    return (
+        <>
+            <form onSubmit={gonder} className="flex flex-wrap items-end gap-3">
+                <Alan label={t("Start of employment")}>
+                    <input type="date" required value={giris} max={cikis} onChange={(e) => setGiris(e.target.value)} className={FIELD_CLASS} />
+                </Alan>
+                <Alan label={t("End of employment")}>
+                    <input type="date" required value={cikis} min={giris} onChange={(e) => setCikis(e.target.value)} className={FIELD_CLASS} />
+                </Alan>
+                <Alan label={t("Monthly gross wage incl. benefits (TL)")}>
+                    <input
+                        inputMode="decimal"
+                        required
+                        placeholder="60.000"
+                        value={ucret}
+                        onChange={(e) => setUcret(e.target.value)}
+                        className={cn(FIELD_CLASS, "w-44")}
+                    />
+                </Alan>
+                <label className="flex h-9 items-center gap-2 text-xs text-gray-700">
+                    <input type="checkbox" checked={ihbar} onChange={(e) => setIhbar(e.target.checked)} />
+                    {t("Include notice pay")}
+                </label>
+                {ihbar && (
+                    <Alan label={t("Income tax (%)")}>
+                        <input
+                            inputMode="decimal"
+                            required
+                            value={gvOrani}
+                            onChange={(e) => setGvOrani(e.target.value)}
+                            className={cn(FIELD_CLASS, "w-16")}
+                        />
+                    </Alan>
+                )}
+                <PillButtonUI type="submit" tone="black" size="sm" loading={mesgul} disabled={mesgul}>
+                    {t("Calculate")}
+                </PillButtonUI>
+            </form>
+            <Sonuc hata={hata}>{sonuc && <KidemSonucu sonuc={sonuc} />}</Sonuc>
+        </>
+    );
+}
+
 export function CalculationsPage() {
     const [sekme, setSekme] = useState<Sekme>("sure");
     return (
@@ -267,14 +342,18 @@ export function CalculationsPage() {
                         ))}
                     </div>
                     <p className="text-xs text-gray-500">
-                        {sekme === "sure"
-                            ? t("Calculates the last day of a period under HMK, İİK, CMK or TBK, with weekends, public and religious holidays and the judicial recess.")
-                            : sekme === "faiz"
-                              ? t("Simple statutory or commercial default interest under Law 3095, split where the official rate changes.")
-                              : t("Court fees due when filing a civil lawsuit under the current tariff of Law 492.")}{" "}
+                        {t(ACIKLAMA[sekme])}{" "}
                         {t("These calculations are aids; check the result before relying on it.")}
                     </p>
-                    {sekme === "sure" ? <SureFormu /> : sekme === "faiz" ? <FaizFormu /> : <HarcFormu />}
+                    {sekme === "sure" ? (
+                        <SureFormu />
+                    ) : sekme === "faiz" ? (
+                        <FaizFormu />
+                    ) : sekme === "harc" ? (
+                        <HarcFormu />
+                    ) : (
+                        <KidemFormu />
+                    )}
                 </div>
             </div>
         </div>

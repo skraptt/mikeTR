@@ -1,4 +1,4 @@
-// mikeTR: hesaplama araçları (süre, faiz, harç). Model bunları kafadan
+// mikeTR: hesaplama araçları (süre, faiz, harç, kıdem/ihbar tazminatı). Model bunları kafadan
 // yapmaz; araçlar kanundaki kurallarla sonucu ve dayandığı maddeleri verir.
 
 import {
@@ -16,17 +16,24 @@ import {
   HarcHesabiHatasi,
   harcHesapla,
 } from "../../../../lib/harcHesap";
+import {
+  KIDEM_TAVAN_TABLO_TARIHI,
+  TazminatHesabiHatasi,
+  tazminatHesapla,
+} from "../../../../lib/tazminatHesap";
 import type { HesapSonucuEvent } from "@mike/contracts";
 import {
   faizHesabi,
   harcHesabi,
   sureHesabi,
+  tazminatHesabi,
 } from "../../../hesap/hesap.service";
 
 export const HESAP_TOOL_NAMES = {
   sure: "calculate_deadline",
   faiz: "calculate_interest",
   harc: "calculate_court_fees",
+  kidem: "calculate_severance",
 } as const;
 
 export const HESAP_SYSTEM_PROMPT = `DEADLINE CALCULATION (calculate_deadline):
@@ -40,7 +47,11 @@ INTEREST CALCULATION (calculate_interest):
 - Present the total and the periods with their rates and legal basis as returned, and pass on the warnings. The TCMB rate table was last checked on ${TCMB_TABLO_TARIHI}; statutory interest has been 80% of the TCMB rediscount rate since 31.7.2026 (Law 7589).
 
 COURT FEES (calculate_court_fees):
-- For the court fees due when filing a lawsuit (başvurma harcı, peşin harç, karar ve ilam harcı), call calculate_court_fees instead of computing them. Give the court (sulh or asliye) and, for money claims, the claim value; leave the value out for claims without a money value. Use the ${HARC_TARIFE_YILI} tariff it applies, list the items with their basis, and pass on the warnings (it excludes gider avansı and vekâlet harcı).`;
+- For the court fees due when filing a lawsuit (başvurma harcı, peşin harç, karar ve ilam harcı), call calculate_court_fees instead of computing them. Give the court (sulh or asliye) and, for money claims, the claim value; leave the value out for claims without a money value. Use the ${HARC_TARIFE_YILI} tariff it applies, list the items with their basis, and pass on the warnings (it excludes gider avansı and vekâlet harcı).
+
+SEVERANCE AND NOTICE PAY (calculate_severance):
+- For kıdem tazminatı (Law 1475 md. 14) or ihbar tazminatı (Law 4857 md. 17), call calculate_severance instead of computing them. Give the start and end dates of employment and the last monthly gross wage including regular benefits (giydirilmiş brüt ücret). Set ihbar to false when notice pay is not in question (e.g. the employee resigned with notice, or the contract was terminated for just cause).
+- The tool applies the severance ceiling (kıdem tazminatı tavanı) in force on the end date; the ceiling table was last checked on ${KIDEM_TAVAN_TABLO_TARIHI}. Present the service period, gross and net amounts with their deductions and basis, and pass on the warnings, especially whether the termination reason gives a right to severance at all. If the user has not given the dates or the wage, ask for them.`;
 
 const SURE_TOOL = {
   type: "function",
@@ -143,7 +154,78 @@ const HARC_TOOL = {
   },
 };
 
-export const HESAP_TOOLS = [SURE_TOOL, FAIZ_TOOL, HARC_TOOL];
+const KIDEM_TOOL = {
+  type: "function",
+  function: {
+    name: HESAP_TOOL_NAMES.kidem,
+    description:
+      "Calculates Turkish severance pay (kıdem tazminatı, Law 1475 md. 14) with the ceiling in force on the end date, and notice pay (ihbar tazminatı, Law 4857 md. 17), with stamp duty and income tax deductions. Returns the service period, each item gross and net with its legal basis, the steps and warnings.",
+    parameters: {
+      type: "object",
+      properties: {
+        giris: {
+          type: "string",
+          description: "Employment start date, YYYY-MM-DD.",
+        },
+        cikis: {
+          type: "string",
+          description: "Date the employment contract ended, YYYY-MM-DD.",
+        },
+        brut_ucret: {
+          type: "number",
+          description:
+            "Last monthly gross wage in Turkish lira, including regular benefits (giydirilmiş brüt ücret).",
+        },
+        ihbar: {
+          type: "boolean",
+          description: "Also calculate notice pay. Default true.",
+        },
+        gelir_vergisi_orani: {
+          type: "number",
+          description:
+            "Income tax rate in percent applied to notice pay. Default 15.",
+        },
+      },
+      required: ["giris", "cikis", "brut_ucret"],
+    },
+  },
+};
+
+export const HESAP_TOOLS = [SURE_TOOL, FAIZ_TOOL, HARC_TOOL, KIDEM_TOOL];
+
+function tazminatGirdisi(args: Record<string, unknown>) {
+  return {
+    giris: String(args.giris ?? ""),
+    cikis: String(args.cikis ?? ""),
+    brutUcret: Number(args.brut_ucret),
+    ihbar: typeof args.ihbar === "boolean" ? args.ihbar : undefined,
+    gelirVergisiOrani:
+      typeof args.gelir_vergisi_orani === "number"
+        ? args.gelir_vergisi_orani
+        : undefined,
+  };
+}
+
+export function runTazminatHesabi(args: Record<string, unknown>): string {
+  try {
+    const r = tazminatHesapla(tazminatGirdisi(args));
+    return JSON.stringify({
+      hizmet_suresi: r.hizmetSuresiYazili,
+      esas_ucret: r.esasUcret,
+      tavan: r.tavan,
+      ihbar_suresi_hafta: r.ihbarSuresiHafta,
+      kalemler: r.kalemler,
+      toplam_brut: r.toplamBrut,
+      toplam_net: r.toplamNet,
+      adimlar: r.adimlar,
+      uyarilar: r.uyarilar,
+    });
+  } catch (error) {
+    if (error instanceof TazminatHesabiHatasi)
+      return JSON.stringify({ hata: error.message });
+    throw error;
+  }
+}
 
 export function runHarcHesabi(args: Record<string, unknown>): string {
   try {
@@ -235,6 +317,15 @@ export function runHesapAraci(
       content: runFaizHesabi(args),
       event: r.ok
         ? { type: "hesap_sonucu", arac: "faiz", sonuc: r.data }
+        : null,
+    };
+  }
+  if (name === HESAP_TOOL_NAMES.kidem) {
+    const r = tazminatHesabi(tazminatGirdisi(args));
+    return {
+      content: runTazminatHesabi(args),
+      event: r.ok
+        ? { type: "hesap_sonucu", arac: "kidem", sonuc: r.data }
         : null,
     };
   }

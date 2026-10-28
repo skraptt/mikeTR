@@ -686,7 +686,9 @@ export function AssistantMessage({
                             ? t("Calculated the deadline")
                             : event.arac === "faiz"
                               ? t("Calculated the interest")
-                              : t("Calculated the court fees")
+                              : event.arac === "harc"
+                                ? t("Calculated the court fees")
+                                : t("Calculated the severance pay")
                     }
                     detail={hesapOzeti(event)}
                     isStreaming={false}

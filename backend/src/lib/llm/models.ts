@@ -141,13 +141,14 @@ export const OPENCODE_GO_MESSAGES_MODEL_IDS: ReadonlySet<string> = new Set([
 
 // mikeTR: OpenCode Zen's free models, served on Zen's own Chat Completions
 // endpoint with the same OpenCode API key. Only the free models OpenCode says
-// it neither trains on nor retains are offered (https://opencode.ai/docs/zen/);
-// free models that collect data (Big Pickle, MiMo, Nemotron, ...) stay out.
+// are never used for training are offered (https://opencode.ai/docs/zen/): GLM and DeepSeek
+// keep nothing, Beam keeps requests for 30 days like the Anthropic and OpenAI
+// APIs. Free models that collect data (Big Pickle, Flint, MiMo, Nemotron, ...)
+// stay out.
 export const OPENCODE_ZEN_FREE_MODEL_IDS: ReadonlySet<string> = new Set([
     "glm-5.3-flash-free",
     "deepseek-v4.1-flash-free",
-    "space-bunny-free",
-    "longcat-2.5-preview-free",
+    "beam-free",
 ]);
 
 const ALL_MODELS = new Set<string>([

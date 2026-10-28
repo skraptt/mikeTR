@@ -48,6 +48,7 @@ import {
   runFaizHesabi,
   runHarcHesabi,
   runSureHesabi,
+  runTazminatHesabi,
 } from "../../src/modules/chat/engine/tools/hesapTools";
 import { checkStatuteCitations } from "../../src/lib/citationCheck";
 import { checkCaseCitations } from "../../src/lib/ictihat/citationCheck";
@@ -163,6 +164,8 @@ async function soruCalistir(
           content = runFaizHesabi(call.input);
         else if (call.name === HESAP_TOOL_NAMES.harc)
           content = runHarcHesabi(call.input);
+        else if (call.name === HESAP_TOOL_NAMES.kidem)
+          content = runTazminatHesabi(call.input);
         else content = JSON.stringify({ error: `Unknown tool ${call.name}` });
       } catch (error) {
         kayit.hata = error instanceof Error ? error.message : String(error);

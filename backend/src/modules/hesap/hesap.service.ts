@@ -1,13 +1,14 @@
-// mikeTR: süre, faiz ve harç hesaplarını Hesaplamalar sayfasına sunar.
+// mikeTR: süre, faiz, harç ve kıdem/ihbar tazminatı hesaplarını Hesaplamalar sayfasına sunar.
 //
 // Sohbet modeli aynı hesaplara calculate_deadline, calculate_interest ve
-// calculate_court_fees araçlarıyla ulaşır (chat/engine/tools/hesapTools.ts);
+// calculate_court_fees, calculate_severance araçlarıyla ulaşır (chat/engine/tools/hesapTools.ts);
 // bu cephe, bir kişinin sohbet açmadan hesap yapabilmesi içindir.
 
 import type {
   FaizHesabiYaniti,
   HarcHesabiYaniti,
   SureHesabiYaniti,
+  TazminatHesabiYaniti,
 } from "@mike/contracts";
 import { SureHesabiHatasi, sureHesapla } from "../../lib/sureHesap";
 import {
@@ -20,6 +21,10 @@ import {
   HarcHesabiHatasi,
   harcHesapla,
 } from "../../lib/harcHesap";
+import {
+  TazminatHesabiHatasi,
+  tazminatHesapla,
+} from "../../lib/tazminatHesap";
 import { failure, ok, type ServiceResult } from "../../lib/serviceResult";
 
 type Govde = Record<string, unknown>;
@@ -78,6 +83,28 @@ export function harcHesabi(body: unknown): ServiceResult<HarcHesabiYaniti> {
     return ok({ ...r, tarifeYili: HARC_TARIFE_YILI });
   } catch (error) {
     if (error instanceof HarcHesabiHatasi)
+      return failure("validation", error.message);
+    throw error;
+  }
+}
+
+export function tazminatHesabi(
+  body: unknown,
+): ServiceResult<TazminatHesabiYaniti> {
+  const b = govde(body);
+  try {
+    const sayi = (v: unknown) =>
+      v === undefined || v === null || v === "" ? undefined : Number(v);
+    const r = tazminatHesapla({
+      giris: metin(b.giris),
+      cikis: metin(b.cikis),
+      brutUcret: Number(b.brutUcret),
+      ihbar: typeof b.ihbar === "boolean" ? b.ihbar : undefined,
+      gelirVergisiOrani: sayi(b.gelirVergisiOrani),
+    });
+    return ok(r);
+  } catch (error) {
+    if (error instanceof TazminatHesabiHatasi)
       return failure("validation", error.message);
     throw error;
   }

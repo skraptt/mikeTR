@@ -47,7 +47,8 @@ search, and workflows adapted to Turkish law.
   ([skraptt/mike-workflows-tr](https://github.com/skraptt/mike-workflows-tr)).
 - **Calculations:** deadlines under HMK/İİK/CMK/TBK (holidays and judicial
   recess included), statutory and commercial default interest (Law 3095) and
-  court fees at filing, on the Calculations page and as assistant tools.
+  court fees at filing, and severance and notice pay (with the ceiling and tax
+  deductions), on the Calculations page and as assistant tools.
 - **Petition templates:** under Library > Preset templates > mikeTR: formal
   notices, objection to a payment order, annulment of objection, rent
   determination, eviction, statement of defence and appeal petitions (fields to

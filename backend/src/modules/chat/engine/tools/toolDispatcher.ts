@@ -900,9 +900,7 @@ export async function runToolCalls(
       ictihatEvents.push(event);
       toolResults.push({ role: "tool", tool_call_id: tc.id, content });
     } else if (
-      tc.function.name === HESAP_TOOL_NAMES.sure ||
-      tc.function.name === HESAP_TOOL_NAMES.faiz ||
-      tc.function.name === HESAP_TOOL_NAMES.harc
+      (Object.values(HESAP_TOOL_NAMES) as string[]).includes(tc.function.name)
     ) {
       const { content, event } = runHesapAraci(tc.function.name, args);
       if (event) {

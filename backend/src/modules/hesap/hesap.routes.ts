@@ -1,10 +1,15 @@
-// HTTP layer for the hesap (deadline, interest and court fee calculation) module.
+// HTTP layer for the hesap (deadline, interest, court fee and severance calculation) module.
 
 import { Router } from "express";
 import { requireAuth } from "../../middleware/auth";
 import { asyncRoute, routerErrorHandler } from "../../middleware/asyncRoute";
 import { sendServiceFailure } from "../../lib/serviceResult";
-import { faizHesabi, harcHesabi, sureHesabi } from "./hesap.service";
+import {
+  faizHesabi,
+  harcHesabi,
+  sureHesabi,
+  tazminatHesabi,
+} from "./hesap.service";
 
 export const hesapRouter = Router();
 
@@ -14,7 +19,8 @@ const route = (
   ) =>
     | ReturnType<typeof sureHesabi>
     | ReturnType<typeof faizHesabi>
-    | ReturnType<typeof harcHesabi>,
+    | ReturnType<typeof harcHesabi>
+    | ReturnType<typeof tazminatHesabi>,
 ) =>
   asyncRoute(async (req, res) => {
     const result = fn(req.body);
@@ -28,5 +34,7 @@ hesapRouter.post("/sure", requireAuth, route(sureHesabi));
 hesapRouter.post("/faiz", requireAuth, route(faizHesabi));
 // POST /hesap/harc  { mahkeme, deger?, olumCismaniZarar? }
 hesapRouter.post("/harc", requireAuth, route(harcHesabi));
+// POST /hesap/kidem  { giris, cikis, brutUcret, ihbar?, gelirVergisiOrani? }
+hesapRouter.post("/kidem", requireAuth, route(tazminatHesabi));
 
 hesapRouter.use(routerErrorHandler("[hesap]"));

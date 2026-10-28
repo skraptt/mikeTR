@@ -457,11 +457,36 @@ export type HarcHesabiYaniti = {
   tarifeYili: number;
 };
 
+export type TazminatKalemi = {
+  kalem: string;
+  brut: number;
+  gelirVergisi: number;
+  damgaVergisi: number;
+  net: number;
+  dayanak: string;
+};
+
+export type TazminatHesabiYaniti = {
+  hizmetSuresi: { yil: number; ay: number; gun: number };
+  hizmetSuresiYazili: string;
+  brutUcret: number;
+  tavan: number;
+  tavanBaslangici: string;
+  esasUcret: number;
+  ihbarSuresiHafta: number;
+  kalemler: TazminatKalemi[];
+  toplamBrut: number;
+  toplamNet: number;
+  adimlar: string[];
+  uyarilar: string[];
+};
+
 /** A calculation tool's result, shown as a card in the chat. */
 export type HesapSonucuEvent =
   | { type: "hesap_sonucu"; arac: "sure"; sonuc: SureHesabiYaniti }
   | { type: "hesap_sonucu"; arac: "faiz"; sonuc: FaizHesabiYaniti }
-  | { type: "hesap_sonucu"; arac: "harc"; sonuc: HarcHesabiYaniti };
+  | { type: "hesap_sonucu"; arac: "harc"; sonuc: HarcHesabiYaniti }
+  | { type: "hesap_sonucu"; arac: "kidem"; sonuc: TazminatHesabiYaniti };
 
 export type IctihatCitationsEvent = {
   type: "ictihat_citations";

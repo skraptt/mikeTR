@@ -1,6 +1,6 @@
 "use client";
 
-// mikeTR: süre, faiz ve harç hesaplarının sonucu. Hesaplamalar sayfası ve
+// mikeTR: süre, faiz, harç ve kıdem/ihbar tazminatı hesaplarının sonucu. Hesaplamalar sayfası ve
 // sohbetteki hesap kartı aynı bileşenleri kullanır.
 
 import type {
@@ -8,6 +8,7 @@ import type {
     HarcHesabiYaniti,
     HesapSonucuEvent,
     SureHesabiYaniti,
+    TazminatHesabiYaniti,
 } from "@mike/contracts";
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/app/lib/utils";
@@ -128,10 +129,67 @@ export function HarcSonucu({ sonuc }: { sonuc: HarcHesabiYaniti }) {
     );
 }
 
+export function KidemSonucu({ sonuc }: { sonuc: TazminatHesabiYaniti }) {
+    return (
+        <div>
+            <div className="flex flex-wrap gap-x-8 gap-y-2">
+                <div>
+                    <p className="text-xs text-gray-500">{t("Net total")}</p>
+                    <p className="font-serif text-2xl text-gray-950">{tl(sonuc.toplamNet)}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">{t("Gross total")}</p>
+                    <p className="font-serif text-2xl text-gray-700">{tl(sonuc.toplamBrut)}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">{t("Service period")}</p>
+                    <p className="font-serif text-2xl text-gray-700">{sonuc.hizmetSuresiYazili}</p>
+                </div>
+            </div>
+            {sonuc.kalemler.length > 0 && (
+                <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-left text-xs text-gray-700">
+                        <thead className="text-gray-500">
+                            <tr>
+                                <th className="py-1 pr-3 font-medium">{t("Item")}</th>
+                                <th className="py-1 pr-3 text-right font-medium">{t("Gross")}</th>
+                                <th className="py-1 pr-3 text-right font-medium">{t("Income tax")}</th>
+                                <th className="py-1 pr-3 text-right font-medium">{t("Stamp duty")}</th>
+                                <th className="py-1 pr-3 text-right font-medium">{t("Net")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sonuc.kalemler.map((k) => (
+                                <tr key={k.kalem} className="border-t border-gray-100 align-top">
+                                    <td className="py-1.5 pr-3">
+                                        {k.kalem}
+                                        <span className="block text-[11px] text-gray-500">{k.dayanak}</span>
+                                    </td>
+                                    <td className="py-1.5 pr-3 text-right whitespace-nowrap">{tl(k.brut)}</td>
+                                    <td className="py-1.5 pr-3 text-right whitespace-nowrap">{tl(k.gelirVergisi)}</td>
+                                    <td className="py-1.5 pr-3 text-right whitespace-nowrap">{tl(k.damgaVergisi)}</td>
+                                    <td className="py-1.5 pr-3 text-right whitespace-nowrap">{tl(k.net)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+            <ol className="mt-3 flex list-decimal flex-col gap-1.5 pl-5 text-sm text-gray-700">
+                {sonuc.adimlar.map((adim) => (
+                    <li key={adim}>{adim}</li>
+                ))}
+            </ol>
+            <Uyarilar uyarilar={sonuc.uyarilar} />
+        </div>
+    );
+}
+
 const BASLIK: Record<HesapSonucuEvent["arac"], string> = {
     sure: "Deadline calculation",
     faiz: "Interest calculation",
     harc: "Court fee calculation",
+    kidem: "Severance pay calculation",
 };
 
 /** The card shown under an assistant answer that used a calculation tool. */
@@ -143,8 +201,10 @@ export function HesapSonucuKarti({ event, className }: { event: HesapSonucuEvent
                 <SureSonucu sonuc={event.sonuc} />
             ) : event.arac === "faiz" ? (
                 <FaizSonucu sonuc={event.sonuc} />
-            ) : (
+            ) : event.arac === "harc" ? (
                 <HarcSonucu sonuc={event.sonuc} />
+            ) : (
+                <KidemSonucu sonuc={event.sonuc} />
             )}
         </section>
     );
@@ -154,5 +214,6 @@ export function HesapSonucuKarti({ event, className }: { event: HesapSonucuEvent
 export function hesapOzeti(event: HesapSonucuEvent): string {
     if (event.arac === "sure") return event.sonuc.sonGunAdi;
     if (event.arac === "faiz") return `${tl(event.sonuc.toplamFaiz)}`;
-    return tl(event.sonuc.acilistaOdenecek);
+    if (event.arac === "harc") return tl(event.sonuc.acilistaOdenecek);
+    return `${tl(event.sonuc.toplamNet)} ${t("net")}`;
 }

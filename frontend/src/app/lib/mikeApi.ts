@@ -54,6 +54,7 @@ import type {
     IctihatSearchResponse,
     SureHesabiYaniti,
     FaizHesabiYaniti,
+    TazminatHesabiYaniti,
     HarcHesabiYaniti,
     StatuteStatus,
     StatuteUpdatesResponse,
@@ -3337,6 +3338,20 @@ export async function calculateCourtFees(input: {
     olumCismaniZarar?: boolean;
 }): Promise<HarcHesabiYaniti> {
     return apiRequest<HarcHesabiYaniti>("/hesap/harc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+    });
+}
+
+export async function calculateSeverance(input: {
+    giris: string;
+    cikis: string;
+    brutUcret: number;
+    ihbar?: boolean;
+    gelirVergisiOrani?: number;
+}): Promise<TazminatHesabiYaniti> {
+    return apiRequest<TazminatHesabiYaniti>("/hesap/kidem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
